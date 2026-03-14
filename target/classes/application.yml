@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: badminton-booking
+
+  profiles:
+    active: dev
+
+  thymeleaf:
+    cache: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.security: INFO

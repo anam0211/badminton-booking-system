@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.common.exception;
+package com.badminton.booking.common.exception;
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;

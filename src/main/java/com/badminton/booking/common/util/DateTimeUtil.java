@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.common.util;
+package com.badminton.booking.common.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

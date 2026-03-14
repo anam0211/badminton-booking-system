@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking;
+package com.badminton.booking;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

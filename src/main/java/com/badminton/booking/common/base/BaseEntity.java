@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.common.base;
+package com.badminton.booking.common.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

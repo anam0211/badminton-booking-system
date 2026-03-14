@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.config;
+package com.badminton.booking.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

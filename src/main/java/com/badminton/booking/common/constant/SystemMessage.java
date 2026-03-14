@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.common.constant;
+package com.badminton.booking.common.constant;
 
 public final class SystemMessage {
 

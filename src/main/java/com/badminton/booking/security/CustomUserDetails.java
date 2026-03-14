@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.security;
+package com.badminton.booking.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

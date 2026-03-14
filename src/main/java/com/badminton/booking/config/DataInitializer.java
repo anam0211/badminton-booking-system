@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.config;
+package com.badminton.booking.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

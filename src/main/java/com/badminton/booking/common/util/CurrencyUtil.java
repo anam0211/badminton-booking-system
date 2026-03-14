@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.common.util;
+package com.badminton.booking.common.util;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;

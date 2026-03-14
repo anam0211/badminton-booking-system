@@ -1,4 +1,4 @@
-package main.java.com.badminton.booking.common.enums;
+package com.badminton.booking.common.enums;
 
 public enum BranchStatus {
     OPEN,
