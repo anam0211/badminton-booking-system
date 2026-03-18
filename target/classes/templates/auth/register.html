@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dang ky</title>
+</head>
+<body>
+<div th:replace="~{fragments/header :: appHeader}"></div>
+
+<main style="max-width:480px;margin:24px auto;">
+    <h1>Dang ky</h1>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color:red;"></p>
+    <p th:if="${#fields.hasGlobalErrors()}" style="color:red;" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+
+    <form th:action="@{/auth/register}" th:object="${registerForm}" method="post">
+        <div>
+            <label>Email</label>
+            <input type="email" th:field="*{email}" required>
+            <small style="color:red;" th:errors="*{email}"></small>
+        </div>
+
+        <div style="margin-top:8px;">
+            <label>Ho ten</label>
+            <input type="text" th:field="*{fullName}" required>
+            <small style="color:red;" th:errors="*{fullName}"></small>
+        </div>
+
+        <div style="margin-top:8px;">
+            <label>So dien thoai</label>
+            <input type="text" th:field="*{phone}">
+        </div>
+
+        <div style="margin-top:8px;">
+            <label>Mat khau</label>
+            <input type="password" th:field="*{password}" required>
+            <small style="color:red;" th:errors="*{password}"></small>
+        </div>
+
+        <button style="margin-top:12px;" type="submit">Tao tai khoan</button>
+    </form>
+</main>
+</body>
+</html>

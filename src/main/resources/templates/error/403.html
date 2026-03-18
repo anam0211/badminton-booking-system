@@ -5,6 +5,7 @@
     <title>403 - Không có quyền truy cập</title>
 </head>
 <body>
+<div th:replace="~{fragments/header :: appHeader}"></div>
 <h1>403 - Không có quyền truy cập</h1>
 <p th:text="${errorMessage}">Bạn không có quyền truy cập trang này.</p>
 </body>
