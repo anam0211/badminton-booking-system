@@ -2,7 +2,6 @@ package com.badminton.booking.config;
 
 import com.badminton.booking.security.JwtAuthenticationFilter;
 import com.badminton.booking.security.CustomUserDetailsService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,12 +36,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/login",
                                 "/auth/logout",
-                                "/api/auth/login",
-                                "/api/auth/logout",
                                 "/auth/register",
                                 "/error/**",
                                 "/css/**",
                                 "/js/**",
+                                "/image/**",
                                 "/images/**"
                         ).permitAll()//cho phép public ko cần login
                         .requestMatchers("/admin/**").hasRole("BRANCH_ADMIN")
@@ -53,13 +51,9 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/error/403")
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            if (request.getRequestURI().startsWith("/api/")) {
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-                            } else {
-                                response.sendRedirect("/auth/login");
-                            }
-                        })
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.sendRedirect("/auth/login")
+                        )
                 );
 
         return http.build();

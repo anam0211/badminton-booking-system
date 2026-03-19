@@ -23,9 +23,9 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getCurrentUser() {
         String email = SecurityUtils.getCurrentUsername()
-                .orElseThrow(() -> new AccessDeniedCustomException("Ban chua dang nhap."));
+                .orElseThrow(() -> new AccessDeniedCustomException("Bạn chưa đăng nhập."));
         return userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay user hien tai."));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng hiện tại."));
     }
 
     @Transactional
@@ -41,7 +41,7 @@ public class UserService {
     public void changePassword(ChangePasswordRequest request) {
         User user = getCurrentUser();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new BadRequestException("Mat khau hien tai khong dung.");
+            throw new BadRequestException("Mật khẩu hiện tại không đúng.");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);

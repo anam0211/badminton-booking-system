@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ProfileUpdateRequest {
-    @NotBlank(message = "Ho ten khong duoc de trong.")
+    @NotBlank(message = "Họ và tên không được để trống.")
     private String fullName;
 
     private String phone;

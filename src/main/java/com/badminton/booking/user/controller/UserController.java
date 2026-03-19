@@ -77,7 +77,7 @@ public class UserController {
         }
 
         userService.updateProfile(profileForm);
-        redirectAttributes.addFlashAttribute("successMessage", "Cap nhat profile thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công.");
         return "redirect:/user/profile";
     }
 
@@ -103,7 +103,7 @@ public class UserController {
             return "user/change-password";
         }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Doi mat khau thanh cong.");
+        redirectAttributes.addFlashAttribute("successMessage", "Đổi mật khẩu thành công.");
         return "redirect:/user/change-password";
     }
 
@@ -122,7 +122,7 @@ public class UserController {
     private String saveAvatarFile(MultipartFile avatarFile) {
         String contentType = avatarFile.getContentType();
         if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
-            throw new IllegalArgumentException("File upload phai la anh.");
+            throw new IllegalArgumentException("File upload phải là ảnh.");
         }
 
         String originalName = avatarFile.getOriginalFilename();
@@ -135,7 +135,7 @@ public class UserController {
             Files.copy(avatarFile.getInputStream(), uploadPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
             return fileName;
         } catch (IOException ex) {
-            throw new IllegalStateException("Khong the luu anh dai dien.", ex);
+            throw new IllegalStateException("Không thể lưu ảnh đại diện.", ex);
         }
     }
 

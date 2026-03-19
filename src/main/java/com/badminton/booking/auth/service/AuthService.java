@@ -2,7 +2,6 @@ package com.badminton.booking.auth.service;
 
 import com.badminton.booking.auth.dto.LoginRequest;
 import com.badminton.booking.auth.dto.RegisterRequest;
-import com.badminton.booking.auth.dto.TokenResponse;
 import com.badminton.booking.common.enums.RoleName;
 import com.badminton.booking.common.enums.UserStatus;
 import com.badminton.booking.common.exception.BadRequestException;
@@ -33,11 +32,11 @@ public class AuthService {
     @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
-            throw new BadRequestException("Email da ton tai.");
+            throw new BadRequestException("Email đã tồn tại.");
         }//check mail
 
         Role customerRole = roleRepository.findByName(RoleName.CUSTOMER.name())// roleid
-                .orElseThrow(() -> new BadRequestException("Chua khoi tao role CUSTOMER."));
+                .orElseThrow(() -> new BadRequestException("Chưa khởi tạo role CUSTOMER."));
 
         User user = User.builder()
                 .email(request.getEmail().trim().toLowerCase())
@@ -52,19 +51,14 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    @Transactional
-    public TokenResponse login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate( 
+    @Transactional(readOnly = true)
+    public String login(LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         ); // xác thực tk+mk đúng thì trả về authentication sai thì throw exception
 
         UserDetails principal = (UserDetails) authentication.getPrincipal(); // principal gồm : username, password, authorities( role)
-        String accessToken = jwtService.generateToken(principal);
-
-        return TokenResponse.builder()
-                .tokenType("Bearer")
-                .accessToken(accessToken)
-                .build();
+        return jwtService.generateToken(principal);
     }
 
     public void logout() {

@@ -6,13 +6,13 @@ import lombok.Data;
 
 @Data
 public class ChangePasswordRequest {
-    @NotBlank(message = "Mat khau hien tai khong duoc de trong.")
+    @NotBlank(message = "Mật khẩu hiện tại không được để trống.")
     private String currentPassword;
 
-    @NotBlank(message = "Mat khau moi khong duoc de trong.")
-    @Size(min = 6, message = "Mat khau toi thieu 6 ky tu.")
+    @NotBlank(message = "Mật khẩu mới không được để trống.")
+    @Size(min = 6, message = "Mật khẩu tối thiểu 6 ký tự.")
     private String newPassword;
 
-    @NotBlank(message = "Vui long nhap lai mat khau moi.")
+    @NotBlank(message = "Vui lòng nhập lại mật khẩu mới.")
     private String confirmNewPassword;
 }

@@ -2,8 +2,8 @@ package com.badminton.booking.auth.controller;
 
 import com.badminton.booking.auth.dto.LoginRequest;
 import com.badminton.booking.auth.dto.RegisterRequest;
-import com.badminton.booking.auth.dto.TokenResponse;
 import com.badminton.booking.auth.service.AuthService;
+import com.badminton.booking.common.exception.BadRequestException;
 import com.badminton.booking.security.JwtAuthenticationFilter;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.Cookie;
@@ -42,8 +42,8 @@ public class AuthController {
         loginRequest.setEmail(email);
         loginRequest.setPassword(password);
 
-        TokenResponse tokenResponse = authService.login(loginRequest);
-        response.addCookie(buildAccessTokenCookie(tokenResponse.getAccessToken(), 60 * 60 * 24));
+        String accessToken = authService.login(loginRequest);
+        response.addCookie(buildAccessTokenCookie(accessToken, 60 * 60 * 24));
         return "redirect:/user/profile";
     }
 
@@ -75,15 +75,21 @@ public class AuthController {
             RedirectAttributes redirectAttributes
     ) {
         if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
-            bindingResult.rejectValue("confirmPassword", "password.mismatch", "Mat khau nhap lai khong khop.");
+            bindingResult.rejectValue("confirmPassword", "password.mismatch", "Mật khẩu nhập lại không khớp.");
         }
 
         if (bindingResult.hasErrors()) {
             return "auth/register";
         }
 
-        authService.register(registerRequest);
-        redirectAttributes.addFlashAttribute("successMessage", "Dang ky thanh cong. Vui long dang nhap.");
+        try {
+            authService.register(registerRequest);
+        } catch (BadRequestException ex) {
+            bindingResult.rejectValue("email", "email.duplicate", ex.getMessage());
+            return "auth/register";
+        }
+
+        redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công. Vui lòng đăng nhập.");
         return "redirect:/auth/login";
     }
 
