@@ -1,76 +1,76 @@
-package com.example.court_booking.controller;
+package com.badminton.booking.dashboard.controller;
 
-import com.example.court_booking.dto.request.BranchMonthlyDashboardRequest;
-import com.example.court_booking.dto.request.BranchYearlyDashboardRequest;
-import com.example.court_booking.dto.response.*;
-import com.example.court_booking.service.DashboardService;
+import com.badminton.booking.dashboard.dto.request.*;
+import com.badminton.booking.dashboard.service.DashboardService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.Map;
 
-@RestController
-@RequestMapping("/admin/statistic")
-@CrossOrigin("*")
+@Controller
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DashboardController {
+
     DashboardService dashboardService;
 
-    @GetMapping("/branches/dropdown")
-    public ApiResponse<Map<Long, String>> getBranchDropdown(@RequestParam("areaId") Integer areaId){
-        Map<Long, String> response = dashboardService.getBranchDropdown(areaId);
-        return ApiResponse.<Map<Long, String>>builder()
-                .data(response)
-                .build();
-    }
-    @GetMapping("/revenue/monthly")
-    public ApiResponse<BranchMonthlyRevenueResponse> getBranchRevenueByMonth(@ModelAttribute BranchMonthlyDashboardRequest request){
-        BranchMonthlyRevenueResponse response = dashboardService.getBranchRevenueByMonth(request);
-        return ApiResponse.<BranchMonthlyRevenueResponse>builder()
-                .data(response)
-                .build();
-    }
+    @GetMapping("/dashboard")
+    public String showDashboard(
+            @RequestParam(value = "branchId", required = false) Long branchId,
+            @RequestParam(value = "areaId", defaultValue = "1") Integer areaId,
+            @RequestParam(value = "mode", defaultValue = "monthly") String mode,
+            @RequestParam(value = "month", required = false) Integer month,
+            @RequestParam(value = "year", required = false) Integer year,
+            Model model) {
 
-    @GetMapping("/revenue/yearly")
-    public ApiResponse<BranchYearlyRevenueResponse> getBranchRevenueByYear(@ModelAttribute BranchYearlyDashboardRequest request){
-        BranchYearlyRevenueResponse response = dashboardService.getBranchRevenueByYear(request);
-        return ApiResponse.<BranchYearlyRevenueResponse>builder()
-                .data(response)
-                .build();
-    }
+        // 1. Khởi tạo giá trị mặc định nếu người dùng chưa chọn
+        LocalDate now = LocalDate.now();
+        int reqMonth = (month != null) ? month : now.getMonthValue();
+        int reqYear = (year != null) ? year : now.getYear();
 
-    @GetMapping("/overview/monthly")
-    public ApiResponse<BranchOverviewResponse> getBranchOverviewByMonth(@ModelAttribute BranchMonthlyDashboardRequest request){
-        BranchOverviewResponse response = dashboardService.getBranchOverviewByMonth(request);
-        return ApiResponse.<BranchOverviewResponse>builder()
-                .data(response)
-                .build();
-    }
+        // 2. Lấy danh sách cơ sở đổ vào Dropdown
+        Map<Long, String> branches = dashboardService.getBranchDropdown(areaId);
+        model.addAttribute("branches", branches);
 
-    @GetMapping("/overview/yearly")
-    public ApiResponse<BranchOverviewResponse> getBranchOverviewByYear(@ModelAttribute BranchYearlyDashboardRequest request){
-        BranchOverviewResponse response = dashboardService.getBranchOverviewByYear(request);
-        return ApiResponse.<BranchOverviewResponse>builder()
-                .data(response)
-                .build();
-    }
+        Long actualBranchId = branchId;
+        if(branches.isEmpty()){
+            actualBranchId = -1L;
+        }
+        else if (actualBranchId == null || !branches.containsKey(actualBranchId)) {
+            actualBranchId = branches.keySet().iterator().next();
+        }
 
-    @GetMapping("/ranking/monthly")
-    public ApiResponse<BranchCourtRankingResponse> getCourtRankingByMonth(@ModelAttribute BranchMonthlyDashboardRequest request){
-        BranchCourtRankingResponse response = dashboardService.getCourtRankingByMonth(request);
-        return ApiResponse.<BranchCourtRankingResponse>builder()
-                .data(response)
-                .build();
-    }
+        // Truyền lại các tham số đang chọn để giữ trạng thái trên giao diện
+        model.addAttribute("currentBranchId", actualBranchId);
+        model.addAttribute("currentMode", mode);
+        model.addAttribute("currentMonth", reqMonth);
+        model.addAttribute("currentYear", reqYear);
 
-    @GetMapping("/ranking/yearly")
-    public ApiResponse<BranchCourtRankingResponse> getCourtRankingByYear(@ModelAttribute BranchYearlyDashboardRequest request){
-        BranchCourtRankingResponse response = dashboardService.getCourtRankingByYear(request);
-        return ApiResponse.<BranchCourtRankingResponse>builder()
-                .data(response)
-                .build();
+        // 3. Lấy dữ liệu Thống kê theo Mode (Tháng / Năm)
+        if ("monthly".equals(mode)) {
+            BranchMonthlyDashboardRequest req = new BranchMonthlyDashboardRequest(actualBranchId, reqMonth, reqYear);
+
+            model.addAttribute("overview", dashboardService.getBranchOverviewByMonth(req));
+            model.addAttribute("revenueData", dashboardService.getBranchRevenueByMonth(req));
+            model.addAttribute("rankingData", dashboardService.getCourtRankingByMonth(req));
+
+        } else {
+            BranchYearlyDashboardRequest req = new BranchYearlyDashboardRequest(actualBranchId, reqYear);
+
+            model.addAttribute("overview", dashboardService.getBranchOverviewByYear(req));
+            model.addAttribute("revenueData", dashboardService.getBranchRevenueByYear(req));
+            model.addAttribute("rankingData", dashboardService.getCourtRankingByYear(req));
+        }
+
+        // 4. Trả về file HTML (thư mục src/main/resources/templates/dashboard/dashboard.html)
+        return "dashboard/dashboard";
     }
 }

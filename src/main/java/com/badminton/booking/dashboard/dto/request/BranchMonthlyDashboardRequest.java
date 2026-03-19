@@ -1,4 +1,4 @@
-package com.example.court_booking.dto.request;
+package com.badminton.booking.dashboard.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -1,17 +1,13 @@
-package com.example.court_booking.service.impl;
+package com.badminton.booking.dashboard.service.impl;
 
-import com.example.court_booking.dto.request.BranchMonthlyDashboardRequest;
-import com.example.court_booking.dto.request.BranchYearlyDashboardRequest;
-import com.example.court_booking.dto.response.BranchCourtRankingResponse;
-import com.example.court_booking.dto.response.BranchMonthlyRevenueResponse;
-import com.example.court_booking.dto.response.BranchOverviewResponse;
-import com.example.court_booking.dto.response.BranchYearlyRevenueResponse;
-import com.example.court_booking.entity.MonthlyStatistic;
-import com.example.court_booking.repository.BookingDetailRepository;
-import com.example.court_booking.repository.BranchRepository;
-import com.example.court_booking.repository.MonthlyStatisticRepository;
-import com.example.court_booking.repository.ReviewRepository;
-import com.example.court_booking.service.DashboardService;
+import com.badminton.booking.dashboard.dto.request.*;
+import com.badminton.booking.dashboard.dto.response.*;
+import com.badminton.booking.domain.entity.MonthlyStatistic;
+import com.badminton.booking.dashboard.repository.BookingDetailRepository;
+import com.badminton.booking.dashboard.repository.BranchRepository;
+import com.badminton.booking.dashboard.repository.MonthlyStatisticRepository;
+import com.badminton.booking.dashboard.repository.ReviewRepository;
+import com.badminton.booking.dashboard.service.DashboardService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,7 +32,7 @@ public class DashboardServiceImpl implements DashboardService {
     BranchRepository branchRepository;
 
     @Override
-    public Map<Long, String> getBranchDropdown(Integer areaId){
+    public Map<Long, String> getBranchDropdown(Integer areaId) {
         List<Object[]> rawData = branchRepository.getBranches(areaId);
         return rawData.stream()
                 .collect(Collectors.toMap(
@@ -47,7 +43,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     //Thống kê doanh thu theo từng ngày trong tháng
     @Override
-    public BranchMonthlyRevenueResponse getBranchRevenueByMonth(BranchMonthlyDashboardRequest request){
+    public BranchMonthlyRevenueResponse getBranchRevenueByMonth(BranchMonthlyDashboardRequest request) {
         Long branchId = request.getBranchId();
         Integer month = request.getMonth();
         Integer year = request.getYear();
@@ -63,7 +59,7 @@ public class DashboardServiceImpl implements DashboardService {
                 ));
         List<BranchMonthlyRevenueResponse.DailyRevenue> dailyRevenues = new ArrayList<>();
         int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
-        for(int i = 1; i <= daysInMonth; i++){
+        for (int i = 1; i <= daysInMonth; i++) {
             BigDecimal revenue = dailyRevenueMap.getOrDefault(i, BigDecimal.ZERO);
             String date = String.format("%04d-%02d-%02d", year, month, i);
             dailyRevenues.add(new BranchMonthlyRevenueResponse.DailyRevenue(i, date, revenue));
@@ -81,7 +77,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     //Thống kê doanh thu theo từng tháng trong năm
     @Override
-    public BranchYearlyRevenueResponse getBranchRevenueByYear(BranchYearlyDashboardRequest request){
+    public BranchYearlyRevenueResponse getBranchRevenueByYear(BranchYearlyDashboardRequest request) {
         Long branchId = request.getBranchId();
         Integer requestYear = request.getYear();
         Integer currentYear = LocalDate.now().getYear();
@@ -93,14 +89,14 @@ public class DashboardServiceImpl implements DashboardService {
                         row -> (Integer) row[0],
                         row -> (BigDecimal) row[1]
                 ));
-        if(requestYear.equals(currentYear)){
+        if (requestYear.equals(currentYear)) {
             Integer month = LocalDate.now().getMonthValue();
             BigDecimal revenue = bookingDetailRepository.sumRevenueByMonth(branchId, month, requestYear);
             revenue = revenue != null ? revenue : BigDecimal.ZERO;
             monthlyRevenueMap.put(month, revenue);
         }
         List<BranchYearlyRevenueResponse.MonthlyRevenue> monthlyRevenues = new ArrayList<>();
-        for(int i = 1; i<= 12; i++){
+        for (int i = 1; i <= 12; i++) {
             BigDecimal revenue = monthlyRevenueMap.getOrDefault(i, BigDecimal.ZERO);
             String monthAndYear = String.format("%04d-%02d", requestYear, i);
             monthlyRevenues.add(new BranchYearlyRevenueResponse.MonthlyRevenue(monthAndYear, revenue));
@@ -115,7 +111,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     //Dữ liệu tổng hợp theo tháng
     @Override
-    public BranchOverviewResponse getBranchOverviewByMonth(BranchMonthlyDashboardRequest request){
+    public BranchOverviewResponse getBranchOverviewByMonth(BranchMonthlyDashboardRequest request) {
         Long branchId = request.getBranchId();
         Integer month = request.getMonth();
         Integer year = request.getYear();
@@ -127,16 +123,14 @@ public class DashboardServiceImpl implements DashboardService {
         YearMonth requestPeriod = YearMonth.of(year, month);
         ReviewRepository.ReviewSummary reviewSummary = reviewRepository.getReviewSummaryByMonth(branchId, year, month);
 
-        if(requestPeriod.equals(currentPeriod) || requestPeriod.isAfter(currentPeriod)){
+        if (requestPeriod.equals(currentPeriod) || requestPeriod.isAfter(currentPeriod)) {
             return realtimeOverviewByMonth(branchId, year, month, reviewSummary);
-        }
-        else{
+        } else {
             Optional<MonthlyStatistic> snapshotOpt = monthlyStatisticRepository
                     .findByBranchIdAndYearAndMonth(branchId, year, month);
-            if(snapshotOpt.isPresent()){
+            if (snapshotOpt.isPresent()) {
                 return snapshotToResponse(snapshotOpt.get(), reviewSummary);
-            }
-            else{
+            } else {
                 return realtimeOverviewByMonth(branchId, year, month, reviewSummary);
             }
         }
@@ -144,7 +138,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     //Dữ liệu tổng hợp theo năm
     @Override
-    public BranchOverviewResponse getBranchOverviewByYear(BranchYearlyDashboardRequest request){
+    public BranchOverviewResponse getBranchOverviewByYear(BranchYearlyDashboardRequest request) {
         Long branchId = request.getBranchId();
         Integer requestYear = request.getYear();
         Integer currentYear = LocalDate.now().getYear();
@@ -158,9 +152,9 @@ public class DashboardServiceImpl implements DashboardService {
         Long completedBookings = 0L;
         Long cancelledBookings = 0L;
 
-        if(requestYear < currentYear){
+        if (requestYear < currentYear) {
             MonthlyStatisticRepository.YearlyOverviewSummary snapshot = monthlyStatisticRepository.getYearlyOverviewUpToMonth(branchId, requestYear, 12);
-            if(snapshot != null) {
+            if (snapshot != null) {
                 revenue = snapshot.getTotalRevenue();
                 revenue = revenue != null ? revenue : BigDecimal.ZERO;
 
@@ -168,12 +162,11 @@ public class DashboardServiceImpl implements DashboardService {
                 completedBookings = snapshot.getCompletedBookings() != null ? snapshot.getCompletedBookings() : 0L;
                 cancelledBookings = snapshot.getCancelledBookings() != null ? snapshot.getCancelledBookings() : 0L;
             }
-        }
-        else if(requestYear.equals(currentYear)){
+        } else if (requestYear.equals(currentYear)) {
             Integer currentMonth = LocalDate.now().getMonthValue();
-            if(currentMonth > 1){
+            if (currentMonth > 1) {
                 MonthlyStatisticRepository.YearlyOverviewSummary snapshot = monthlyStatisticRepository.getYearlyOverviewUpToMonth(branchId, requestYear, currentMonth - 1);
-                if(snapshot != null) {
+                if (snapshot != null) {
                     revenue = snapshot.getTotalRevenue();
                     revenue = revenue != null ? revenue : BigDecimal.ZERO;
 
@@ -215,7 +208,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public BranchCourtRankingResponse getCourtRankingByMonth(BranchMonthlyDashboardRequest request){
+    public BranchCourtRankingResponse getCourtRankingByMonth(BranchMonthlyDashboardRequest request) {
         Long branchId = request.getBranchId();
         Integer month = request.getMonth();
         Integer year = request.getYear();
@@ -226,7 +219,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Object[]> rawData = bookingDetailRepository.getCourtRankingByMonth(branchId, month, year);
         List<BranchCourtRankingResponse.CourtRanking> courtRankings = new ArrayList<>();
 
-        for(Object[] data : rawData){
+        for (Object[] data : rawData) {
             String courtName = (String) data[0];
             Long totalBookings = (Long) data[1];
             courtRankings.add(new BranchCourtRankingResponse.CourtRanking(courtName, totalBookings));
@@ -239,7 +232,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public BranchCourtRankingResponse getCourtRankingByYear(BranchYearlyDashboardRequest request){
+    public BranchCourtRankingResponse getCourtRankingByYear(BranchYearlyDashboardRequest request) {
         Long branchId = request.getBranchId();
         Integer year = request.getYear();
         LocalDate now = LocalDate.now();
@@ -248,7 +241,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Object[]> rawData = bookingDetailRepository.getCourtRankingByYear(branchId, year);
         List<BranchCourtRankingResponse.CourtRanking> courtRankings = new ArrayList<>();
 
-        for(Object[] data : rawData){
+        for (Object[] data : rawData) {
             String courtName = (String) data[0];
             Long totalBookings = (Long) data[1];
             courtRankings.add(new BranchCourtRankingResponse.CourtRanking(courtName, totalBookings));
@@ -260,7 +253,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    private BranchOverviewResponse realtimeOverviewByMonth(Long branchId, int year, int month, ReviewRepository.ReviewSummary reviewSummary){
+    private BranchOverviewResponse realtimeOverviewByMonth(Long branchId, int year, int month, ReviewRepository.ReviewSummary reviewSummary) {
 
         BigDecimal revenue = bookingDetailRepository.sumRevenueByMonth(branchId, month, year);
         revenue = revenue != null ? revenue : BigDecimal.ZERO;
@@ -288,7 +281,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    private BranchOverviewResponse snapshotToResponse(MonthlyStatistic snapshot, ReviewRepository.ReviewSummary reviewSummary){
+    private BranchOverviewResponse snapshotToResponse(MonthlyStatistic snapshot, ReviewRepository.ReviewSummary reviewSummary) {
         Long branchId = snapshot.getBranch().getId();
 
         BigDecimal revenue = snapshot.getTotalRevenue();

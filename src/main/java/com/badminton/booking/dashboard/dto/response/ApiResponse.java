@@ -1,4 +1,4 @@
-package com.example.court_booking.dto.response;
+package com.badminton.booking.dashboard.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
