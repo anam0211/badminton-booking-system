@@ -18,5 +18,8 @@ public class RegisterRequest {
     @Size(min = 6, message = "Mat khau toi thieu 6 ky tu.")
     private String password;
 
+    @NotBlank(message = "Vui long nhap lai mat khau.")
+    private String confirmPassword;
+
     private String phone;
 }

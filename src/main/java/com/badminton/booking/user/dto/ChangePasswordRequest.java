@@ -12,4 +12,7 @@ public class ChangePasswordRequest {
     @NotBlank(message = "Mat khau moi khong duoc de trong.")
     @Size(min = 6, message = "Mat khau toi thieu 6 ky tu.")
     private String newPassword;
+
+    @NotBlank(message = "Vui long nhap lai mat khau moi.")
+    private String confirmNewPassword;
 }

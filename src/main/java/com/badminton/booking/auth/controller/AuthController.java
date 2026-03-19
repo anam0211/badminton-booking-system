@@ -74,6 +74,10 @@ public class AuthController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
     ) {
+        if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
+            bindingResult.rejectValue("confirmPassword", "password.mismatch", "Mat khau nhap lai khong khop.");
+        }
+
         if (bindingResult.hasErrors()) {
             return "auth/register";
         }
