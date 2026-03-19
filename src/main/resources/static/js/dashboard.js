@@ -70,20 +70,20 @@ document.getElementById('viewMode').addEventListener('change', function (e) {
     }
 });
 
-// Khi bấm Tải Dữ Liệu -> Tạo URL mới và Load lại trang (Luồng MVC)
+// Khi bấm Tải dữ Liệu -> Tạo URL mới và Load lại trang (Luồng MVC)
 document.getElementById('btnLoadData').addEventListener('click', (e) => {
     e.preventDefault(); // Chặn hành vi submit mặc định
 
     const mode = document.getElementById('viewMode').value;
     const branchId = document.getElementById('selectedBranchId').value;
 
-    // 2. ĐÃ THÊM: Lấy areaId từ URL hiện tại để không bị mất khi F5
+    // Lấy areaId từ URL hiện tại để không bị mất khi F5
     const urlParams = new URLSearchParams(window.location.search);
     const areaId = urlParams.get('areaId') || 1;
 
     if (!branchId) return alert("Vui lòng chọn cơ sở!");
 
-    // 3. ĐÃ SỬA: Dùng baseUrl động từ Thymeleaf thay vì gõ cứng
+    // Dùng baseUrl động từ Thymeleaf thay vì gõ cứng
     let url = `${baseUrl}?areaId=${areaId}&branchId=${branchId}&mode=${mode}`;
 
     if (mode === 'monthly') {
