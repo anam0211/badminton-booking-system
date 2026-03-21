@@ -33,6 +33,9 @@ public class Notification extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Size(max = 255)
+    private String actionUrl;
+
     @NotNull
     @Column(nullable = false)
     @Builder.Default
