@@ -1,22 +1,27 @@
 package com.badminton.booking.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
-@Table(name = "roles")
 @Getter
 @Setter
-@Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "roles")
 public class Role {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Size(max = 50)
+    @NotNull
+    @Column(nullable = false, length = 50)
     private String name;
-    
+
 }

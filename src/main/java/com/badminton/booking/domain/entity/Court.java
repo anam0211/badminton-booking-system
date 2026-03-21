@@ -3,28 +3,33 @@ package com.badminton.booking.domain.entity;
 import com.badminton.booking.common.base.BaseEntity;
 import com.badminton.booking.common.enums.CourtStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
-@Entity
-@Table(name = "courts")
 @Getter
 @Setter
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "courts")
 public class Court extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Size(max = 100)
+    @NotNull
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Size(max = 100)
     @Column(length = 100)
     private String type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "branch_id", nullable = false)
     private Branch branch;
 
@@ -33,7 +38,8 @@ public class Court extends BaseEntity {
     @Builder.Default
     private CourtStatus status = CourtStatus.AVAILABLE;
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted")
     @Builder.Default
     private Boolean isDeleted = false;
+
 }
