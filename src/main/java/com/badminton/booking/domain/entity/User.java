@@ -51,8 +51,8 @@ public class User extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "managed_branch_id")
-    private Branch managedBranch;
+    @JoinColumn(name = "managed_area_id")
+    private Area managedArea;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
