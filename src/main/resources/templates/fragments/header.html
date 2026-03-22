@@ -67,23 +67,30 @@
             </div>
             <div class="auth-container">
 
-                <div id="auth-guest" class="auth-box" th:if="${session.user == null}">
+                <div id="auth-guest" class="auth-box" th:if="${currentUser == null}">
                     <a th:href="@{/login}" class="btn-signin">Đăng nhập</a>
                 </div>
 
-                <div id="auth-user" class="auth-box" th:if="${session.user != null}">
+                <div id="auth-user" class="auth-box" th:if="${currentUser != null}">
                     <div class="user-profile">
-                        <img th:src="${session.user.avatarUrl != null ? session.user.avatarUrl : 'https://ui-avatars.com/api/?name=' + session.user.fullName + '&background=random&color=fff'}"
+                        <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : 'https://ui-avatars.com/api/?name=' + currentUser.fullName + '&background=random&color=fff'}"
                              alt="Avatar" class="user-avatar">
 
-                        <span class="user-name" th:text="${session.user.fullName}">Nguyễn Đức</span>
+                        <span class="user-name" th:text="${currentUser.fullName}">Nguyễn A</span>
                         <i class="fas fa-chevron-down"></i>
 
                         <ul class="user-dropdown">
                             <li><a th:href="@{/profile}">Tài khoản</a></li>
                             <li><a th:href="@{/history}">Lịch sử</a></li>
                             <li class="divider"></li>
-                            <li><a th:href="@{/logout}" id="btnLogout">Đăng xuất</a></li>
+
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                                    <button type="submit" id="btnLogout">
+                                        Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
                         </ul>
                     </div>
                 </div>
