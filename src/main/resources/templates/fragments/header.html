@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+<header class="main-header" th:fragment="header">
+    <div class="container header-wrapper">
+
+        <a th:href="@{/home}" class="logo">
+            BADMINTON
+            <i class="fas fa-shuttlecock"></i>
+        </a>
+
+        <div class="search-filter-group">
+            <form th:action="@{/search}" method="GET" class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="keyword" placeholder="Tìm kiếm sân cầu lông...">
+            </form>
+            <button class="btn-filter"><i class="fas fa-filter"></i> Lọc</button>
+        </div>
+
+        <div class="right-group">
+            <nav class="main-nav">
+                <ul>
+                    <li><a th:href="@{/services}">Dịch Vụ</a></li>
+                    <li><a th:href="@{/my-bookings}">Sân Đã Đặt</a></li>
+                    <li><a th:href="@{/contact}">Liên Hệ</a></li>
+                </ul>
+            </nav>
+
+            <div class="notification-area">
+
+                <div class="notification-bell" id="bellBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="dot" id="notiBadge" th:if="${hasUnread}"></span>
+                </div>
+
+                <div class="noti-dropdown" id="notiDropdown">
+                    <div class="noti-header">
+                        <span>Thông báo mới</span>
+                        <a href="javascript:void(0)" id="markAllReadBtn"
+                           style="font-size: 0.75rem; color: #28a745; text-decoration: none; font-weight: normal;">
+                            Đánh dấu đã đọc
+                        </a>
+                    </div>
+
+                    <div class="noti-list">
+                        <p class="empty-noti" th:if="${#lists.isEmpty(notifications)}"
+                           style="padding: 15px; text-align: center; color: #666; font-size: 0.85rem; margin: 0;">
+                            Không có thông báo nào
+                        </p>
+
+                        <th:block th:unless="${#lists.isEmpty(notifications)}">
+                            <a th:href="@{/notifications/read/{id}(id=${noti.id})}" class="noti-item"
+                               th:each="noti : ${notifications}" th:classappend="${!noti.isRead ? 'unread' : ''}">
+                                <h4 th:text="${noti.title}">Tiêu đề</h4>
+                                <p th:text="${noti.content}">Nội dung ngắn gọn...</p>
+                                <span th:text="${noti.timeDisplay}">25/03/2026 15:30</span>
+                            </a>
+                        </th:block>
+                    </div>
+
+                    <div class="noti-footer">
+                        <a th:href="@{/notifications}">Xem tất cả</a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="auth-container">
+
+                <div id="auth-guest" class="auth-box" th:if="${session.user == null}">
+                    <a th:href="@{/login}" class="btn-signin">Đăng nhập</a>
+                </div>
+
+                <div id="auth-user" class="auth-box" th:if="${session.user != null}">
+                    <div class="user-profile">
+                        <img th:src="${session.user.avatarUrl != null ? session.user.avatarUrl : 'https://ui-avatars.com/api/?name=' + session.user.fullName + '&background=random&color=fff'}"
+                             alt="Avatar" class="user-avatar">
+
+                        <span class="user-name" th:text="${session.user.fullName}">Nguyễn Đức</span>
+                        <i class="fas fa-chevron-down"></i>
+
+                        <ul class="user-dropdown">
+                            <li><a th:href="@{/profile}">Tài khoản</a></li>
+                            <li><a th:href="@{/history}">Lịch sử</a></li>
+                            <li class="divider"></li>
+                            <li><a th:href="@{/logout}" id="btnLogout">Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/header.js}"></script>
+</header>
+</body>
+</html>
