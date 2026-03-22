@@ -2,9 +2,12 @@ package com.badminton.booking.dashboard.controller;
 
 import com.badminton.booking.dashboard.dto.request.*;
 import com.badminton.booking.dashboard.service.DashboardService;
+import com.badminton.booking.domain.entity.User;
+import com.badminton.booking.security.CustomUserDetails;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,18 +28,30 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String showDashboard(
             @RequestParam(value = "branchId", required = false) Long branchId,
-            @RequestParam(value = "areaId", defaultValue = "1") Integer areaId,
             @RequestParam(value = "mode", defaultValue = "monthly") String mode,
             @RequestParam(value = "month", required = false) Integer month,
             @RequestParam(value = "year", required = false) Integer year,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Model model) {
+        if (customUserDetails == null) {
+            return "redirect:/auth/login";
+        }
 
-        // 1. Khởi tạo giá trị mặc định nếu người dùng chưa chọn
+        User currentAdmin = customUserDetails.getUser();
+
+        if (currentAdmin.getManagedArea() == null) {
+            model.addAttribute("errorMessage", "Tài khoản của bạn hiện chưa được phân công quản lý khu vực nào. Vui lòng liên hệ với người quản lý nhân sự để được thiết lập quyền.");
+            return "error/403";
+        }
+
+        Integer areaId = currentAdmin.getManagedArea().getId();
+
+        // Khởi tạo giá trị mặc định nếu người dùng chưa chọn
         LocalDate now = LocalDate.now();
         int reqMonth = (month != null) ? month : now.getMonthValue();
         int reqYear = (year != null) ? year : now.getYear();
 
-        // 2. Lấy danh sách cơ sở đổ vào Dropdown
+        // Lấy danh sách cơ sở đổ vào Dropdown
         Map<Long, String> branches = dashboardService.getBranchDropdown(areaId);
         model.addAttribute("branches", branches);
 
@@ -54,7 +69,7 @@ public class DashboardController {
         model.addAttribute("currentMonth", reqMonth);
         model.addAttribute("currentYear", reqYear);
 
-        // 3. Lấy dữ liệu Thống kê theo Mode (Tháng / Năm)
+        // Lấy dữ liệu Thống kê theo Mode (Tháng / Năm)
         if ("monthly".equals(mode)) {
             BranchMonthlyDashboardRequest req = new BranchMonthlyDashboardRequest(actualBranchId, reqMonth, reqYear);
 
@@ -70,7 +85,7 @@ public class DashboardController {
             model.addAttribute("rankingData", dashboardService.getCourtRankingByYear(req));
         }
 
-        // 4. Trả về file HTML (thư mục src/main/resources/templates/dashboard/dashboard.html)
+        // Trả về file HTML
         return "dashboard/dashboard";
     }
 }

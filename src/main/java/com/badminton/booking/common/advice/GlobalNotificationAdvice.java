@@ -4,6 +4,7 @@ import com.badminton.booking.domain.entity.User;
 import com.badminton.booking.notification.dto.response.NotificationResponse;
 import com.badminton.booking.notification.service.NotificationService;
 import com.badminton.booking.security.CustomUserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,20 +22,29 @@ public class GlobalNotificationAdvice {
     NotificationService notificationService;
 
     @ModelAttribute
-    public void addGlobalAttribute(Model model, @AuthenticationPrincipal CustomUserDetails customUserDetails){
+    public void addGlobalAttribute(Model model, @AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                   HttpServletRequest request){
+        String currentUrl = request.getRequestURI();
+
         if(customUserDetails != null){
-            User user = customUserDetails.getUser();
-            List<NotificationResponse> list = notificationService.getTop10Notifications(user.getId());
+            User currentUser = customUserDetails.getUser();
+            model.addAttribute("currentUser", currentUser);
 
-            // Kiểm tra thông báo chưa đọc để phía view hiển thị chấm đỏ
-            boolean hasUnread = list.stream().anyMatch(n -> !n.getIsRead());
+            if(!currentUrl.startsWith("/admin")){
+                List<NotificationResponse> list = notificationService.getTop10Notifications(currentUser.getId());
 
-            model.addAttribute("notifications", list);
-            model.addAttribute("hasUnread", hasUnread);
+                // Kiểm tra thông báo chưa đọc để phía view hiển thị chấm đỏ
+                boolean hasUnread = list.stream().anyMatch(n -> !n.getIsRead());
+
+                model.addAttribute("notifications", list);
+                model.addAttribute("hasUnread", hasUnread);
+            }
         }
         else{
-            model.addAttribute("notifications", Collections.emptyList());
-            model.addAttribute("hasUnread", false);
+            if(!currentUrl.startsWith("/admin")){
+                model.addAttribute("notifications", Collections.emptyList());
+                model.addAttribute("hasUnread", false);
+            }
             model.addAttribute("currentUser", null);
         }
     }
