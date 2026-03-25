@@ -50,7 +50,7 @@
                         <span class="price" style="font-weight: 500; color: #e74c3c;"
                               th:text="'Từ ' + ${#numbers.formatDecimal(branch.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">Từ 50,000 đ</span>
 
-                        <a th:href="@{/branch/{id}(id=${branch.branchId})}" class="btn-booking">Đặt sân</a>
+                        <a th:href="@{/bookings/create(branchId=${branch.branchId})}" class="btn-booking">Đặt sân</a>
                     </div>
                 </div>
 
