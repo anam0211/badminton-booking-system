@@ -3,39 +3,47 @@ package com.badminton.booking.domain.entity;
 import com.badminton.booking.common.base.BaseEntity;
 import com.badminton.booking.common.enums.BranchStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
-@Entity
-@Table(name = "branches")
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @Getter
 @Setter
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "branches")
 public class Branch extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Size(max = 255)
+    @NotNull
     @Column(nullable = false)
     private String name;
 
+    @Size(max = 255)
+    @NotNull
     @Column(nullable = false)
     private String address;
 
-    @Column(name = "map_link", length = 500)
+    @Size(max = 500)
+    @Column(length = 500)
     private String mapLink;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "area_id", nullable = false)
     private Area area;
 
-    @Column(name = "average_rating")
     @Builder.Default
     private Float averageRating = 0.0f;
 
-    @Column(name = "total_reviews")
     @Builder.Default
     private Integer totalReviews = 0;
 
@@ -44,7 +52,20 @@ public class Branch extends BaseEntity {
     @Builder.Default
     private BranchStatus status = BranchStatus.OPEN;
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
     private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<BranchAmenity> branchAmenities = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<BranchImage> branchImages = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<Price> prices = new LinkedHashSet<>();
+
 }

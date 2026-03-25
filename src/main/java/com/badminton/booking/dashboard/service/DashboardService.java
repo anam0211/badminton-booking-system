@@ -1,8 +1,7 @@
-package com.example.court_booking.service;
+package com.badminton.booking.dashboard.service;
 
-import com.example.court_booking.dto.request.BranchMonthlyDashboardRequest;
-import com.example.court_booking.dto.request.BranchYearlyDashboardRequest;
-import com.example.court_booking.dto.response.*;
+import com.badminton.booking.dashboard.dto.request.*;
+import com.badminton.booking.dashboard.dto.response.*;
 
 import java.util.Map;
 
