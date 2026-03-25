@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lỗi booking</title>
+</head>
+<body>
+    <h1>Có lỗi xảy ra</h1>
+    <p th:text="${errorMessage}"></p>
+    <a th:href="@{/bookings/create(userId=1)}">Quay lại form đặt sân</a>
+</body>
+</html>
