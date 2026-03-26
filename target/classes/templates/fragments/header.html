@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="appHeader">
+    <nav style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #ddd;">
+        <a th:href="@{/}" style="font-weight:600;text-decoration:none;">Badminton Booking</a>
+
+        <div sec:authorize="isAuthenticated()" style="display:flex;gap:12px;align-items:center;">
+            <div>
+                <div style="font-size:14px;">Xin chào, <strong th:text="${headerUserName}">Người dùng</strong></div>
+                <small th:text="${headerUserEmail}">user@email.com</small>
+            </div>
+            <a th:href="@{/user/profile}">Thông tin cá nhân</a>
+            <a th:href="@{/user/change-password}">Đổi mật khẩu</a>
+            <form th:action="@{/auth/logout}" method="post" style="margin:0;">
+                <button type="submit">Đăng xuất</button>
+            </form>
+        </div>
+
+        <div sec:authorize="isAnonymous()">
+            <a th:href="@{/auth/login}">Đăng nhập</a>
+        </div>
+    </nav>
+</header>
+</body>
+</html>
