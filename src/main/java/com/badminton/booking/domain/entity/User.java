@@ -23,7 +23,7 @@ public class User extends BaseEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Size(max = 255)

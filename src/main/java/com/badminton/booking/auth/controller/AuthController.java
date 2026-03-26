@@ -14,12 +14,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -44,7 +42,7 @@ public class AuthController {
 
         String accessToken = authService.login(loginRequest);
         response.addCookie(buildAccessTokenCookie(accessToken, 60 * 60 * 24));
-        return "redirect:/user/profile";
+        return "redirect:/profile";
     }
 
 // logout
@@ -52,7 +50,7 @@ public class AuthController {
     public String logout(HttpServletResponse response) {
         authService.logout(); // rỗng vì chỉ dùng access token không refreshtoken
         response.addCookie(buildAccessTokenCookie("", 0));// xoá cookie access token
-        return "redirect:/auth/login?logout=true";
+        return "redirect:/login?logout=true";
     }
 
 // register
@@ -90,7 +88,7 @@ public class AuthController {
         }
 
         redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công. Vui lòng đăng nhập.");
-        return "redirect:/auth/login";
+        return "redirect:/login";
     }
 
 // build access token cookie

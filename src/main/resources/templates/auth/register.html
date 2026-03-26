@@ -18,7 +18,7 @@
             <p th:if="${errorMessage}" th:text="${errorMessage}" class="alert alert-error"></p>
             <p th:if="${#fields.hasGlobalErrors()}" class="alert alert-error" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
 
-            <form th:action="@{/auth/register}" th:object="${registerForm}" method="post">
+            <form th:action="@{/register}" th:object="${registerForm}" method="post">
                 <div>
                     <label>Email (*)</label>
                     <input type="email" th:field="*{email}" placeholder="Nhập email của bạn" required>
@@ -51,7 +51,7 @@
             </form>
 
             <p class="auth-footer">
-                Bạn đã có tài khoản? <a th:href="@{/auth/login}">Đăng nhập</a>
+                Bạn đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a>
             </p>
         </main>
     </div>

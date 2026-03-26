@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Profile</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/head :: head_info('Thông tin cá nhân', '/css/style.css')}"></head>
+
 <body class="app-page">
-<div th:replace="~{fragments/header :: appHeader}"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <main class="profile-page">
     <section class="profile-header">
@@ -37,7 +34,7 @@
 
         <article class="profile-card">
             <h2 class="profile-section-title">Cập nhật thông tin</h2>
-            <form th:action="@{/user/profile}" th:object="${profileForm}" method="post" enctype="multipart/form-data" class="profile-form">
+            <form th:action="@{/profile}" th:object="${profileForm}" method="post" enctype="multipart/form-data" class="profile-form">
                 <div>
                     <label>Họ và tên</label>
                     <input type="text" th:field="*{fullName}" required>

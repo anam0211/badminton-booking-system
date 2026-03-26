@@ -34,7 +34,7 @@ public class DashboardController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Model model) {
         if (customUserDetails == null) {
-            return "redirect:/auth/login";
+            return "redirect:/login";
         }
 
         User currentAdmin = customUserDetails.getUser();

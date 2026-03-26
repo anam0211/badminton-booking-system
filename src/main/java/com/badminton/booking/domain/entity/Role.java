@@ -3,9 +3,6 @@ package com.badminton.booking.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
- 
 @Getter
 @Setter
 @Entity
@@ -20,13 +17,4 @@ public class Role {
 
     @Column(nullable = false, unique = true, length = 50)
     private String name;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
-    )
-    @Builder.Default
-    private Set<Permission> permissions = new HashSet<>();
 }

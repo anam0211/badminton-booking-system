@@ -20,7 +20,7 @@
             <p th:if="${successMessage}" th:text="${successMessage}" class="alert alert-success"></p>
             <p th:if="${errorMessage}" th:text="${errorMessage}" class="alert alert-error"></p>
 
-            <form th:action="@{/auth/login}" method="post">
+            <form th:action="@{/login}" method="post">
                 <div>
                     <label>Email (*)</label>
                     <input type="email" name="email" placeholder="Nhập email của bạn (*)" autocomplete="email" required>
@@ -32,7 +32,7 @@
                 <button class="auth-submit" type="submit">Đăng nhập</button>
             </form>
             <p class="auth-footer">
-                Bạn chưa có tài khoản? <a th:href="@{/auth/register}"><b>Đăng ký</b></p>
+                Bạn chưa có tài khoản? <a th:href="@{/register}"><b>Đăng ký</b></p>
             </p>
         </main>
     </div>

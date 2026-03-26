@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -29,12 +28,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-    @Value("${app.avatar-upload-dir:src/main/resources/static/image}")
+    @Value("${app.avatar-upload-dir:src/main/resources/static/images}")
     private String avatarUploadDir;
 
     @GetMapping("/profile")
@@ -47,7 +45,7 @@ public class UserController {
 
         model.addAttribute("currentUserDetail", currentUser);
         model.addAttribute("profileForm", profileForm);
-        return "user/profile";
+        return "profile/profile";
     }
 
     @PostMapping("/profile")
@@ -60,7 +58,7 @@ public class UserController {
     ) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("currentUserDetail", userService.getCurrentUser());
-            return "user/profile";
+            return "profile/profile";
         }
 
         if (avatarFile != null && !avatarFile.isEmpty()) {
@@ -70,7 +68,7 @@ public class UserController {
             } catch (IllegalArgumentException | IllegalStateException ex) {
                 bindingResult.rejectValue("avatarUrl", "avatar.invalid", ex.getMessage());
                 model.addAttribute("currentUserDetail", userService.getCurrentUser());
-                return "user/profile";
+                return "profile/profile";
             }
         } else if (profileForm.getAvatarUrl() != null) {
             profileForm.setAvatarUrl(profileForm.getAvatarUrl().trim());
@@ -78,7 +76,7 @@ public class UserController {
 
         userService.updateProfile(profileForm);
         redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công.");
-        return "redirect:/user/profile";
+        return "redirect:/profile";
     }
 
     @GetMapping("/change-password")
@@ -104,10 +102,10 @@ public class UserController {
         }
 
         redirectAttributes.addFlashAttribute("successMessage", "Đổi mật khẩu thành công.");
-        return "redirect:/user/change-password";
+        return "redirect:/profile";
     }
 
-    @GetMapping("/me")
+    @GetMapping("/profile/me")
     @ResponseBody
     public Map<String, Object> currentUserInfo() {
         User user = userService.getCurrentUser();

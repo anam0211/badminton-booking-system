@@ -8,8 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -19,13 +18,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()));
-        if (user.getRole().getPermissions() != null) {
-            user.getRole().getPermissions()
-                    .forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission.getCode())));
-        }
-        return authorities;
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()));
     }
 
     @Override

@@ -34,9 +34,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth/login",
-                                "/auth/logout",
-                                "/auth/register",
+                                "/login",
+                                "/logout",
+                                "/register",
                                 "/error/**",
                                 "/css/**",
                                 "/js/**",
@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/error/403")
                         .authenticationEntryPoint((request, response, authException) ->
-                                response.sendRedirect("/auth/login")
+                                response.sendRedirect("/login")
                         )
                 );
 

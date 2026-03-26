@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    @EntityGraph(attributePaths = {"role", "role.permissions"})
+    @EntityGraph(attributePaths = {"role"})
     Optional<User> findByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCase(String email);

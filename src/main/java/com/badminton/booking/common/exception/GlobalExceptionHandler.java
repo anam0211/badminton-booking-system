@@ -11,7 +11,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public String handleAuthenticationException(Exception ex) {
-        return "redirect:/auth/login?error=true";
+        return "redirect:/login?error=true";
     }
 
     @ExceptionHandler(BadRequestException.class)
