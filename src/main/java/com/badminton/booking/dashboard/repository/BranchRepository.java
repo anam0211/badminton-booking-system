@@ -3,7 +3,6 @@ package com.badminton.booking.dashboard.repository;
 import com.badminton.booking.domain.entity.Branch;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -26,16 +25,6 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
 
         Float getAvgRating();
     }
-
-    @Query("""
-                SELECT b.id, b.name
-                FROM Branch b
-                WHERE b.area.id = :areaId
-                AND b.isDeleted = FALSE
-            """)
-    List<Object[]> getBranches(
-            @Param("areaId") Integer areaId
-    );
 
     @Query("""
                 SELECT

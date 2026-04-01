@@ -4,7 +4,6 @@ import com.badminton.booking.dashboard.dto.request.*;
 import com.badminton.booking.dashboard.dto.response.*;
 import com.badminton.booking.domain.entity.MonthlyStatistic;
 import com.badminton.booking.dashboard.repository.BookingDetailRepository;
-import com.badminton.booking.dashboard.repository.BranchRepository;
 import com.badminton.booking.dashboard.repository.MonthlyStatisticRepository;
 import com.badminton.booking.dashboard.repository.ReviewRepository;
 import com.badminton.booking.dashboard.service.DashboardService;
@@ -29,17 +28,6 @@ public class DashboardServiceImpl implements DashboardService {
     BookingDetailRepository bookingDetailRepository;
     MonthlyStatisticRepository monthlyStatisticRepository;
     ReviewRepository reviewRepository;
-    BranchRepository branchRepository;
-
-    @Override
-    public Map<Long, String> getBranchDropdown(Integer areaId) {
-        List<Object[]> rawData = branchRepository.getBranches(areaId);
-        return rawData.stream()
-                .collect(Collectors.toMap(
-                        row -> (Long) row[0],
-                        row -> (String) row[1]
-                ));
-    }
 
     //Thống kê doanh thu theo từng ngày trong tháng
     @Override
