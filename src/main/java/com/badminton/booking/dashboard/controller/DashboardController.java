@@ -1,5 +1,6 @@
 package com.badminton.booking.dashboard.controller;
 
+import com.badminton.booking.common.enums.RoleName;
 import com.badminton.booking.dashboard.dto.request.*;
 import com.badminton.booking.dashboard.service.DashboardService;
 import com.badminton.booking.domain.entity.User;
@@ -38,13 +39,14 @@ public class DashboardController {
         }
 
         User currentAdmin = customUserDetails.getUser();
+        boolean isGlobalAdmin = RoleName.ADMIN.name().equalsIgnoreCase(currentAdmin.getRole().getName());
 
-        if (currentAdmin.getManagedArea() == null) {
-            model.addAttribute("errorMessage", "Tài khoản của bạn hiện chưa được phân công quản lý khu vực nào. Vui lòng liên hệ với người quản lý nhân sự để được thiết lập quyền.");
+        if (!isGlobalAdmin && currentAdmin.getManagedBranch() == null) {
+            model.addAttribute("errorMessage", "Tài khoản của bạn hiện chưa được phân công quản lý cơ sở nào. Vui lòng liên hệ quản trị viên để được thiết lập quyền.");
             return "error/403";
         }
 
-        Integer areaId = currentAdmin.getManagedArea().getId();
+        Long managedBranchId = isGlobalAdmin ? null : currentAdmin.getManagedBranch().getId();
 
         // Khởi tạo giá trị mặc định nếu người dùng chưa chọn
         LocalDate now = LocalDate.now();
@@ -52,10 +54,10 @@ public class DashboardController {
         int reqYear = (year != null) ? year : now.getYear();
 
         // Lấy danh sách cơ sở đổ vào Dropdown
-        Map<Long, String> branches = dashboardService.getBranchDropdown(areaId);
+        Map<Long, String> branches = dashboardService.getBranchDropdown(managedBranchId, isGlobalAdmin);
         model.addAttribute("branches", branches);
 
-        Long actualBranchId = branchId;
+        Long actualBranchId = isGlobalAdmin ? branchId : managedBranchId;
         if(branches.isEmpty()){
             actualBranchId = -1L;
         }

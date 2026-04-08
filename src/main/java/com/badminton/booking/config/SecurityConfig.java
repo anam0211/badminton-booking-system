@@ -43,7 +43,7 @@ public class SecurityConfig {
                                 "/image/**",
                                 "/images/**"
                         ).permitAll()//cho phép public ko cần login
-                        .requestMatchers("/admin/**").hasRole("BRANCH_ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "BRANCH_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -42,7 +42,7 @@ public class AuthController {
 
         String accessToken = authService.login(loginRequest);
         response.addCookie(buildAccessTokenCookie(accessToken, 60 * 60 * 24));
-        return "redirect:/profile";
+        return "redirect:/home";
     }
 
 // logout

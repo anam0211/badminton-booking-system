@@ -30,12 +30,19 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     @Query("""
                 SELECT b.id, b.name
                 FROM Branch b
-                WHERE b.area.id = :areaId
+                WHERE b.id = :branchId
                 AND b.isDeleted = FALSE
             """)
     List<Object[]> getBranches(
-            @Param("areaId") Integer areaId
+            @Param("branchId") Long branchId
     );
+
+    @Query("""
+                SELECT b.id, b.name
+                FROM Branch b
+                WHERE b.isDeleted = FALSE
+            """)
+    List<Object[]> getAllBranches();
 
     @Query("""
                 SELECT

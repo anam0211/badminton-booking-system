@@ -32,8 +32,10 @@ public class DashboardServiceImpl implements DashboardService {
     BranchRepository branchRepository;
 
     @Override
-    public Map<Long, String> getBranchDropdown(Integer areaId) {
-        List<Object[]> rawData = branchRepository.getBranches(areaId);
+    public Map<Long, String> getBranchDropdown(Long managedBranchId, boolean isGlobalAdmin) {
+        List<Object[]> rawData = isGlobalAdmin
+                ? branchRepository.getAllBranches()
+                : branchRepository.getBranches(managedBranchId);
         return rawData.stream()
                 .collect(Collectors.toMap(
                         row -> (Long) row[0],

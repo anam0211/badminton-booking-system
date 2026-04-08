@@ -21,6 +21,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        Role adminRole = roleRepository.findByName(RoleName.ADMIN.name())
+                .orElseGet(() -> roleRepository.save(Role.builder()
+                        .name(RoleName.ADMIN.name())
+                        .build()));
+
         Role customerRole = roleRepository.findByName(RoleName.CUSTOMER.name())
                 .orElseGet(() -> roleRepository.save(Role.builder()
                         .name(RoleName.CUSTOMER.name())
@@ -30,6 +35,17 @@ public class DataInitializer implements CommandLineRunner {
                 .orElseGet(() -> roleRepository.save(Role.builder()
                         .name(RoleName.BRANCH_ADMIN.name())
                         .build()));
+
+        if (!userRepository.existsByEmailIgnoreCase("admin@demo.local")) {
+            userRepository.save(User.builder()
+                    .email("admin@demo.local")
+                    .password(passwordEncoder.encode("123456"))
+                    .fullName("System Admin")
+                    .role(adminRole)
+                    .status(UserStatus.ACTIVE)
+                    .isDeleted(false)
+                    .build());
+        }
 
         if (!userRepository.existsByEmailIgnoreCase("customer@demo.local")) {
             userRepository.save(User.builder()

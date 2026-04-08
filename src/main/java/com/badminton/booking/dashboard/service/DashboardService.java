@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface DashboardService {
 
-    Map<Long, String> getBranchDropdown(Integer areaId);
+    Map<Long, String> getBranchDropdown(Long managedBranchId, boolean isGlobalAdmin);
 
     BranchMonthlyRevenueResponse getBranchRevenueByMonth(BranchMonthlyDashboardRequest request);
 

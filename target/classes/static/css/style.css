@@ -187,6 +187,10 @@ body.app-page {
     border: 0;
 }
 
+body.app-page .main-footer {
+    margin-top: 32px;
+}
+
 .profile-header {
     margin-bottom: 16px;
 }
