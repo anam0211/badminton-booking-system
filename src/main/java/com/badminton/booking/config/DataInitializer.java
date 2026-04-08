@@ -31,7 +31,7 @@ public class DataInitializer implements CommandLineRunner {
                         .name(RoleName.CUSTOMER.name())
                         .build()));
 
-        roleRepository.findByName(RoleName.BRANCH_ADMIN.name())
+        Role branchAdminRole = roleRepository.findByName(RoleName.BRANCH_ADMIN.name())
                 .orElseGet(() -> roleRepository.save(Role.builder()
                         .name(RoleName.BRANCH_ADMIN.name())
                         .build()));
@@ -53,6 +53,17 @@ public class DataInitializer implements CommandLineRunner {
                     .password(passwordEncoder.encode("123456"))
                     .fullName("Demo Customer")
                     .role(customerRole)
+                    .status(UserStatus.ACTIVE)
+                    .isDeleted(false)
+                    .build());
+        }
+
+        if (!userRepository.existsByEmailIgnoreCase("branchadmin@demo.local")) {
+            userRepository.save(User.builder()
+                    .email("branchadmin@demo.local")
+                    .password(passwordEncoder.encode("123456"))
+                    .fullName("Demo Branch Admin")
+                    .role(branchAdminRole)
                     .status(UserStatus.ACTIVE)
                     .isDeleted(false)
                     .build());
