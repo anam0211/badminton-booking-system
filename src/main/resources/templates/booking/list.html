@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Booking List</title>
+    <link rel="stylesheet" th:href="@{/css/CreateBooking.css}">
+    <link rel="stylesheet" th:href="@{/css/BookingSuccess.css}">
+    <link rel="stylesheet" th:href="@{/css/BookingList.css}">
+</head>
+<body>
+<div class="page booking-list-page">
+    <div class="topbar">
+        <div class="topbar-row result-topbar-row">
+            <a href="#" class="back-btn" onclick="history.back(); return false;" aria-label="Quay lai">&#8249;</a>
+            <div class="title" th:text="${pageTitle}">Booking List</div>
+            <div class="header-actions">
+                <div class="result-chip">
+                    <span class="result-chip-label">Tong booking</span>
+                    <strong th:text="${totalBookings}">0</strong>
+                </div>
+                <div class="result-chip">
+                    <span class="result-chip-label">Tong gia tri</span>
+                    <strong th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(totalAmount)}">0 VND</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar result-toolbar">
+            <div class="legend">
+                <span class="legend-box booked"></span>
+                <span>Da xac nhan</span>
+            </div>
+            <div class="legend">
+                <span class="legend-box cancelled"></span>
+                <span>Da huy / hoan tien</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="notice-bar">
+        <b>Thong tin:</b>
+        <span th:text="${pageDescription}">Danh sach booking.</span>
+    </div>
+
+    <div class="result-shell">
+        <section class="hero-card" th:classappend="${adminView ? ' hero-detail' : ' hero-success'}">
+            <div class="hero-main">
+                <div class="hero-icon" th:text="${adminView ? 'A' : 'L'}">L</div>
+                <div class="hero-copy">
+                    <div class="hero-kicker" th:text="${adminView ? 'Admin booking' : 'Booking cua ban'}">Booking</div>
+                    <h1 th:text="${pageTitle}">Booking List</h1>
+                    <p th:text="${pageDescription}">
+                        Theo doi booking, trang thai thanh toan va lich choi da dat.
+                    </p>
+                </div>
+            </div>
+
+            <div class="hero-total hero-total-stack">
+                <span class="hero-total-label">Trang thai</span>
+                <strong th:text="${adminView ? 'Toan bo he thong' : 'Khach hang'}">Khach hang</strong>
+                <a class="hero-link"
+                   th:if="${!adminView and userId != null}"
+                   th:href="@{/bookings/create(userId=${userId})}">
+                    Dat san moi
+                </a>
+            </div>
+        </section>
+
+        <section class="summary-grid booking-summary-grid">
+            <article class="info-card">
+                <span class="info-label">Tong booking</span>
+                <strong class="info-value" th:text="${totalBookings}">0</strong>
+            </article>
+            <article class="info-card">
+                <span class="info-label">Tong gia tri</span>
+                <strong class="info-value" th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(totalAmount)}">0 VND</strong>
+            </article>
+            <article class="info-card">
+                <span class="info-label">Doi tuong xem</span>
+                <strong class="info-value" th:text="${adminView ? 'Admin' : 'Khach hang'}">Khach hang</strong>
+            </article>
+        </section>
+
+        <section class="detail-panel">
+            <div class="panel-head">
+                <div>
+                    <h2 th:text="${adminView ? 'Tat ca booking da tao' : 'Cac booking cua ban'}">Danh sach booking</h2>
+                    <p th:text="${totalBookings + ' booking'}">0 booking</p>
+                </div>
+
+                <a class="secondary-link"
+                   th:if="${!adminView and userId != null}"
+                   th:href="@{/bookings/create(userId=${userId})}">
+                    Dat san moi
+                </a>
+            </div>
+
+            <div class="booking-list-grid" th:if="${bookings != null and !#lists.isEmpty(bookings)}">
+                <article class="booking-list-card"
+                         th:each="booking : ${bookings}"
+                         th:with="
+                            bookingStatusLabel=${booking.status == 'PENDING' ? 'Cho xu ly' : (booking.status == 'CONFIRMED' ? 'Da xac nhan' : (booking.status == 'COMPLETED' ? 'Hoan thanh' : 'Da huy'))},
+                            bookingStatusClass=${booking.status == 'CANCELLED' ? 'pill-cancelled' : (booking.status == 'PENDING' ? 'pill-pending' : 'pill-booked')},
+                            paymentStatusLabel=${booking.paymentStatus == 'PAID' ? 'Da thanh toan' : (booking.paymentStatus == 'REFUNDED' ? 'Da hoan tien' : 'Chua thanh toan')},
+                            paymentStatusClass=${booking.paymentStatus == 'PAID' ? 'pill-booked' : (booking.paymentStatus == 'REFUNDED' ? 'pill-cancelled' : 'pill-pending')}">
+
+                    <div class="booking-card-head">
+                        <div class="booking-card-title-wrap">
+                            <div class="booking-card-id" th:text="${'#' + booking.id}">#1</div>
+                            <h3 th:text="${booking.branchName != null ? booking.branchName : 'Chi nhanh chua xac dinh'}">Chi nhanh</h3>
+                            <p th:text="${'Dat luc ' + T(com.badminton.booking.common.util.DateTimeUtil).formatDateTime(booking.bookingDate)}">
+                                Dat luc 01/04/2026 10:00
+                            </p>
+                        </div>
+
+                        <div class="pill-row booking-pill-row">
+                            <span class="status-pill" th:classappend="' ' + ${bookingStatusClass}" th:text="${bookingStatusLabel}">Da xac nhan</span>
+                            <span class="status-pill" th:classappend="' ' + ${paymentStatusClass}" th:text="${paymentStatusLabel}">Da thanh toan</span>
+                        </div>
+                    </div>
+
+                    <div class="booking-meta-grid">
+                        <div class="meta-item">
+                            <span>Tong tien</span>
+                            <strong th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(booking.totalAmount)}">0 VND</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>So slot</span>
+                            <strong th:text="${booking.totalSlots}">0</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Khoang ngay choi</span>
+                            <strong th:if="${booking.earliestPlayDate != null}">
+                                <span th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDate(booking.earliestPlayDate)}">01/04/2026</span>
+                                <span th:if="${booking.latestPlayDate != null and booking.earliestPlayDate != null and !booking.latestPlayDate.equals(booking.earliestPlayDate)}"
+                                      th:text="${' - ' + T(com.badminton.booking.common.util.DateTimeUtil).formatDate(booking.latestPlayDate)}"></span>
+                            </strong>
+                            <strong th:unless="${booking.earliestPlayDate != null}">Chua co slot</strong>
+                        </div>
+                    </div>
+
+                    <div class="customer-box" th:if="${adminView}">
+                        <span>Khach hang</span>
+                        <strong th:text="${booking.userFullName != null ? booking.userFullName : ('User #' + booking.userId)}">Khach hang</strong>
+                        <small th:text="${booking.userEmail != null ? booking.userEmail : 'Khong co email'}">email@example.com</small>
+                    </div>
+
+                    <div class="slot-tag-list" th:if="${booking.items != null and !#lists.isEmpty(booking.items)}">
+                        <span class="slot-tag"
+                              th:each="item : ${booking.items}"
+                              th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDate(item.playDate) + ' | ' + item.courtName + ' | ' + item.startTime + ' - ' + item.endTime}">
+                            01/04/2026 | San 1 | 18:00 - 19:00
+                        </span>
+                    </div>
+
+                    <div class="booking-card-footer">
+                        <div class="note-preview" th:if="${booking.note != null and !#strings.isEmpty(booking.note)}">
+                            <span>Ghi chu:</span>
+                            <strong th:text="${booking.note}">Khong co</strong>
+                        </div>
+
+                        <div class="booking-card-actions">
+                            <a class="action-btn action-btn-secondary"
+                               th:href="@{/bookings/{bookingId}(bookingId=${booking.id})}">
+                                Xem chi tiet
+                            </a>
+                            <a class="action-btn action-btn-primary"
+                               th:if="${!adminView and userId != null}"
+                               th:href="@{/bookings/create(userId=${userId})}">
+                                Dat them
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="empty-state booking-empty-state"
+                 th:unless="${bookings != null and !#lists.isEmpty(bookings)}">
+                <p th:text="${emptyMessage}">Chua co booking nao.</p>
+                <a class="action-btn action-btn-primary"
+                   th:if="${!adminView and userId != null}"
+                   th:href="@{/bookings/create(userId=${userId})}">
+                    Tao booking dau tien
+                </a>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>
