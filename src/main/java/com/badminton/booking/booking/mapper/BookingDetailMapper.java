@@ -2,18 +2,30 @@ package com.badminton.booking.booking.mapper;
 
 import com.badminton.booking.booking.dto.response.BookingDetailResponse;
 import com.badminton.booking.domain.entity.BookingDetail;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface BookingDetailMapper {
+@Component
+public class BookingDetailMapper {
 
-    @Mapping(source = "id", target = "bookingDetailId")
-    @Mapping(source = "court.id", target = "courtId")
-    @Mapping(source = "court.name", target = "courtName")
-    @Mapping(source = "timeSlot.id", target = "timeSlotId")
-    @Mapping(source = "timeSlot.startTime", target = "startTime")
-    @Mapping(source = "timeSlot.endTime", target = "endTime")
-    @Mapping(source = "activeKey", target = "active")
-    BookingDetailResponse toDto(BookingDetail entity);
+    public BookingDetailResponse toDto(BookingDetail entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        BookingDetailResponse response = new BookingDetailResponse();
+        response.setBookingDetailId(entity.getId());
+        response.setCourtId(entity.getCourt() != null ? entity.getCourt().getId() : null);
+        response.setCourtName(entity.getCourt() != null ? entity.getCourt().getName() : null);
+        response.setTimeSlotId(entity.getTimeSlot() != null ? entity.getTimeSlot().getId() : null);
+        response.setStartTime(entity.getTimeSlot() != null && entity.getTimeSlot().getStartTime() != null
+                ? entity.getTimeSlot().getStartTime().toString()
+                : null);
+        response.setEndTime(entity.getTimeSlot() != null && entity.getTimeSlot().getEndTime() != null
+                ? entity.getTimeSlot().getEndTime().toString()
+                : null);
+        response.setPlayDate(entity.getPlayDate());
+        response.setPrice(entity.getPrice());
+        response.setActive(entity.getActiveKey() != null ? entity.getActiveKey().intValue() : null);
+        return response;
+    }
 }

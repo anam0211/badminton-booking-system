@@ -18,8 +18,4 @@ public class Area {
 
     @Column(nullable = false, length = 100)
     private String name;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_area_id")
-    private Area parentArea;
 }

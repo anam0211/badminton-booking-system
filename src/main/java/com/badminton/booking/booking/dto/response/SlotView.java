@@ -11,6 +11,6 @@ public class SlotView {
     private String timeLabel;
     private Long durationMinutes;
     private BigDecimal price;
-    private String status; // AVAILABLE, BOOKED, LOCKED, NO_PRICE
+    private String status; // AVAILABLE, HOLDING, BOOKED, LOCKED, NO_PRICE
     private String endTimeLabel;
 }

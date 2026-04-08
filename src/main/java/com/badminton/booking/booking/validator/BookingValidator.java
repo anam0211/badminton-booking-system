@@ -25,6 +25,7 @@ public class BookingValidator {
             if (s.getCourtId() == null || s.getTimeSlotId() == null || s.getPlayDate() == null) {
                 throw new AppException(ErrorCode.INVALID_REQUEST);
             }
+            
 
             if (s.getPlayDate().isBefore(today)) {
                 throw new AppException(ErrorCode.INVALID_REQUEST);

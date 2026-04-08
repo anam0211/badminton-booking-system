@@ -1,6 +1,9 @@
 package com.badminton.booking.booking.service;
 
 import com.badminton.booking.booking.dto.response.BookingCreatePageData;
+import com.badminton.booking.booking.dto.response.BookingPageMode;
+import com.badminton.booking.booking.dto.response.BookingResponse;
+import com.badminton.booking.booking.dto.response.BookingResultPageData;
 import com.badminton.booking.booking.dto.response.SlotView;
 import com.badminton.booking.booking.repository.BranchRepository;
 import com.badminton.booking.booking.repository.CourtRepository;
@@ -37,6 +40,13 @@ public class BookingPageService {
                 .courts(courts)
                 .timeSlots(timeSlots)
                 .slotGrid(slotGrid)
+                .build();
+    }
+
+    public BookingResultPageData buildResultPageData(BookingResponse booking, BookingPageMode pageMode) {
+        return BookingResultPageData.builder()
+                .booking(booking)
+                .pageMode(pageMode)
                 .build();
     }
 

@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class BookingResponse {
     private Long id;
+    private Long userId;
     private String status;
     private String paymentStatus;
     private BigDecimal totalAmount;

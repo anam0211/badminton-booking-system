@@ -21,11 +21,14 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @Column(name = "action_url", length = 255)
+    private String actionUrl;
 
     @Column(name = "is_read", nullable = false)
     @Builder.Default

@@ -2,55 +2,172 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đặt sân thành công</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 32px; background: #f7f7f7; }
-        .card { background: white; padding: 24px; border-radius: 12px; max-width: 980px; margin: auto; box-shadow: 0 6px 20px rgba(0,0,0,.08); }
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f1f1f1; }
-        .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
-        .box { background: #f9f9f9; border-radius: 10px; padding: 16px; }
-        .actions { margin-top: 16px; }
-        a { text-decoration: none; padding: 10px 16px; border-radius: 8px; background: #0d6efd; color: white; display: inline-block; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageMode == 'success' ? 'Đặt sân thành công' : 'Chi tiết booking'}">Chi tiết booking</title>
+    <link rel="stylesheet" th:href="@{/css/CreateBooking.css}">
+    <link rel="stylesheet" th:href="@{/css/BookingSuccess.css}">
 </head>
 <body>
-<div class="card">
-    <h1>Đặt sân thành công</h1>
+<div class="page booking-result-page"
+     th:with="
+        bookingStatusLabel=${booking.status == 'PENDING' ? 'Chờ xử lý' : (booking.status == 'CONFIRMED' ? 'Đã xác nhận' : (booking.status == 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy'))},
+        bookingStatusClass=${booking.status == 'CANCELLED' ? 'pill-cancelled' : (booking.status == 'PENDING' ? 'pill-pending' : 'pill-booked')},
+        paymentStatusLabel=${booking.paymentStatus == 'PAID' ? 'Đã thanh toán' : (booking.paymentStatus == 'REFUNDED' ? 'Đã hoàn tiền' : 'Chờ thanh toán')},
+        paymentStatusClass=${booking.paymentStatus == 'PAID' ? 'pill-booked' : (booking.paymentStatus == 'REFUNDED' ? 'pill-cancelled' : 'pill-holding')}">
 
-    <div class="summary">
-        <div class="box"><strong>Mã booking:</strong> <span th:text="${booking.id}"></span></div>
-        <div class="box"><strong>Trạng thái:</strong> <span th:text="${booking.status}"></span></div>
-        <div class="box"><strong>Thanh toán:</strong> <span th:text="${booking.paymentStatus}"></span></div>
-        <div class="box"><strong>Tổng tiền:</strong> <span th:text="${booking.totalAmount}"></span></div>
-        <div class="box"><strong>Ngày đặt:</strong> <span th:text="${booking.bookingDate}"></span></div>
-        <div class="box"><strong>Ghi chú:</strong> <span th:text="${booking.note}"></span></div>
+    <div class="topbar">
+        <div class="topbar-row result-topbar-row">
+            <a href="#" class="back-btn" onclick="history.back(); return false;" aria-label="Quay lại">&#8249;</a>
+            <div class="title" th:text="${pageMode == 'success' ? 'Đặt sân thành công' : 'Chi tiết booking'}">Chi tiết booking</div>
+            <div class="header-actions">
+                <div class="result-chip">
+                    <span class="result-chip-label">Booking</span>
+                    <strong th:text="${'#' + booking.id}">#1</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar result-toolbar">
+            <div class="legend">
+                <span class="legend-box booked"></span>
+                <span>Đã đặt</span>
+            </div>
+            <div class="legend">
+                <span class="legend-box holding"></span>
+                <span>Đang giữ chỗ</span>
+            </div>
+            <div class="legend">
+                <span class="legend-box cancelled"></span>
+                <span>Đã hủy / hoàn tiền</span>
+            </div>
+        </div>
     </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Sân</th>
-            <th>Khung giờ</th>
-            <th>Ngày chơi</th>
-            <th>Giá</th>
-            <th>Trạng thái slot</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item : ${booking.items}">
-            <td th:text="${item.courtName}"></td>
-            <td th:text="${item.startTime + ' - ' + item.endTime}"></td>
-            <td th:text="${item.playDate}"></td>
-            <td th:text="${item.price}"></td>
-            <td th:text="${item.active == 1 ? 'Đang giữ chỗ' : 'Đã hủy'}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="notice-bar" th:if="${pageMode == 'success'}">
+        <b>Thông báo :</b>
+        Booking đã được tạo thành công. Các slot chưa thanh toán sẽ hiển thị là đang giữ chỗ cho đến khi admin duyệt.
+    </div>
+    <div class="notice-bar" th:unless="${pageMode == 'success'}">
+        <b>Thông tin :</b>
+        Đây là màn hình chi tiết booking. Bạn có thể theo dõi trạng thái booking, thanh toán và các slot đã chọn.
+    </div>
 
-    <div class="actions">
-        <a th:href="@{/bookings/create(userId=1)}">Tạo booking mới</a>
+    <div class="result-shell">
+        <section class="hero-card" th:classappend="${pageMode == 'success' ? ' hero-success' : ' hero-detail'}">
+            <div class="hero-main">
+                <div class="hero-icon" th:text="${pageMode == 'success' ? '✓' : 'i'}">i</div>
+                <div class="hero-copy">
+                    <div class="hero-kicker" th:text="${pageMode == 'success' ? 'Đã tiếp nhận booking' : 'Thông tin booking'}">Thông tin booking</div>
+                    <h1 th:text="${pageMode == 'success' ? 'Đặt sân thành công' : 'Chi tiết booking'}">Chi tiết booking</h1>
+                    <p th:text="${pageMode == 'success'
+                            ? 'Booking của bạn đã được lưu. Trạng thái sân sẽ chuyển sang đã đặt sau khi thanh toán được duyệt.'
+                            : 'Xem nhanh toàn bộ trạng thái, thời gian chơi và giá trị của booking bên dưới.'}">
+                        Xem nhanh toàn bộ trạng thái, thời gian chơi và giá trị của booking bên dưới.
+                    </p>
+
+                    <div class="pill-row">
+                        <span class="status-pill" th:classappend="' ' + ${bookingStatusClass}" th:text="${bookingStatusLabel}">Chờ xử lý</span>
+                        <span class="status-pill" th:classappend="' ' + ${paymentStatusClass}" th:text="${paymentStatusLabel}">Chờ thanh toán</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-total">
+                <span class="hero-total-label">Tổng tiền</span>
+                <strong th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(booking.totalAmount)}">0 VNĐ</strong>
+            </div>
+        </section>
+
+        <section class="summary-grid">
+            <article class="info-card">
+                <span class="info-label">Mã booking</span>
+                <strong class="info-value" th:text="${'#' + booking.id}">#1</strong>
+            </article>
+            <article class="info-card">
+                <span class="info-label">Ngày đặt</span>
+                <strong class="info-value" th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDateTime(booking.bookingDate)}">27/03/2026 10:00</strong>
+            </article>
+            <article class="info-card">
+                <span class="info-label">Cập nhật lần cuối</span>
+                <strong class="info-value" th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDateTime(booking.updatedAt)}">27/03/2026 10:00</strong>
+            </article>
+            <article class="info-card">
+                <span class="info-label">Ghi chú</span>
+                <strong class="info-value info-value-note"
+                        th:text="${#strings.isEmpty(booking.note) ? 'Không có ghi chú' : booking.note}">
+                    Không có ghi chú
+                </strong>
+            </article>
+        </section>
+
+        <section class="detail-panel">
+            <div class="panel-head">
+                <div>
+                    <h2>Khung giờ đã chọn</h2>
+                    <p th:text="${booking.items != null ? #lists.size(booking.items) + ' slot trong booking này' : '0 slot trong booking này'}">
+                        0 slot trong booking này
+                    </p>
+                </div>
+
+                <a class="secondary-link"
+                   th:if="${booking.userId != null}"
+                   th:href="@{/bookings/create(userId=${booking.userId})}">
+                    Đặt sân mới
+                </a>
+            </div>
+
+            <div class="slot-list" th:if="${booking.items != null and !#lists.isEmpty(booking.items)}">
+                <article class="slot-card" th:each="item : ${booking.items}">
+                    <div class="slot-card-top">
+                        <div class="slot-title-wrap">
+                            <div class="slot-court" th:text="${item.courtName}">Sân 1</div>
+                            <div class="slot-time" th:text="${item.startTime + ' - ' + item.endTime}">08:00 - 09:00</div>
+                        </div>
+
+                        <span class="status-pill"
+                              th:classappend="${item.active == 1
+                                    ? (booking.paymentStatus == 'PAID' ? ' pill-booked' : ' pill-holding')
+                                    : ' pill-cancelled'}"
+                              th:text="${item.active == 1
+                                    ? (booking.paymentStatus == 'PAID' ? 'Đã đặt' : 'Đang giữ chỗ')
+                                    : 'Đã hủy'}">
+                            Đang giữ chỗ
+                        </span>
+                    </div>
+
+                    <div class="slot-meta">
+                        <div class="meta-item">
+                            <span>Ngày chơi</span>
+                            <strong th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDate(item.playDate)}">27/03/2026</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Giá</span>
+                            <strong th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(item.price)}">0 VNĐ</strong>
+                        </div>
+                        <div class="meta-item">
+                            <span>Mã slot</span>
+                            <strong th:text="${'#' + item.bookingDetailId}">#1</strong>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="empty-state"
+                 th:unless="${booking.items != null and !#lists.isEmpty(booking.items)}">
+                Chưa có slot nào trong booking này.
+            </div>
+        </section>
+
+        <div class="result-actions">
+            <a class="action-btn action-btn-secondary" th:href="@{/bookings/{bookingId}(bookingId=${booking.id})}">
+                Làm mới chi tiết
+            </a>
+            <a class="action-btn action-btn-primary"
+               th:if="${booking.userId != null}"
+               th:href="@{/bookings/create(userId=${booking.userId})}">
+                Đặt sân mới
+            </a>
+        </div>
     </div>
 </div>
 </body>

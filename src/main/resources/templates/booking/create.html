@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đặt lịch ngày trực quan</title>
-    <link rel="stylesheet" th:href="@{/CSS/CreateBooking.css}">
+    <link rel="stylesheet" th:href="@{/css/CreateBooking.css}">
 </head>
 <body>
 <div class="page">
@@ -58,6 +58,10 @@
                     <span>Đã đặt</span>
                 </div>
                 <div class="legend">
+                    <span class="legend-box holding"></span>
+                    <span>Đang giữ chỗ</span>
+                </div>
+                <div class="legend">
                     <span class="legend-box locked"></span>
                     <span>Khóa</span>
                 </div>
@@ -84,13 +88,15 @@
         <div class="schedule-wrap"
              th:if="${bookingRequest.branchId != null and courts != null and !#lists.isEmpty(courts) and timeSlots != null and !#lists.isEmpty(timeSlots)}">
             <div class="schedule" th:style="'--slot-count:' + ${#lists.size(timeSlots)}">
+
                 <div class="time-header">
                     <div class="corner"></div>
+                    <!-- Hiển thị giờ trên khung -->
                     <div class="time-cell" th:each="ts : ${timeSlots}">
                         <span th:text="${ts.startTime}">05:00</span>
                     </div>
                 </div>
-
+                <!-- Hiển thị tên sân theo từng hàng -->
                 <div class="court-row" th:each="court : ${courts}">
                     <div class="court-name" th:text="${court.name}">Sân 1</div>
 
@@ -100,8 +106,9 @@
                             th:with="slot=${slotGrid[court.id][ts.id]}"
                             th:classappend="
                                 ${slot.status == 'BOOKED'} ? ' status-booked' :
+                                (${slot.status == 'HOLDING'} ? ' status-holding' :
                                 (${slot.status == 'LOCKED'} ? ' status-locked' :
-                                (${slot.status == 'NO_PRICE'} ? ' status-no-price' : ' status-available'))"
+                                (${slot.status == 'NO_PRICE'} ? ' status-no-price' : ' status-available')))"
                             th:data-court-id="${slot.courtId}"
                             th:data-court-name="${slot.courtName}"
                             th:data-time-slot-id="${slot.timeSlotId}"
@@ -124,7 +131,7 @@
              th:if="${bookingRequest.branchId != null and (courts == null or #lists.isEmpty(courts) or timeSlots == null or #lists.isEmpty(timeSlots))}">
             Chưa có dữ liệu sân hoặc khung giờ để hiển thị.
         </div>
-
+        <!-- Giữ lại form ban đầu khi submit lỗi -->
         <div id="serverSelections">
             <span th:each="slot : *{slots}"
                   class="server-slot"
@@ -153,6 +160,47 @@
                     <div>Tổng tiền: <span id="totalAmount">0 đ</span></div>
                 </div>
                 <button type="submit" class="submit-btn">TIẾP THEO</button>
+            </div>
+        </div>
+
+        <div class="confirm-modal hidden" id="bookingConfirmModal" aria-hidden="true">
+            <div class="confirm-modal-backdrop" data-confirm-close></div>
+            <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingConfirmTitle">
+                <div class="confirm-modal-header">
+                    <h2 id="bookingConfirmTitle">Xác nhận đặt sân</h2>
+                    <button type="button" class="confirm-modal-close" data-confirm-close aria-label="Đóng">&times;</button>
+                </div>
+
+                <div class="confirm-modal-body">
+                    <div class="confirm-summary-grid">
+                        <div class="confirm-summary-item">
+                            <span>Chi nhánh</span>
+                            <strong id="confirmBranchName">-</strong>
+                        </div>
+                        <div class="confirm-summary-item">
+                            <span>Ngày chơi</span>
+                            <strong id="confirmPlayDate">-</strong>
+                        </div>
+                        <div class="confirm-summary-item">
+                            <span>Tổng giờ</span>
+                            <strong id="confirmTotalHours">0h00</strong>
+                        </div>
+                        <div class="confirm-summary-item">
+                            <span>Tổng tiền</span>
+                            <strong id="confirmTotalAmount">0 đ</strong>
+                        </div>
+                    </div>
+
+                    <div class="confirm-selection-block">
+                        <div class="confirm-selection-title">Khung giờ đã chọn</div>
+                        <div class="confirm-selection-list" id="confirmSelectionList"></div>
+                    </div>
+                </div>
+
+                <div class="confirm-modal-actions">
+                    <button type="button" class="confirm-cancel-btn" data-confirm-close>Kiểm tra lại</button>
+                    <button type="button" class="confirm-submit-btn" id="confirmSubmitBtn">Xác nhận đặt sân</button>
+                </div>
             </div>
         </div>
     </form>

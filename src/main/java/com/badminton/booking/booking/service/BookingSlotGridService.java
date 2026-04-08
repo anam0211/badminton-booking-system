@@ -2,7 +2,9 @@ package com.badminton.booking.booking.service;
 
 import com.badminton.booking.booking.dto.response.SlotView;
 import com.badminton.booking.booking.repository.BookingDetailRepository;
+import com.badminton.booking.common.enums.PaymentStatus;
 import com.badminton.booking.common.exception.AppException;
+import com.badminton.booking.domain.entity.BookingDetail;
 import com.badminton.booking.domain.entity.Court;
 import com.badminton.booking.domain.entity.TimeSlot;
 import lombok.RequiredArgsConstructor;
@@ -34,13 +36,15 @@ public class BookingSlotGridService {
             return grid;
         }
 
+        Long branchId = courts.get(0).getBranch().getId();
+        Map<String, String> occupiedStatuses = buildOccupiedStatuses(branchId, playDate);
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
         for (Court court : courts) {
             Map<Integer, SlotView> row = new HashMap<>();
             for (TimeSlot timeSlot : timeSlots) {
-                row.put(timeSlot.getId(), buildSlotView(court, timeSlot, playDate, today, now));
+                row.put(timeSlot.getId(), buildSlotView(court, timeSlot, playDate, today, now, occupiedStatuses));
             }
             grid.put(court.getId(), row);
         }
@@ -52,12 +56,14 @@ public class BookingSlotGridService {
                                    TimeSlot timeSlot,
                                    LocalDate playDate,
                                    LocalDate today,
-                                   LocalTime now) {
+                                   LocalTime now,
+                                   Map<String, String> occupiedStatuses) {
         String status;
         BigDecimal price = null;
 
-        if (isBooked(court.getId(), timeSlot.getId(), playDate)) {
-            status = "BOOKED";
+        String occupiedStatus = occupiedStatuses.get(buildSlotKey(court.getId(), timeSlot.getId(), playDate));
+        if (occupiedStatus != null) {
+            status = occupiedStatus;
         } else {
             try {
                 price = bookingPricingService.calculate(court.getId(), timeSlot.getId());
@@ -79,13 +85,32 @@ public class BookingSlotGridService {
                 .build();
     }
 
-    private boolean isBooked(Long courtId, Integer timeSlotId, LocalDate playDate) {
-        return bookingDetailRepository.existsByCourt_IdAndTimeSlot_IdAndPlayDateAndActiveKey(
-                courtId,
-                timeSlotId,
+    private Map<String, String> buildOccupiedStatuses(Long branchId, LocalDate playDate) {
+        List<BookingDetail> bookingDetails = bookingDetailRepository.findActiveDetailsWithBookingByBranchAndPlayDate(
+                branchId,
                 playDate,
                 ACTIVE_KEY
         );
+
+        Map<String, String> occupiedStatuses = new HashMap<>();
+        for (BookingDetail bookingDetail : bookingDetails) {
+            String status = bookingDetail.getBooking().getPaymentStatus() == PaymentStatus.PAID
+                    ? "BOOKED"
+                    : "HOLDING";
+            occupiedStatuses.put(
+                    buildSlotKey(
+                            bookingDetail.getCourt().getId(),
+                            bookingDetail.getTimeSlot().getId(),
+                            bookingDetail.getPlayDate()
+                    ),
+                    status
+            );
+        }
+        return occupiedStatuses;
+    }
+
+    private String buildSlotKey(Long courtId, Integer timeSlotId, LocalDate playDate) {
+        return courtId + "|" + timeSlotId + "|" + playDate;
     }
 
     private String resolveStatus(LocalDate playDate,

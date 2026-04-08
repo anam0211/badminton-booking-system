@@ -42,29 +42,17 @@ public class MonthlyStatistic {
     @Builder.Default
     private BigDecimal totalRevenue = BigDecimal.ZERO;
 
-    @Column(name = "actual_revenue", precision = 15, scale = 2)
-    @Builder.Default
-    private BigDecimal actualRevenue = BigDecimal.ZERO;
-
-    @Column(name = "expected_revenue", precision = 15, scale = 2)
-    @Builder.Default
-    private BigDecimal expectedRevenue = BigDecimal.ZERO;
-
     @Column(name = "total_bookings")
     @Builder.Default
-    private Integer totalBookings = 0;
+    private Long totalBookings = 0L;
 
     @Column(name = "completed_bookings")
     @Builder.Default
-    private Integer completedBookings = 0;
+    private Long completedBookings = 0L;
 
     @Column(name = "cancelled_bookings")
     @Builder.Default
-    private Integer cancelledBookings = 0;
-
-    @Column(name = "occupancy_rate", precision = 5, scale = 2)
-    @Builder.Default
-    private BigDecimal occupancyRate = BigDecimal.ZERO;
+    private Long cancelledBookings = 0L;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
