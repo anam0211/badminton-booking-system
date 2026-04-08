@@ -1,6 +1,7 @@
 package com.badminton.booking.booking.repository;
 
 import com.badminton.booking.domain.entity.BookingDetail;
+import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -8,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
+@Repository("bookingBookingDetailRepository")
 public interface BookingDetailRepository extends JpaRepository<BookingDetail, Long> {
 
     boolean existsByCourt_IdAndTimeSlot_IdAndPlayDateAndActiveKey(
@@ -36,6 +38,8 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
                                                                         @Param("activeKey") byte activeKey);
 
     List<BookingDetail> findByBooking_Id(Long bookingId);
+
+    boolean existsByBooking_IdAndCourt_Branch_Id(Long bookingId, Long branchId);
 
     @Query("""
             select bd

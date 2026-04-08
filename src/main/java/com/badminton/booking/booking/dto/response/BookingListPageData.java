@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public class BookingListPageData {
     private Long userId;
+    private Long defaultBranchId;
     private boolean adminView;
     private String pageTitle;
     private String pageDescription;

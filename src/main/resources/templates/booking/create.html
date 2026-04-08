@@ -3,27 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dat lich ngay truc quan</title>
+    <title>Đặt lịch ngay trực quan</title>
     <link rel="stylesheet" th:href="@{/css/CreateBooking.css}">
 </head>
 <body>
 <div class="page">
-    <form th:action="@{/bookings/save(userId=${userId})}"
+    <form th:action="@{/bookings/save}"
           th:data-create-url="@{/bookings/create}"
-          th:data-user-id="${userId}"
           method="post"
           th:object="${bookingRequest}"
           id="bookingForm">
 
         <div class="topbar">
             <div class="topbar-row">
-                <a href="#" class="back-btn" onclick="history.back(); return false;" aria-label="Quay lai">&#8249;</a>
-                <div class="title">Dat lich ngay truc quan</div>
+                <a href="#" class="back-btn" onclick="history.back(); return false;" aria-label="Quay lại">&#8249;</a>
+                <div class="title">Đặt lịch ngay trực quan</div>
 
                 <div class="header-actions">
-                    <div class="chip" th:if="${branches != null and !#lists.isEmpty(branches)}">
+                    <div class="chip chip-readonly"
+                         th:if="${bookingRequest.branchId != null and selectedBranchName != null}">
+                        <input type="hidden" th:field="*{branchId}" id="branchId">
+                        <div class="chip-value" id="selectedBranchName" th:text="${selectedBranchName}">Chi nhánh</div>
+                    </div>
+
+                    <div class="chip"
+                         th:if="${(bookingRequest.branchId == null or selectedBranchName == null) and branches != null and !#lists.isEmpty(branches)}">
                         <select th:field="*{branchId}" id="branchId" required onchange="applyFilters()">
-                            <option value="">Chon chi nhanh</option>
+                            <option value="">Chọn chi nhánh</option>
                             <option th:each="branch : ${branches}"
                                     th:value="${branch.id}"
                                     th:text="${branch.name}">
@@ -51,21 +57,21 @@
             <div class="toolbar">
                 <div class="legend">
                     <span class="legend-box available"></span>
-                    <span>Co the chon</span>
+                    <span>Có thể chọn</span>
                 </div>
                 <div class="legend">
                     <span class="legend-box booked"></span>
-                    <span>Da dat</span>
+                    <span>Đã đặt</span>
                 </div>
                 <div class="legend">
                     <span class="legend-box locked"></span>
-                    <span>Khoa</span>
+                    <span>Khóa</span>
                 </div>
                 <div class="legend">
                     <span class="legend-box no-price"></span>
-                    <span>Chua co gia</span>
+                    <span>Chưa có giá</span>
                 </div>
-                <a class="price-link" th:href="@{/courts}">Xem san va bang gia</a>
+                <a class="price-link" th:href="@{/courts}">Xem sân và bảng giá</a>
             </div>
         </div>
 
@@ -77,8 +83,8 @@
         <div th:if="${#fields.hasErrors('slots')}" class="error-box" th:errors="*{slots}"></div>
 
         <div class="notice-bar">
-            <b>Luu y:</b>
-            Slot duoc dat se khoa ngay sau khi ban xac nhan booking.
+            <b>Lưu ý:</b>
+            Slot được đặt sẽ khóa ngay sau khi bạn xác nhận booking.
         </div>
 
         <div class="schedule-wrap"
@@ -92,7 +98,7 @@
                 </div>
 
                 <div class="court-row" th:each="court : ${courts}">
-                    <div class="court-name" th:text="${court.name}">San 1</div>
+                    <div class="court-name" th:text="${court.name}">Sân 1</div>
 
                     <button th:each="ts : ${timeSlots}"
                             type="button"
@@ -117,12 +123,12 @@
         </div>
 
         <div class="empty-state" th:if="${bookingRequest.branchId == null}">
-            Vui long chon chi nhanh de xem san va khung gio.
+            Vui lòng chọn chi nhánh để xem sân và khung giờ.
         </div>
 
         <div class="empty-state"
              th:if="${bookingRequest.branchId != null and (courts == null or #lists.isEmpty(courts) or timeSlots == null or #lists.isEmpty(timeSlots))}">
-            Chua co du lieu san hoac khung gio de hien thi.
+            Chưa có dữ liệu sân hoặc khung giờ để hiển thị.
         </div>
 
         <div id="serverSelections">
@@ -149,10 +155,10 @@
 
             <div class="booking-summary">
                 <div class="summary-row">
-                    <div>Tong gio: <span id="totalHours">0h00</span></div>
-                    <div>Tong tien: <span id="totalAmount">0 d</span></div>
+                    <div>Tổng giờ: <span id="totalHours">0h00</span></div>
+                    <div>Tổng tiền: <span id="totalAmount">0 đ</span></div>
                 </div>
-                <button type="submit" class="submit-btn">TIEP THEO</button>
+                <button type="submit" class="submit-btn">TIẾP THEO</button>
             </div>
         </div>
 
@@ -160,39 +166,39 @@
             <div class="confirm-modal-backdrop" data-confirm-close></div>
             <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingConfirmTitle">
                 <div class="confirm-modal-header">
-                    <h2 id="bookingConfirmTitle">Xac nhan dat san</h2>
-                    <button type="button" class="confirm-modal-close" data-confirm-close aria-label="Dong">&times;</button>
+                    <h2 id="bookingConfirmTitle">Xác nhận đặt sân</h2>
+                    <button type="button" class="confirm-modal-close" data-confirm-close aria-label="Đóng">&times;</button>
                 </div>
 
                 <div class="confirm-modal-body">
                     <div class="confirm-summary-grid">
                         <div class="confirm-summary-item">
-                            <span>Chi nhanh</span>
+                            <span>Chi nhánh</span>
                             <strong id="confirmBranchName">-</strong>
                         </div>
                         <div class="confirm-summary-item">
-                            <span>Ngay choi</span>
+                            <span>Ngày chơi</span>
                             <strong id="confirmPlayDate">-</strong>
                         </div>
                         <div class="confirm-summary-item">
-                            <span>Tong gio</span>
+                            <span>Tổng giờ</span>
                             <strong id="confirmTotalHours">0h00</strong>
                         </div>
                         <div class="confirm-summary-item">
-                            <span>Tong tien</span>
-                            <strong id="confirmTotalAmount">0 d</strong>
+                            <span>Tổng tiền</span>
+                            <strong id="confirmTotalAmount">0 đ</strong>
                         </div>
                     </div>
 
                     <div class="confirm-selection-block">
-                        <div class="confirm-selection-title">Khung gio da chon</div>
+                        <div class="confirm-selection-title">Khung giờ đã chọn</div>
                         <div class="confirm-selection-list" id="confirmSelectionList"></div>
                     </div>
                 </div>
 
                 <div class="confirm-modal-actions">
-                    <button type="button" class="confirm-cancel-btn" data-confirm-close>Kiem tra lai</button>
-                    <button type="button" class="confirm-submit-btn" id="confirmSubmitBtn">Xac nhan dat san</button>
+                    <button type="button" class="confirm-cancel-btn" data-confirm-close>Kiểm tra lại</button>
+                    <button type="button" class="confirm-submit-btn" id="confirmSubmitBtn">Xác nhận đặt sân</button>
                 </div>
             </div>
         </div>

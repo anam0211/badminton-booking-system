@@ -28,4 +28,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             order by b.bookingDate desc, b.id desc
             """)
     List<Booking> findAllWithUserOrderByBookingDateDesc();
+
+    @Query("""
+            select b
+            from Booking b
+            join fetch b.user
+            where exists (
+                select 1
+                from BookingDetail bd
+                where bd.booking = b
+                  and bd.court.branch.id = :branchId
+            )
+            order by b.bookingDate desc, b.id desc
+            """)
+    List<Booking> findAllWithUserByBranchIdOrderByBookingDateDesc(@Param("branchId") Long branchId);
 }

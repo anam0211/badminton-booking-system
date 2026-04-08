@@ -12,6 +12,7 @@ public class BookingPageModelBinder {
     public void bindCreatePage(Model model, BookingCreatePageData pageData) {
         model.addAttribute("userId", pageData.getUserId());
         model.addAttribute("playDate", pageData.getPlayDate());
+        model.addAttribute("selectedBranchName", pageData.getSelectedBranchName());
         model.addAttribute("branches", pageData.getBranches());
         model.addAttribute("courts", pageData.getCourts());
         model.addAttribute("timeSlots", pageData.getTimeSlots());
@@ -25,6 +26,7 @@ public class BookingPageModelBinder {
 
     public void bindListPage(Model model, BookingListPageData pageData) {
         model.addAttribute("userId", pageData.getUserId());
+        model.addAttribute("defaultBranchId", pageData.getDefaultBranchId());
         model.addAttribute("adminView", pageData.isAdminView());
         model.addAttribute("pageTitle", pageData.getPageTitle());
         model.addAttribute("pageDescription", pageData.getPageDescription());

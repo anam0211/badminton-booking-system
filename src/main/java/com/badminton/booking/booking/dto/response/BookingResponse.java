@@ -13,6 +13,7 @@ public class BookingResponse {
     private Long userId;
     private String userFullName;
     private String userEmail;
+    private Long branchId;
     private String branchName;
     private String status;
     private String paymentStatus;

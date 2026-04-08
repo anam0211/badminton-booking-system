@@ -11,8 +11,8 @@
 }
 
 .result-chip {
-    min-width: 118px;
-    padding: 10px 14px;
+    min-width: 108px;
+    padding: 8px 12px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.18);
     color: #fff;
@@ -21,29 +21,29 @@
 
 .result-chip-label {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     opacity: 0.88;
     margin-bottom: 4px;
 }
 
 .result-shell {
-    padding: 24px;
+    padding: 20px;
     display: grid;
-    gap: 22px;
+    gap: 18px;
     background: linear-gradient(180deg, rgba(5, 92, 38, 0.05) 0%, rgba(237, 245, 239, 1) 24%);
 }
 
 .legend-box.cancelled {
-    background: #ff6868;
+    background: #94a3b8;
 }
 
 .hero-card {
     display: flex;
     justify-content: space-between;
     align-items: stretch;
-    gap: 20px;
-    padding: 24px;
-    border-radius: 20px;
+    gap: 18px;
+    padding: 20px;
+    border-radius: 18px;
     color: #fff;
     background: linear-gradient(135deg, #05652f 0%, #0a7a3a 52%, #0d8f43 100%);
     box-shadow: 0 20px 44px rgba(5, 92, 38, 0.16);
@@ -56,38 +56,39 @@
 .hero-main {
     display: flex;
     align-items: flex-start;
-    gap: 18px;
+    gap: 16px;
     flex: 1;
 }
 
 .hero-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.18);
-    font-size: 30px;
+    font-size: 24px;
     font-weight: 800;
     flex: 0 0 auto;
 }
 
 .hero-copy h1 {
     margin: 4px 0 10px;
-    font-size: 30px;
-    line-height: 1.15;
+    font-size: 28px;
+    line-height: 1.2;
 }
 
 .hero-copy p {
     margin: 0;
-    max-width: 640px;
+    max-width: 580px;
     color: rgba(255, 255, 255, 0.86);
+    font-size: 15px;
     line-height: 1.6;
 }
 
 .hero-kicker {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -95,8 +96,8 @@
 }
 
 .hero-total {
-    min-width: 220px;
-    padding: 18px 20px;
+    min-width: 190px;
+    padding: 16px 18px;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.14);
     display: flex;
@@ -106,47 +107,51 @@
 }
 
 .hero-total-label {
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.74);
     margin-bottom: 8px;
 }
 
 .hero-total strong {
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1.2;
 }
 
 .pill-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 .status-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 9px 14px;
+    padding: 8px 12px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     line-height: 1;
+    border: 1px solid transparent;
 }
 
 .pill-booked {
-    background: rgba(223, 245, 225, 0.18);
-    color: #dff5e1;
+    background: #fee4e2;
+    border-color: #fecdca;
+    color: #b42318;
 }
 
 .pill-pending {
-    background: rgba(255, 255, 255, 0.16);
-    color: #fff;
+    background: #fff3d1;
+    border-color: #f7d890;
+    color: #9a6700;
 }
 
 .pill-cancelled {
-    background: rgba(255, 104, 104, 0.18);
-    color: #ffd0d0;
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #475569;
 }
 
 .summary-grid {
@@ -164,29 +169,29 @@
 }
 
 .info-card {
-    padding: 18px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .info-label {
-    font-size: 13px;
+    font-size: 12px;
     color: #5f7469;
 }
 
 .info-value {
-    font-size: 18px;
-    line-height: 1.45;
+    font-size: 17px;
+    line-height: 1.5;
     color: #17392b;
 }
 
 .info-value-note {
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .detail-panel {
-    padding: 20px;
+    padding: 18px;
 }
 
 .panel-head {
@@ -199,35 +204,37 @@
 
 .panel-head h2 {
     margin: 0 0 6px;
-    font-size: 24px;
+    font-size: 22px;
     color: #17392b;
 }
 
 .panel-head p {
     margin: 0;
     color: #5f7469;
+    font-size: 14px;
 }
 
 .secondary-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
-    padding: 0 16px;
+    min-height: 40px;
+    padding: 0 14px;
     border-radius: 10px;
     border: 1px solid rgba(5, 92, 38, 0.16);
     background: #edf5ef;
     color: #05652f;
     font-weight: 700;
+    font-size: 14px;
 }
 
 .slot-list {
     display: grid;
-    gap: 14px;
+    gap: 12px;
 }
 
 .slot-card {
-    padding: 16px 18px;
+    padding: 14px 16px;
     border-radius: 16px;
     border: 1px solid rgba(127, 140, 133, 0.2);
     background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
@@ -245,7 +252,7 @@
 }
 
 .slot-court {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     color: #17392b;
 }
@@ -254,6 +261,7 @@
     margin-top: 4px;
     color: #557065;
     font-weight: 600;
+    font-size: 14px;
 }
 
 .slot-meta {
@@ -266,14 +274,14 @@
 .meta-item {
     padding: 12px 14px;
     border-radius: 12px;
-    background: #edf5ef;
+    background: #f2f7f3;
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
 .meta-item span {
-    font-size: 12px;
+    font-size: 11px;
     color: #61766b;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -281,7 +289,7 @@
 
 .meta-item strong {
     color: #17392b;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .result-actions {
@@ -292,14 +300,15 @@
 }
 
 .action-btn {
-    min-height: 48px;
-    padding: 0 18px;
+    min-height: 44px;
+    padding: 0 16px;
     border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
     text-decoration: none;
+    font-size: 14px;
 }
 
 .action-btn-primary {
@@ -310,6 +319,27 @@
 .action-btn-secondary {
     background: #dfeae3;
     color: #17392b;
+}
+
+.action-btn-danger {
+    border: 1px solid #fecdca;
+    background: #fee4e2;
+    color: #b42318;
+}
+
+button.action-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+button.action-btn.action-btn-danger {
+    border: 1px solid #fecdca;
+}
+
+button.action-btn:disabled {
+    opacity: 0.72;
+    cursor: wait;
 }
 
 @media (max-width: 1100px) {
