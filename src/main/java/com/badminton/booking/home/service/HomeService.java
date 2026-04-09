@@ -5,5 +5,5 @@ import com.badminton.booking.home.dto.response.HomeResponse;
 import java.util.List;
 
 public interface HomeService {
-    List<HomeResponse> getBranchList();
+    List<HomeResponse> getFeatureBranches();
 }

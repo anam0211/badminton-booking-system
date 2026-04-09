@@ -18,9 +18,9 @@ public class HomeController {
     HomeService homeService;
 
     @GetMapping("/home")
-    public String getBranchList(Model model){
-        List<HomeResponse> list = homeService.getBranchList();
-        model.addAttribute("branchList", list);
+    public String getFeatureBranches(Model model){
+        List<HomeResponse> list = homeService.getFeatureBranches();
+        model.addAttribute("featureBranches", list);
         return "home/home";
     }
 }

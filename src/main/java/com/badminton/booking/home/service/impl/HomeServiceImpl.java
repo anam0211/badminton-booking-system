@@ -19,7 +19,7 @@ public class HomeServiceImpl implements HomeService {
     BranchRepository branchRepository;
 
     @Override
-    public List<HomeResponse> getBranchList(){
+    public List<HomeResponse> getFeatureBranches(){
         List<BranchRepository.BranchList> branchList = branchRepository.getBranchList();
         List<HomeResponse> response = new ArrayList<>();
         for(BranchRepository.BranchList list : branchList){
