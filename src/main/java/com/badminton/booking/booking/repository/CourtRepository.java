@@ -11,4 +11,6 @@ import java.util.List;
 @Repository
 public interface CourtRepository extends JpaRepository<Court, Long> {
      List<Court> findByBranch_IdOrderByNameAsc(Long branchId);
+
+     long countByBranch_IdAndIsDeletedFalse(Long branchId);
 }

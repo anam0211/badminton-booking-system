@@ -11,12 +11,12 @@ import java.util.List;
 @Data
 public class BookingRequest {
 
-    @NotNull(message = "Vui l\u00f2ng ch\u1ecdn chi nh\u00e1nh")
+    @NotNull(message = "Vui lòng chọn chi nhánh")
     private Long branchId;
 
     private String note;
 
     @Valid
-    @NotEmpty(message = "Vui l\u00f2ng ch\u1ecdn \u00edt nh\u1ea5t 1 slot")
+    @NotEmpty(message = "Vui lòng chọn ít nhất 1 slot")
     private List<Slots> slots = new ArrayList<>();
 }

@@ -24,7 +24,7 @@ public class AdminBookingPageController {
     public String bookingList(Model model) {
         User currentUser = userService.getCurrentUser();
         if (!hasAdminAccess(currentUser)) {
-            model.addAttribute("errorMessage", "B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n xem danh s\u00e1ch booking c\u1ee7a admin.");
+            model.addAttribute("errorMessage", "Bạn không có quyền xem danh sách booking của admin.");
             return "error/403";
         }
 

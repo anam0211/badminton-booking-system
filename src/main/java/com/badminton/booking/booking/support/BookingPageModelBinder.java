@@ -10,7 +10,6 @@ import org.springframework.ui.Model;
 public class BookingPageModelBinder {
 
     public void bindCreatePage(Model model, BookingCreatePageData pageData) {
-        model.addAttribute("userId", pageData.getUserId());
         model.addAttribute("playDate", pageData.getPlayDate());
         model.addAttribute("selectedBranchName", pageData.getSelectedBranchName());
         model.addAttribute("branches", pageData.getBranches());
@@ -25,7 +24,6 @@ public class BookingPageModelBinder {
     }
 
     public void bindListPage(Model model, BookingListPageData pageData) {
-        model.addAttribute("userId", pageData.getUserId());
         model.addAttribute("defaultBranchId", pageData.getDefaultBranchId());
         model.addAttribute("adminView", pageData.isAdminView());
         model.addAttribute("pageTitle", pageData.getPageTitle());
@@ -33,6 +31,8 @@ public class BookingPageModelBinder {
         model.addAttribute("emptyMessage", pageData.getEmptyMessage());
         model.addAttribute("totalBookings", pageData.getTotalBookings());
         model.addAttribute("totalAmount", pageData.getTotalAmount());
+        model.addAttribute("activeBookings", pageData.getActiveBookings());
+        model.addAttribute("cancelledBookings", pageData.getCancelledBookings());
         model.addAttribute("bookings", pageData.getBookings());
     }
 }

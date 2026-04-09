@@ -12,7 +12,6 @@ import com.badminton.booking.booking.repository.CourtRepository;
 import com.badminton.booking.booking.repository.TimeSlotRepository;
 import com.badminton.booking.booking.validator.BookingValidator;
 import com.badminton.booking.common.enums.BookingStatus;
-import com.badminton.booking.common.enums.PaymentStatus;
 import com.badminton.booking.common.enums.RoleName;
 import com.badminton.booking.common.exception.AccessDeniedCustomException;
 import com.badminton.booking.common.exception.AppException;
@@ -24,14 +23,15 @@ import com.badminton.booking.domain.entity.TimeSlot;
 import com.badminton.booking.domain.entity.User;
 import com.badminton.booking.notification.event.BookingCancelEvent;
 import com.badminton.booking.notification.event.BookingSuccessEvent;
-import com.badminton.booking.notification.event.PaymentSuccessEvent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,11 +43,11 @@ import java.util.Map;
 
 @Service
 @Transactional
+@Slf4j
 @RequiredArgsConstructor
 public class BookingService {
 
     private static final byte ACTIVE_KEY = 1;
-    private static final byte INACTIVE_KEY = 0;
 
     private final BookingRepository bookingRepository;
     private final BookingDetailRepository bookingDetailRepository;
@@ -69,7 +69,6 @@ public class BookingService {
                 .user(user)
                 .note(request.getNote())
                 .status(BookingStatus.CONFIRMED)
-                .paymentStatus(PaymentStatus.PAID)
                 .totalAmount(BigDecimal.ZERO)
                 .build();
 
@@ -125,18 +124,11 @@ public class BookingService {
             booking.setTotalAmount(total);
             booking = bookingRepository.save(booking);
 
-            publishBookingCreatedEvents(booking, createdDetails);
+            publishBookingCreatedEventsSafely(booking, createdDetails);
             return mapToResponse(booking);
         } catch (DataIntegrityViolationException ex) {
             throw new AppException(ErrorCode.TIMESLOT_ALREADY_BOOKED);
         }
-    }
-
-    public BookingResponse getBookingById(Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
-
-        return mapToResponse(booking);
     }
 
     public BookingResponse getBookingByIdForViewer(Long bookingId, User viewer) {
@@ -144,7 +136,7 @@ public class BookingService {
                 .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
 
         if (!canAccessBooking(viewer, booking)) {
-            throw new AccessDeniedCustomException("B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n xem booking n\u00e0y.");
+            throw new AccessDeniedCustomException("Bạn không có quyền xem booking này.");
         }
 
         return mapToResponse(booking);
@@ -168,19 +160,19 @@ public class BookingService {
             return mapToResponses(bookingRepository.findAllWithUserByBranchIdOrderByBookingDateDesc(managedBranchId));
         }
 
-        throw new AccessDeniedCustomException("B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n xem danh s\u00e1ch booking n\u00e0y.");
+        throw new AccessDeniedCustomException("Bạn không có quyền xem danh sách booking này.");
     }
 
     public BookingResponse cancelBookingForViewer(Long bookingId, User viewer) {
         if (!hasAdminAccess(viewer)) {
-            throw new AccessDeniedCustomException("B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n h\u1ee7y booking.");
+            throw new AccessDeniedCustomException("Bạn không có quyền hủy booking.");
         }
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
 
         if (!canAccessBooking(viewer, booking)) {
-            throw new AccessDeniedCustomException("B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n h\u1ee7y booking n\u00e0y.");
+            throw new AccessDeniedCustomException("Bạn không có quyền hủy booking này.");
         }
 
         if (booking.getStatus() == BookingStatus.CANCELLED) {
@@ -190,19 +182,16 @@ public class BookingService {
         List<BookingDetail> bookingDetails = bookingDetailRepository.findByBooking_Id(bookingId);
         ensureCancellationAllowed(bookingDetails);
 
-        if (booking.getPaymentStatus() == PaymentStatus.PAID) {
-            booking.setPaymentStatus(PaymentStatus.REFUNDED);
-        }
-
+        booking.setTotalAmount(BigDecimal.ZERO);
         booking.setStatus(BookingStatus.CANCELLED);
         booking = bookingRepository.save(booking);
 
         for (BookingDetail bookingDetail : bookingDetails) {
-            bookingDetail.setActiveKey(INACTIVE_KEY);
+            bookingDetail.setActiveKey(null);
         }
         bookingDetailRepository.saveAll(bookingDetails);
 
-        publishBookingCancelledEvents(booking, bookingDetails);
+        publishBookingCancelledEventsSafely(booking, bookingDetails);
         return mapToResponse(booking);
     }
 
@@ -233,8 +222,7 @@ public class BookingService {
             return false;
         }
 
-        String roleName = user.getRole().getName();
-        return RoleName.ADMIN.name().equalsIgnoreCase(roleName);
+        return RoleName.ADMIN.name().equalsIgnoreCase(user.getRole().getName());
     }
 
     private boolean isBranchAdmin(User user) {
@@ -267,12 +255,14 @@ public class BookingService {
                     formatTimeSlot(bookingDetail.getTimeSlot())
             ));
         }
+    }
 
-        eventPublisher.publishEvent(new PaymentSuccessEvent(
-                userId,
-                String.valueOf(booking.getId()),
-                booking.getTotalAmount() != null ? booking.getTotalAmount().toPlainString() : "0"
-        ));
+    private void publishBookingCreatedEventsSafely(Booking booking, List<BookingDetail> bookingDetails) {
+        try {
+            publishBookingCreatedEvents(booking, bookingDetails);
+        } catch (RuntimeException ex) {
+            log.warn("Không thể gửi thông báo sau khi tạo booking {}", booking != null ? booking.getId() : null, ex);
+        }
     }
 
     private void publishBookingCancelledEvents(Booking booking, List<BookingDetail> bookingDetails) {
@@ -291,6 +281,14 @@ public class BookingService {
         }
     }
 
+    private void publishBookingCancelledEventsSafely(Booking booking, List<BookingDetail> bookingDetails) {
+        try {
+            publishBookingCancelledEvents(booking, bookingDetails);
+        } catch (RuntimeException ex) {
+            log.warn("Không thể gửi thông báo sau khi hủy booking {}", booking != null ? booking.getId() : null, ex);
+        }
+    }
+
     private void ensureCancellationAllowed(List<BookingDetail> bookingDetails) {
         if (bookingDetails == null || bookingDetails.isEmpty()) {
             throw new AppException(ErrorCode.INVALID_REQUEST);
@@ -304,8 +302,8 @@ public class BookingService {
                 .min(LocalDateTime::compareTo)
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_REQUEST));
 
-        LocalDateTime cancelDeadline = earliestStart.minusMinutes(30);
-        if (LocalDateTime.now().isAfter(cancelDeadline)) {
+        long minutesUntilStart = Duration.between(LocalDateTime.now(), earliestStart).toMinutes();
+        if (minutesUntilStart < 30) {
             throw new AppException(ErrorCode.CANCELLATION_WINDOW_EXPIRED);
         }
     }
@@ -369,6 +367,46 @@ public class BookingService {
                     .orElse(null));
         }
 
+        CancellationAvailability cancellationAvailability = resolveCancellationAvailability(booking, items);
+        response.setCancellable(cancellationAvailability.cancellable());
+        response.setCancellationReason(cancellationAvailability.reason());
+
         return response;
+    }
+
+    private CancellationAvailability resolveCancellationAvailability(Booking booking, List<BookingDetailResponse> items) {
+        if (booking == null) {
+            return new CancellationAvailability(false, "Không tìm thấy booking.");
+        }
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            return new CancellationAvailability(false, "Booking đã bị hủy.");
+        }
+
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            return new CancellationAvailability(false, "Booking đã hoàn thành.");
+        }
+
+        LocalDateTime earliestStart = items.stream()
+                .filter(item -> item.getActive() != null && item.getActive() == ACTIVE_KEY)
+                .filter(item -> item.getPlayDate() != null)
+                .filter(item -> item.getStartTime() != null && !item.getStartTime().isBlank())
+                .map(item -> LocalDateTime.of(item.getPlayDate(), LocalTime.parse(item.getStartTime())))
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+
+        if (earliestStart == null) {
+            return new CancellationAvailability(false, "Booking không còn khung giờ hợp lệ để hủy.");
+        }
+
+        long minutesUntilStart = Duration.between(LocalDateTime.now(), earliestStart).toMinutes();
+        if (minutesUntilStart < 30) {
+            return new CancellationAvailability(false, "Chỉ được hủy sân trước 30 phút so với giờ bắt đầu.");
+        }
+
+        return new CancellationAvailability(true, null);
+    }
+
+    private record CancellationAvailability(boolean cancellable, String reason) {
     }
 }

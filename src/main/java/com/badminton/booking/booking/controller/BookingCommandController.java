@@ -9,6 +9,7 @@ import com.badminton.booking.booking.service.BookingPageService;
 import com.badminton.booking.booking.service.BookingService;
 import com.badminton.booking.booking.support.BookingFormSupport;
 import com.badminton.booking.booking.support.BookingPageModelBinder;
+import com.badminton.booking.common.exception.AppException;
 import com.badminton.booking.domain.entity.User;
 import com.badminton.booking.user.service.UserService;
 import jakarta.validation.Valid;
@@ -53,10 +54,13 @@ public class BookingCommandController {
             BookingResultPageData pageData = bookingPageService.buildResultPageData(booking, BookingPageMode.SUCCESS);
             bookingPageModelBinder.bindResultPage(model, pageData);
             return "booking/success";
+        } catch (AppException ex) {
+            model.addAttribute("errorMessage", ex.getMessage());
+            return renderCreatePage(model, request.getBranchId(), playDate);
         } catch (Exception ex) {
             log.error("Create booking failed: userId={}, branchId={}, playDate={}",
                     currentUser.getId(), request.getBranchId(), playDate, ex);
-            model.addAttribute("errorMessage", ex.getMessage());
+            model.addAttribute("errorMessage", "Không thể tạo booking lúc này. Vui lòng thử lại.");
             return renderCreatePage(model, request.getBranchId(), playDate);
         }
     }

@@ -16,7 +16,6 @@ public class BookingResponse {
     private Long branchId;
     private String branchName;
     private String status;
-    private String paymentStatus;
     private BigDecimal totalAmount;
     private String note;
     private LocalDateTime bookingDate;
@@ -24,5 +23,7 @@ public class BookingResponse {
     private Integer totalSlots;
     private LocalDate earliestPlayDate;
     private LocalDate latestPlayDate;
+    private Boolean cancellable;
+    private String cancellationReason;
     private List<BookingDetailResponse> items;
 }
