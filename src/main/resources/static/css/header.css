@@ -29,11 +29,16 @@
 
 /* --- SEARCH & FILTER --- */
 .search-filter-group {
+    flex: 1;
+    max-width: 450px;
+    width: 100%;
+}
+
+#mainSearchForm {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;
-    max-width: 450px;
+    width: 100%;
 }
 
 .search-box {
@@ -44,6 +49,7 @@
     border-radius: 6px;
     padding: 0 12px;
     height: 38px;
+    border: 1px solid #ddd;
 }
 
 .search-box i {

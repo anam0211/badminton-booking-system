@@ -6,6 +6,7 @@ import com.badminton.booking.home.service.HomeService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,7 +21,7 @@ public class HomeServiceImpl implements HomeService {
 
     @Override
     public List<BranchListResponse> getFeatureBranches(){
-        List<BranchRepository.BranchList> branchList = branchRepository.getFeatureBranches();
+        List<BranchRepository.BranchList> branchList = branchRepository.getFeatureBranches(PageRequest.of(0, 20));
         List<BranchListResponse> response = new ArrayList<>();
         for(BranchRepository.BranchList list : branchList){
             Long branchId = list.getBranchId();
