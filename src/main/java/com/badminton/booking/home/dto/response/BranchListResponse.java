@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class HomeResponse {
+public class BranchListResponse {
     private Long branchId;
     private String branchName;
     private String branchImage;

@@ -11,57 +11,49 @@
         </a>
 
         <div class="search-filter-group">
-            <form th:action="@{/search}" method="GET" class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="keyword" placeholder="Tìm kiếm sân cầu lông...">
-            </form>
+            <form th:action="@{/branches}" method="GET" id="mainSearchForm">
 
-            <div class="filter-wrapper">
-                <button type="button" class="btn-filter" id="btnFilterToggle">
-                    <i class="fas fa-filter"></i> Lọc
-                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="keyword" placeholder="Tìm kiếm sân cầu lông..." th:value="${param.keyword}">
+                </div>
 
-                <div class="filter-dropdown" id="filterDropdown">
-                    <form th:action="@{/search}" method="GET" id="filterForm">
-                        <input type="hidden" name="keyword" th:value="${param.keyword}">
+                <div class="filter-wrapper">
+                    <button type="button" class="btn-filter" id="btnFilterToggle">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
 
+                    <div class="filter-dropdown" id="filterDropdown">
                         <div class="filter-group">
                             <label><i class="fas fa-map-marker-alt"></i> Khu vực (Hà Nội)</label>
                             <select name="district" class="filter-select">
                                 <option value="">Tất cả quận/huyện</option>
-                                <option value="Ba Đình">Ba Đình</option>
-                                <option value="Hoàn Kiếm">Hoàn Kiếm</option>
-                                <option value="Tây Hồ">Tây Hồ</option>
-                                <option value="Long Biên">Long Biên</option>
-                                <option value="Cầu Giấy">Cầu Giấy</option>
-                                <option value="Đống Đa">Đống Đa</option>
-                                <option value="Hai Bà Trưng">Hai Bà Trưng</option>
-                                <option value="Hoàng Mai">Hoàng Mai</option>
-                                <option value="Thanh Xuân">Thanh Xuân</option>
-                                <option value="Nam Từ Liêm">Nam Từ Liêm</option>
-                                <option value="Bắc Từ Liêm">Bắc Từ Liêm</option>
-                                <option value="Hà Đông">Hà Đông</option>
+                                <option th:each="dist : ${@areaService.findAllAreas()}"
+                                        th:value="${dist.id}"
+                                        th:text="${dist.name}"
+                                        th:selected="${param.district != null and param.district[0] == dist.id.toString()}">
+                                </option>
                             </select>
                         </div>
 
                         <div class="filter-group">
                             <label><i class="fas fa-money-bill-wave"></i> Mức giá / giờ</label>
                             <select name="priceRange" class="filter-select">
-                                <option value="">Mọi mức giá</option>
-                                <option value="0-50000">Dưới 50.000đ</option>
-                                <option value="50000-100000">50.000đ - 100.000đ</option>
-                                <option value="100000-200000">100.000đ - 200.000đ</option>
-                                <option value="200000-9999999">Trên 200.000đ</option>
+                                <option value="" th:selected="${param.priceRange == null}">Mọi mức giá</option>
+                                <option value="0-50000" th:selected="${param.priceRange != null and param.priceRange[0] == '0-50000'}">Dưới 50.000đ</option>
+                                <option value="50000-100000" th:selected="${param.priceRange != null and param.priceRange[0] == '50000-100000'}">50.000đ - 100.000đ</option>
+                                <option value="100000-200000" th:selected="${param.priceRange != null and param.priceRange[0] == '100000-200000'}">100.000đ - 200.000đ</option>
+                                <option value="200000-9999999" th:selected="${param.priceRange != null and param.priceRange[0] == '200000-9999999'}">Trên 200.000đ</option>
                             </select>
                         </div>
 
                         <div class="filter-group">
                             <label><i class="fas fa-star"></i> Đánh giá</label>
                             <select name="rating" class="filter-select">
-                                <option value="">Mọi đánh giá</option>
-                                <option value="5">5 Sao (Xuất sắc)</option>
-                                <option value="4">Từ 4 Sao trở lên</option>
-                                <option value="3">Từ 3 Sao trở lên</option>
+                                <option value="" th:selected="${param.rating == null}">Mọi đánh giá</option>
+                                <option value="5" th:selected="${param.rating != null and param.rating[0] == '5'}">5 Sao (Xuất sắc)</option>
+                                <option value="4" th:selected="${param.rating != null and param.rating[0] == '4'}">Từ 4 Sao trở lên</option>
+                                <option value="3" th:selected="${param.rating != null and param.rating[0] == '3'}">Từ 3 Sao trở lên</option>
                             </select>
                         </div>
 
@@ -69,9 +61,9 @@
                             <button type="button" class="btn-reset" id="btnResetFilter">Xóa lọc</button>
                             <button type="submit" class="btn-apply-filter">Áp dụng</button>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         <div class="right-group">
