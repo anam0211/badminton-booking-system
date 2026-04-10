@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
@@ -42,6 +42,9 @@ public class AuthController {
 
         String accessToken = authService.login(loginRequest);
         response.addCookie(buildAccessTokenCookie(accessToken, 60 * 60 * 24));
+        if (authService.isAdminAccount(email)) {
+            return "redirect:/admin/users";
+        }
         return "redirect:/home";
     }
 
@@ -49,6 +52,7 @@ public class AuthController {
     @PostMapping("/logout")
     public String logout(HttpServletResponse response) {
         authService.logout(); // rỗng vì chỉ dùng access token không refreshtoken
+        SecurityContextHolder.clearContext();
         response.addCookie(buildAccessTokenCookie("", 0));// xoá cookie access token
         return "redirect:/login?logout=true";
     }
@@ -99,4 +103,5 @@ public class AuthController {
         cookie.setMaxAge(maxAgeSeconds);
         return cookie;
     }
+
 }

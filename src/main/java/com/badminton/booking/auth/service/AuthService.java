@@ -61,6 +61,16 @@ public class AuthService {
         return jwtService.generateToken(principal);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isAdminAccount(String email) {
+        return userRepository.findByEmailIgnoreCase(email)
+                .map(User::getRole)
+                .map(Role::getName)
+                .map(roleName -> RoleName.ADMIN.name().equalsIgnoreCase(roleName)
+                        || RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(roleName))
+                .orElse(false);
+    }
+
     public void logout() {
         // Khong luu state tren server khi chi dung access token.
     }

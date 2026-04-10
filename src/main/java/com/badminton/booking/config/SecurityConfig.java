@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/image/**",
-                                "/images/**"
+                                "/images/**",
+                                "/home"
                         ).permitAll()//cho phép public ko cần login
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "BRANCH_ADMIN")
                         .anyRequest().authenticated()
@@ -54,7 +55,10 @@ public class SecurityConfig {
                         .authenticationEntryPoint((request, response, authException) ->
                                 response.sendRedirect("/login")
                         )
-                );
+                )
+                // Mặc định Spring Security cũng đăng ký /logout; nếu không tắt, LogoutFilter chạy trước
+                // DispatcherServlet nên AuthController không được gọi → cookie ACCESS_TOKEN không bị xóa.
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
