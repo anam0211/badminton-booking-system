@@ -28,7 +28,7 @@
         </div>
 
         <div class="court-grid">
-            <div class="court-card" th:each="branch : ${branchList}">
+            <div class="court-card" th:each="branch : ${featureBranches}">
 
                 <img th:src="${branch.branchImage != null ? branch.branchImage : '/images/default-court.jpg'}"
                      alt="Court Image">

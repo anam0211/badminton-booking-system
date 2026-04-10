@@ -1,6 +1,6 @@
 package com.badminton.booking.home.controller;
 
-import com.badminton.booking.home.dto.response.HomeResponse;
+import com.badminton.booking.home.dto.response.BranchListResponse;
 import com.badminton.booking.home.service.HomeService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ public class HomeController {
     HomeService homeService;
 
     @GetMapping("/home")
-    public String getBranchList(Model model){
-        List<HomeResponse> list = homeService.getBranchList();
-        model.addAttribute("branchList", list);
+    public String getFeatureBranches(Model model){
+        List<BranchListResponse> list = homeService.getFeatureBranches();
+        model.addAttribute("featureBranches", list);
         return "home/home";
     }
 }

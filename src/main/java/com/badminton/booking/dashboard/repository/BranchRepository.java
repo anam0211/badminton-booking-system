@@ -43,5 +43,5 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
                 ORDER BY b.averageRating DESC, b.totalReviews DESC
                 LIMIT 20 
             """)
-    List<BranchList> getBranchList();
+    List<BranchList> getFeatureBranches();
 }

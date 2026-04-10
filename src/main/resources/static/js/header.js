@@ -7,13 +7,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (bellBtn && notiDropdown) {
         // 1. CLICK CHUÔNG: Mở / Đóng
         bellBtn.addEventListener('click', function (e) {
-            e.stopPropagation(); // Ngăn click lọt ra ngoài
+            e.stopPropagation();
             notiDropdown.classList.toggle('show');
         });
 
         // 2. CLICK RA NGOÀI: Đóng hộp
         document.addEventListener('click', function (e) {
-            // Nếu vị trí click KHÔNG nằm trên chuông VÀ KHÔNG nằm trong hộp -> Đóng!
+            // Nếu vị trí click KHÔNG nằm trên chuông VÀ KHÔNG nằm trong hộp -> Đóng
             if (!bellBtn.contains(e.target) && !notiDropdown.contains(e.target)) {
                 notiDropdown.classList.remove('show');
             }
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (markAllReadBtn) {
             markAllReadBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                fetch('/notifications/mark-all-read', {method: 'POST'}) // Nhớ thêm CSRF token nếu Spring Security yêu cầu
+                fetch('/notifications/mark-all-read', {method: 'POST'})
                     .then(response => {
                         if (response.ok) {
                             // Ẩn chấm đỏ
@@ -55,5 +55,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     .catch(error => console.error('Lỗi khi call API đánh dấu đã đọc:', error));
             });
         }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const btnFilterToggle = document.getElementById('btnFilterToggle');
+    const filterDropdown = document.getElementById('filterDropdown');
+    const btnResetFilter = document.getElementById('btnResetFilter');
+    const filterForm = document.getElementById('filterForm');
+
+    if (btnFilterToggle && filterDropdown) {
+        // Bật/tắt dropdown khi click nút Lọc
+        btnFilterToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterDropdown.classList.toggle('show');
+        });
+
+        // Click ra ngoài thì đóng dropdown
+        document.addEventListener('click', function(e) {
+            if (!filterDropdown.contains(e.target) && e.target !== btnFilterToggle) {
+                filterDropdown.classList.remove('show');
+            }
+        });
+
+        // Ngăn chặn việc đóng menu khi đang loay hoay click chọn bên trong Dropdown
+        filterDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+
+    // Xử lý nút xóa trắng các lựa chọn
+    if (btnResetFilter && filterForm) {
+        btnResetFilter.addEventListener('click', function() {
+            filterForm.reset(); // Đưa các select về trạng thái mặc định
+        });
     }
 });

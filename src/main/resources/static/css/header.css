@@ -79,6 +79,107 @@
     color: #333;
 }
 
+.filter-wrapper {
+    position: relative; /* Gốc tọa độ cho dropdown */
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 280px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    display: none;
+    z-index: 1010;
+    color: #333;
+}
+
+.filter-dropdown.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #006400;
+}
+
+.filter-group label i {
+    margin-right: 5px;
+    width: 15px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+    border-color: #006400;
+    background-color: #fff;
+}
+
+.filter-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.btn-reset {
+    padding: 10px 15px;
+    background: #f1f1f1;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+    flex: 1;
+    transition: background 0.2s;
+}
+
+.btn-apply-filter {
+    padding: 10px 15px;
+    background: #006400;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+    transition: background 0.2s;
+}
+
+.btn-apply-filter:hover {
+    background: #004d00;
+}
+
+.btn-reset:hover {
+    background: #e0e0e0;
+}
+
 /* --- RIGHT GROUP (GRID CỐ ĐỊNH VỊ TRÍ) --- */
 .right-group {
     display: grid;
@@ -125,7 +226,7 @@
     color: white;
     padding: 10px;
     transition: transform 0.2s;
-    position: relative; /* Thêm cái này để chấm đỏ bám sát vào cái chuông */
+    position: relative;
 }
 
 .notification-bell:hover {
@@ -146,19 +247,18 @@
 /* --- NOTI DROPDOWN BOX --- */
 .noti-dropdown {
     position: absolute;
-    top: calc(100% + 15px); /* Đẩy hộp xuống một chút cho thoáng */
-    right: -80px; /* Căn giữa hộp với cái chuông */
-    width: 350px; /* Tăng chiều rộng lên xíu để chữ "Đánh dấu đã đọc" không bị chèn ép */
+    top: calc(100% + 15px);
+    right: -80px;
+    width: 350px;
     background: white;
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-    display: none; /* Mặc định ẩn, chờ JS gọi */
+    display: none;
     z-index: 1005;
     overflow: hidden;
     color: #333;
 }
 
-/* Class kích hoạt từ JavaScript + Hiệu ứng trượt mượt mà */
 .noti-dropdown.show {
     display: block !important;
     animation: fadeInDropdown 0.2s ease-out forwards;
@@ -208,12 +308,12 @@
 }
 
 .noti-item.unread {
-    background: #f0fdf4; /* Đổi sang màu xanh nhạt xịn hơn */
-    border-left: 3px solid #28a745; /* Thêm vạch xanh bên trái cho nổi bật */
+    background: #f0fdf4;
+    border-left: 3px solid #28a745;
 }
 
 .noti-item.unread h4 {
-    color: #000; /* Tiêu đề đậm màu hơn khi chưa đọc */
+    color: #000;
 }
 
 .noti-item h4 {
@@ -228,7 +328,7 @@
     line-height: 1.4;
     margin-bottom: 4px;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Chỉ hiện tối đa 2 dòng nội dung */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -256,7 +356,6 @@
     text-decoration: underline;
 }
 
-/* Tùy chỉnh thanh cuộn cho danh sách thông báo */
 .noti-list::-webkit-scrollbar {
     width: 5px;
 }
@@ -333,7 +432,6 @@
 }
 
 /* --- DROPDOWN MENU TÀI KHOẢN --- */
-/* Phần này mình vẫn giữ :hover vì nó ít bị click nhầm hơn thông báo */
 .user-dropdown {
     position: absolute;
     top: calc(100% + 8px);
@@ -408,7 +506,6 @@
     color: #333;
 }
 
-/* 3. Đảm bảo form không làm lệch layout */
 .user-dropdown form {
     margin: 0;
     padding: 0;
