@@ -59,11 +59,10 @@ public class BookingPageService {
     public BookingListPageData buildHistoryPageData(Long userId) {
         List<BookingResponse> bookings = bookingService.getBookingHistory(userId);
         return buildListPageData(
-                userId,
                 false,
-                "L\u1ecbch s\u1eed \u0111\u1eb7t s\u00e2n",
-                "Theo d\u00f5i c\u00e1c booking b\u1ea1n \u0111\u00e3 t\u1ea1o, tr\u1ea1ng th\u00e1i thanh to\u00e1n v\u00e0 l\u1ecbch ch\u01a1i \u0111\u00e3 ch\u1ecdn.",
-                "B\u1ea1n ch\u01b0a c\u00f3 booking n\u00e0o.",
+                "Lịch sử đặt sân",
+                "Theo dõi các booking bạn đã tạo và lịch chơi đã chọn.",
+                "Bạn chưa có booking nào.",
                 bookings
         );
     }
@@ -76,15 +75,14 @@ public class BookingPageService {
                 && RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(viewer.getRole().getName());
 
         return buildListPageData(
-                null,
                 true,
-                "Danh s\u00e1ch booking",
+                "Danh sách booking",
                 branchAdminView
-                        ? "B\u1ea1n ch\u1ec9 \u0111ang xem booking thu\u1ed9c chi nh\u00e1nh m\u00ecnh qu\u1ea3n l\u00fd."
-                        : "Admin c\u00f3 th\u1ec3 xem to\u00e0n b\u1ed9 booking, th\u00f4ng tin kh\u00e1ch h\u00e0ng v\u00e0 l\u1ecbch s\u00e2n \u0111\u00e3 \u0111\u01b0\u1ee3c \u0111\u1eb7t.",
+                        ? "Bạn chỉ đang xem booking thuộc chi nhánh mình quản lý."
+                        : "Admin có thể xem toàn bộ booking, thông tin khách hàng và lịch sân đã được đặt.",
                 branchAdminView
-                        ? "Chi nh\u00e1nh b\u1ea1n qu\u1ea3n l\u00fd hi\u1ec7n ch\u01b0a c\u00f3 booking n\u00e0o."
-                        : "Ch\u01b0a c\u00f3 booking n\u00e0o trong h\u1ec7 th\u1ed1ng.",
+                        ? "Chi nhánh bạn quản lý hiện chưa có booking nào."
+                        : "Chưa có booking nào trong hệ thống.",
                 bookings
         );
     }
@@ -96,19 +94,26 @@ public class BookingPageService {
         return courtRepository.findByBranch_IdOrderByNameAsc(branchId);
     }
 
-    private BookingListPageData buildListPageData(Long userId,
-                                                  boolean adminView,
+    private BookingListPageData buildListPageData(boolean adminView,
                                                   String pageTitle,
                                                   String pageDescription,
                                                   String emptyMessage,
                                                   List<BookingResponse> bookings) {
         BigDecimal totalAmount = bookings.stream()
+                .filter(booking -> booking.getStatus() == null || !"CANCELLED".equalsIgnoreCase(booking.getStatus()))
                 .map(BookingResponse::getTotalAmount)
                 .filter(java.util.Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        int activeBookings = (int) bookings.stream()
+                .filter(booking -> booking.getStatus() != null && !"CANCELLED".equalsIgnoreCase(booking.getStatus()))
+                .count();
+
+        int cancelledBookings = (int) bookings.stream()
+                .filter(booking -> "CANCELLED".equalsIgnoreCase(booking.getStatus()))
+                .count();
+
         return BookingListPageData.builder()
-                .userId(userId)
                 .defaultBranchId(bookings.stream()
                         .map(BookingResponse::getBranchId)
                         .filter(java.util.Objects::nonNull)
@@ -120,6 +125,8 @@ public class BookingPageService {
                 .emptyMessage(emptyMessage)
                 .totalBookings(bookings.size())
                 .totalAmount(totalAmount)
+                .activeBookings(activeBookings)
+                .cancelledBookings(cancelledBookings)
                 .bookings(bookings)
                 .build();
     }

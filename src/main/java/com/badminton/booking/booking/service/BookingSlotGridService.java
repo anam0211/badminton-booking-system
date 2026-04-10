@@ -68,7 +68,7 @@ public class BookingSlotGridService {
                 price = bookingPricingService.calculate(court.getId(), timeSlot.getId());
                 status = resolveStatus(playDate, today, now, timeSlot.getStartTime());
             } catch (AppException ex) {
-                status = "NO_PRICE";
+                status = "LOCKED";
             }
         }
 

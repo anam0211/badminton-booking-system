@@ -1,4 +1,3 @@
-
 package com.badminton.booking.booking.dto.response;
 
 import com.badminton.booking.domain.entity.Branch;
@@ -14,7 +13,6 @@ import java.util.Map;
 @Getter
 @Builder
 public class BookingCreatePageData {
-    private Long userId;
     private LocalDate playDate;
     private String selectedBranchName;
     private List<Branch> branches;

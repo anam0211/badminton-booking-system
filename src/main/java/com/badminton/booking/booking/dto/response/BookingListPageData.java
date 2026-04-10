@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Builder
 public class BookingListPageData {
-    private Long userId;
     private Long defaultBranchId;
     private boolean adminView;
     private String pageTitle;
@@ -17,5 +16,7 @@ public class BookingListPageData {
     private String emptyMessage;
     private Integer totalBookings;
     private BigDecimal totalAmount;
+    private Integer activeBookings;
+    private Integer cancelledBookings;
     private List<BookingResponse> bookings;
 }

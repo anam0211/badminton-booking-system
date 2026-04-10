@@ -1,5 +1,7 @@
 .booking-list-page {
     background: var(--page-bg);
+    border: 1px solid rgba(5, 92, 38, 0.28);
+    box-shadow: 0 20px 44px rgba(5, 92, 38, 0.12);
 }
 
 .hero-total-stack {
@@ -32,9 +34,9 @@
 .booking-list-card {
     padding: 16px;
     border-radius: 16px;
-    border: 1px solid rgba(127, 140, 133, 0.2);
-    background: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
-    box-shadow: 0 10px 24px rgba(5, 92, 38, 0.08);
+    border: 1px solid rgba(5, 92, 38, 0.18);
+    background: linear-gradient(180deg, #ffffff 0%, #f2faf4 100%);
+    box-shadow: 0 12px 26px rgba(5, 92, 38, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
