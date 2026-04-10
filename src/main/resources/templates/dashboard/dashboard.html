@@ -25,27 +25,6 @@
         <div class="flex justify-between items-center mb-6">
             <div class="flex items-center gap-6">
                 <h1 class="text-2xl font-bold text-gray-800">DASHBOARD</h1>
-
-                <div class="relative w-72" id="branchSelectContainer">
-                    <div class="relative">
-                        <input type="text" id="branchSearchInput" placeholder="🔍 Tìm & chọn cơ sở..."
-                               autocomplete="off"
-                               class="w-full h-[42px] border border-gray-300 rounded-lg px-4 bg-white text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition cursor-text">
-
-                        <input type="hidden" id="selectedBranchId" th:value="${currentBranchId}">
-
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <ul id="branchDropdownList"
-                        class="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-xl max-h-60 overflow-y-auto hidden">
-                    </ul>
-                </div>
             </div>
 
             <div class="flex gap-3 items-center">
@@ -129,7 +108,6 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     window.DashboardData = {
-        branchesMap: /*[[${branches}]]*/ {},
         currentMode: /*[[${currentMode}]]*/ 'monthly',
         revenueData: /*[[${revenueData}]]*/ null,
         rankingData: /*[[${rankingData}]]*/ null,
