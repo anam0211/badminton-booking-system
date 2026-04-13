@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viết đánh giá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        .review-page-wrapper { max-width: 700px; margin: 40px auto; padding: 0 16px; }
+        .review-form-card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .review-header { text-align: center; margin-bottom: 28px; }
+        .review-header h1 { font-size: 1.5rem; color: #222; margin: 0 0 8px; }
+        .review-header p { color: #666; margin: 0; font-size: 0.9rem; }
+        .court-info { display: flex; align-items: center; gap: 12px; padding: 16px; background: #f8f9fa; border-radius: 10px; margin-bottom: 24px; }
+        .court-info-icon { width: 44px; height: 44px; background: #006400; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .court-info-text .court-name { font-weight: 700; color: #222; font-size: 1rem; }
+        .court-info-text .branch-name { font-size: 0.85rem; color: #666; margin-top: 2px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 0.95rem; }
+        .star-rating { display: flex; gap: 8px; flex-direction: row-reverse; justify-content: flex-end; cursor: pointer; }
+        .star-rating label { font-size: 2rem; color: #ddd; transition: color 0.15s; }
+        .star-rating label:hover,
+        .star-rating label.hovered { color: #ffc107; }
+        .star-rating label.selected { color: #ffc107; }
+        .rating-helper { font-size: 0.85rem; color: #888; margin-top: 6px; min-height: 20px; transition: color 0.15s; }
+        .form-textarea { width: 100%; min-height: 140px; padding: 12px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 0.95rem; font-family: inherit; resize: vertical; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+        .form-textarea:focus { border-color: #006400; }
+        .char-count { text-align: right; font-size: 0.8rem; color: #aaa; margin-top: 4px; }
+        .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-submit { flex: 1; padding: 14px; background: #006400; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #004d00; }
+        .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-cancel { padding: 14px 24px; border: 1.5px solid #ddd; border-radius: 10px; background: white; color: #666; font-size: 1rem; cursor: pointer; text-decoration: none; display: flex; align-items: center; transition: all 0.2s; }
+        .btn-cancel:hover { border-color: #999; color: #333; }
+        .error-msg { background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
+        .success-msg { background: #d1fae5; border: 1px solid #10b981; color: #065f46; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="review-page-wrapper">
+    <div class="review-form-card">
+        <div class="review-header">
+            <h1><i class="fas fa-star" style="color:#ffc107; margin-right:6px;"></i>Đánh giá sân</h1>
+            <p>Hãy chia sẻ trải nghiệm của bạn để giúp người khác có thêm thông tin</p>
+        </div>
+
+        <div th:if="${errorMessage}" class="error-msg">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+        <div th:if="${successMessage}" class="success-msg">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+        </div>
+
+        <div class="court-info">
+            <div class="court-info-icon">
+                <i class="fas fa-running"></i>
+            </div>
+            <div class="court-info-text">
+                <div class="court-name" th:text="${court.name}">Sân 1</div>
+                <div class="branch-name" th:text="${court.branch.name}">Badminton Center</div>
+            </div>
+        </div>
+
+        <form th:action="@{/reviews/create}" th:object="${reviewRequest}" method="post">
+            <input type="hidden" th:field="*{bookingId}" />
+            <input type="hidden" th:field="*{courtId}" />
+            <input type="hidden" th:field="*{branchId}" />
+            <input type="hidden" th:field="*{rating}" id="ratingValue" />
+
+            <div class="form-group">
+                <label class="form-label">Mức đánh giá <span style="color:red;">*</span></label>
+                <div class="star-rating" id="starRating">
+                    <label data-value="5" title="5 sao"><i class="fas fa-star"></i></label>
+                    <label data-value="4" title="4 sao"><i class="fas fa-star"></i></label>
+                    <label data-value="3" title="3 sao"><i class="fas fa-star"></i></label>
+                    <label data-value="2" title="2 sao"><i class="fas fa-star"></i></label>
+                    <label data-value="1" title="1 sao"><i class="fas fa-star"></i></label>
+                </div>
+                <div class="rating-helper" id="ratingHelper">Nhấn để chọn mức đánh giá</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nhận xét của bạn</label>
+                <textarea class="form-textarea"
+                          th:field="*{comment}"
+                          placeholder="Chia sẻ trải nghiệm của bạn về sân cầu lông này (không bắt buộc)..."
+                          maxlength="1000"
+                          oninput="document.getElementById('charCount').textContent = this.value.length"></textarea>
+                <div class="char-count"><span id="charCount" th:text="${reviewRequest.comment != null ? reviewRequest.comment.length() : 0}">0</span>/1000</div>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/branches/{id}(id=${court.branch.id})}" class="btn-cancel">
+                    <i class="fas fa-arrow-left"></i> Hủy
+                </a>
+                <button type="submit" class="btn-submit" id="btnSubmit" disabled>
+                    <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const ratingTexts = ['', '1 sao - Không hài lòng', '2 sao - Tạm được', '3 sao - Bình thường', '4 sao - Hài lòng', '5 sao - Tuyệt vời'];
+    const labels = document.querySelectorAll('#starRating label');
+    const helper = document.getElementById('ratingHelper');
+    const ratingInput = document.getElementById('ratingValue');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    function setStars(rating) {
+        labels.forEach(l => {
+            const val = parseInt(l.dataset.value);
+            l.classList.toggle('selected', val <= rating);
+        });
+        if (rating > 0) {
+            helper.textContent = ratingTexts[rating];
+            helper.style.color = '#006400';
+            ratingInput.value = rating;
+            btnSubmit.disabled = false;
+        } else {
+            helper.textContent = 'Nhấn để chọn mức đánh giá';
+            helper.style.color = '#888';
+            ratingInput.value = '';
+            btnSubmit.disabled = true;
+        }
+    }
+
+    labels.forEach(label => {
+        const val = parseInt(label.dataset.value);
+        label.addEventListener('mouseover', () => {
+            labels.forEach(l => {
+                if (parseInt(l.dataset.value) <= val) l.classList.add('hovered');
+            });
+        });
+        label.addEventListener('mouseout', () => {
+            labels.forEach(l => l.classList.remove('hovered'));
+        });
+        label.addEventListener('click', () => setStars(val));
+    });
+</script>
+</body>
+</html>

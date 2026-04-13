@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="branch-info(branch)" class="branch-info-section">
+    <div class="branch-header">
+        <h1 class="branch-name" th:text="${branch.name}">Tên cơ sở</h1>
+        <div class="branch-status" th:classappend="${branch.status.name() == 'OPEN' ? 'status-open' : 'status-closed'}">
+            <span th:switch="${branch.status.name()}">
+                <span th:case="'OPEN'"><i class="fas fa-check-circle"></i> Đang mở cửa</span>
+                <span th:case="'CLOSED'"><i class="fas fa-times-circle"></i> Đã đóng cửa</span>
+                <span th:case="'MAINTENANCE'"><i class="fas fa-wrench"></i> Đang bảo trì</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="branch-meta">
+        <div class="meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span th:text="${branch.address}">Địa chỉ</span>
+        </div>
+        <div class="meta-item" th:if="${branch.areaName}">
+            <i class="fas fa-map"></i>
+            <span th:text="${branch.areaName}">Khu vực</span>
+        </div>
+        <div class="meta-item">
+            <i class="fas fa-star text-yellow-400"></i>
+            <span class="rating-value" th:text="${branch.averageRating != null ? branch.averageRating : '0.0'}">4.5</span>
+            <span class="rating-count" th:text="'(' + ${branch.totalReviews != null ? branch.totalReviews : 0} + ' đánh giá)'">(10 đánh giá)</span>
+        </div>
+    </div>
+
+    <div class="branch-quick-info">
+        <div class="quick-info-card" th:if="${branch.minPrice != null}">
+            <i class="fas fa-tag"></i>
+            <div>
+                <span class="label">Giá từ</span>
+                <span class="value price-text" th:text="${#numbers.formatDecimal(branch.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ/giờ'">50,000 đ/giờ</span>
+            </div>
+        </div>
+        <div class="quick-info-card" th:if="${branch.courtCount != null}">
+            <i class="fas fa-running"></i>
+            <div>
+                <span class="label">Mặt sân</span>
+                <span class="value" th:text="${branch.courtCount}">4</span>
+            </div>
+        </div>
+        <div class="quick-info-card" th:if="${not #lists.isEmpty(branch.amenities)}">
+            <i class="fas fa-concierge-bell"></i>
+            <div>
+                <span class="label">Tiện ích</span>
+                <span class="value" th:text="${branch.amenities.size()} + ' dịch vụ'">5 dịch vụ</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="branch-description" th:if="${branch.description != null and !branch.description.isEmpty()}">
+        <h3><i class="fas fa-info-circle"></i> Giới thiệu</h3>
+        <p th:text="${branch.description}">Mô tả về cơ sở...</p>
+    </div>
+</div>
+
+</body>
+</html>

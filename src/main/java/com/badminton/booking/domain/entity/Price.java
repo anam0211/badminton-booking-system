@@ -2,34 +2,42 @@ package com.badminton.booking.domain.entity;
 
 import com.badminton.booking.common.base.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "prices")
 @Getter
 @Setter
-@Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "prices")
 public class Price extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "branch_id", nullable = false)
     private Branch branch;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "time_slot_id", nullable = false)
     private TimeSlot timeSlot;
 
-    @Column(name = "court_type", length = 100)
+    @Size(max = 100)
+    @Column(length = 100)
     private String courtType;
 
+    @NotNull
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
+
 }

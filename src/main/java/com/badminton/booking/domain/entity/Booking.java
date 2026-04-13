@@ -3,6 +3,7 @@ package com.badminton.booking.domain.entity;
 import com.badminton.booking.common.enums.BookingStatus;
 import com.badminton.booking.common.enums.PaymentStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -10,44 +11,45 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "bookings")
 @Getter
 @Setter
 @Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "bookings")
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @CreationTimestamp
-    @Column(name = "booking_date", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime bookingDate;
 
-    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
+    @NotNull
+    @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private BookingStatus status = BookingStatus.PENDING;
+    private BookingStatus status = BookingStatus.CONFIRMED;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", nullable = false)
+    @Column(nullable = false)
     @Builder.Default
-    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+    private PaymentStatus paymentStatus = PaymentStatus.PAID;
 
     @Column(columnDefinition = "TEXT")
     private String note;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }

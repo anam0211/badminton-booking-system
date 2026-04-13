@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Lịch sử đặt sân</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/CreateBooking.css}">
+    <link rel="stylesheet" th:href="@{/css/BookingSuccess.css}">
+    <link rel="stylesheet" th:href="@{/css/BookingList.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container booking-layout">
+    <div class="page booking-list-page">
+        <div class="result-shell">
+            <section class="hero-card" th:classappend="${adminView ? ' hero-detail' : ' hero-success'}">
+                <div class="hero-main">
+                    <div class="hero-icon" th:text="${adminView ? 'A' : 'LS'}">LS</div>
+                    <div class="hero-copy">
+                        <div class="hero-kicker" th:text="${adminView ? 'Quản lý booking' : 'Lịch sử của bạn'}">Lịch sử của bạn</div>
+                        <h1 th:text="${pageTitle}">Lịch sử đặt sân</h1>
+                        <p th:text="${pageDescription}">Theo dõi các booking bạn đã tạo và lịch chơi đã chọn.</p>
+                    </div>
+                </div>
+
+                <div class="hero-total hero-total-stack">
+                    <span class="hero-total-label">Chế độ xem</span>
+                    <strong th:text="${adminView ? 'Quản trị viên' : 'Khách hàng'}">Khách hàng</strong>
+                    <a class="hero-link"
+                       th:if="${!adminView}"
+                       th:href="${defaultBranchId != null} ? @{/bookings/create(branchId=${defaultBranchId})} : @{/bookings/create}">
+                        Đặt sân mới
+                    </a>
+                </div>
+            </section>
+
+            <section class="summary-grid booking-summary-grid">
+                <article class="info-card">
+                    <span class="info-label">Tổng booking</span>
+                    <strong class="info-value" th:text="${totalBookings}">0</strong>
+                </article>
+                <article class="info-card">
+                    <span class="info-label">Đang hiệu lực</span>
+                    <strong class="info-value" th:text="${activeBookings}">0</strong>
+                </article>
+                <article class="info-card">
+                    <span class="info-label">Đã hủy</span>
+                    <strong class="info-value" th:text="${cancelledBookings}">0</strong>
+                </article>
+                <article class="info-card">
+                    <span class="info-label">Tổng giá trị còn hiệu lực</span>
+                    <strong class="info-value" th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(totalAmount)}">0 VNĐ</strong>
+                </article>
+            </section>
+
+            <section class="detail-panel">
+                <div class="panel-head">
+                    <div>
+                        <h2 th:text="${adminView ? 'Danh sách booking của hệ thống' : 'Các booking của bạn'}">Các booking của bạn</h2>
+                        <p th:text="${totalBookings + ' booking'}">0 booking</p>
+                    </div>
+
+                    <a class="secondary-link"
+                       th:if="${!adminView}"
+                       th:href="${defaultBranchId != null} ? @{/bookings/create(branchId=${defaultBranchId})} : @{/bookings/create}">
+                        Đặt sân mới
+                    </a>
+                </div>
+
+                <div class="booking-list-grid" th:if="${bookings != null and !#lists.isEmpty(bookings)}">
+                    <article class="booking-list-card"
+                             th:each="booking : ${bookings}"
+                             th:with="
+                                bookingStatusLabel=${booking.status == 'PENDING' ? 'Chờ xử lý' : (booking.status == 'CONFIRMED' ? 'Đã xác nhận' : (booking.status == 'COMPLETED' ? 'Hoàn thành' : 'Đã hủy'))},
+                                bookingStatusClass=${booking.status == 'CANCELLED' ? 'pill-cancelled' : (booking.status == 'PENDING' ? 'pill-pending' : 'pill-booked')}">
+
+                        <div class="booking-card-head">
+                            <div class="booking-card-title-wrap">
+                                <div class="booking-card-id" th:text="${'#' + booking.id}">#1</div>
+                                <h3 th:text="${booking.branchName != null ? booking.branchName : 'Chi nhánh chưa xác định'}">Chi nhánh</h3>
+                                <p th:text="${'Đặt lúc ' + T(com.badminton.booking.common.util.DateTimeUtil).formatDateTime(booking.bookingDate)}">
+                                    Đặt lúc 01/04/2026 10:00
+                                </p>
+                            </div>
+
+                            <div class="pill-row booking-pill-row">
+                                <span class="status-pill" th:classappend="' ' + ${bookingStatusClass}" th:text="${bookingStatusLabel}">Đã xác nhận</span>
+                            </div>
+                        </div>
+
+                        <div class="booking-meta-grid">
+                            <div class="meta-item">
+                                <span>Tổng tiền</span>
+                                <strong th:text="${T(com.badminton.booking.common.util.CurrencyUtil).formatVnd(booking.totalAmount)}">0 VNĐ</strong>
+                            </div>
+                            <div class="meta-item">
+                                <span>Số slot</span>
+                                <strong th:text="${booking.totalSlots}">0</strong>
+                            </div>
+                            <div class="meta-item">
+                                <span>Khoảng ngày chơi</span>
+                                <strong th:if="${booking.earliestPlayDate != null}">
+                                    <span th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDate(booking.earliestPlayDate)}">01/04/2026</span>
+                                    <span th:if="${booking.latestPlayDate != null and booking.earliestPlayDate != null and !booking.latestPlayDate.equals(booking.earliestPlayDate)}"
+                                          th:text="${' - ' + T(com.badminton.booking.common.util.DateTimeUtil).formatDate(booking.latestPlayDate)}"></span>
+                                </strong>
+                                <strong th:unless="${booking.earliestPlayDate != null}">Chưa có slot</strong>
+                            </div>
+                        </div>
+
+                        <div class="customer-box" th:if="${adminView}">
+                            <span>Khách hàng</span>
+                            <strong th:text="${booking.userFullName != null ? booking.userFullName : ('User #' + booking.userId)}">Khách hàng</strong>
+                            <small th:text="${booking.userEmail != null ? booking.userEmail : 'Không có email'}">email@example.com</small>
+                        </div>
+
+                        <div class="slot-tag-list" th:if="${booking.items != null and !#lists.isEmpty(booking.items)}">
+                            <span class="slot-tag"
+                                  th:each="item : ${booking.items}"
+                                  th:text="${T(com.badminton.booking.common.util.DateTimeUtil).formatDate(item.playDate) + ' | ' + item.courtName + ' | ' + item.startTime + ' - ' + item.endTime}">
+                                01/04/2026 | Sân 1 | 18:00 - 19:00
+                            </span>
+                        </div>
+
+                        <div class="booking-card-footer">
+                            <div class="note-preview">
+                                <span th:if="${booking.note != null and !#strings.isEmpty(booking.note)}">Ghi chú</span>
+                                <strong th:if="${booking.note != null and !#strings.isEmpty(booking.note)}" th:text="${booking.note}">Không có</strong>
+                                <span th:if="${adminView and booking.cancellable == false and booking.cancellationReason != null and !#strings.isEmpty(booking.cancellationReason)}">
+                                    Lý do không thể hủy
+                                </span>
+                                <strong th:if="${adminView and booking.cancellable == false and booking.cancellationReason != null and !#strings.isEmpty(booking.cancellationReason)}"
+                                        th:text="${booking.cancellationReason}">
+                                    Chỉ được hủy sân trước 30 phút so với giờ bắt đầu.
+                                </strong>
+                            </div>
+
+                            <div class="booking-card-actions">
+                                <a class="action-btn action-btn-secondary"
+                                   th:href="@{/bookings/{bookingId}(bookingId=${booking.id})}">
+                                    Xem chi tiết
+                                </a>
+                                <button type="button"
+                                        class="action-btn action-btn-danger admin-cancel-booking-btn"
+                                        th:if="${adminView and booking.cancellable == true}"
+                                        th:data-cancel-url="@{/api/admin/bookings/{bookingId}/cancel(bookingId=${booking.id})}"
+                                        th:data-booking-id="${booking.id}">
+                                    Hủy sân
+                                </button>
+                                <a class="action-btn action-btn-primary"
+                                   th:if="${!adminView}"
+                                   th:href="${booking.branchId != null} ? @{/bookings/create(branchId=${booking.branchId})} : @{/bookings/create}">
+                                    Đặt thêm
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="empty-state booking-empty-state"
+                     th:unless="${bookings != null and !#lists.isEmpty(bookings)}">
+                    <p th:text="${emptyMessage}">Chưa có booking nào.</p>
+                    <a class="action-btn action-btn-primary"
+                       th:if="${!adminView}"
+                       th:href="${defaultBranchId != null} ? @{/bookings/create(branchId=${defaultBranchId})} : @{/bookings/create}">
+                        Tạo booking đầu tiên
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cancelButtons = document.querySelectorAll('.admin-cancel-booking-btn');
+
+        cancelButtons.forEach(function (button) {
+            button.addEventListener('click', async function () {
+                const bookingId = button.dataset.bookingId;
+                const cancelUrl = button.dataset.cancelUrl;
+
+                const confirmed = window.confirm(`Xác nhận hủy booking #${bookingId}?`);
+                if (!confirmed) {
+                    return;
+                }
+
+                const originalLabel = button.textContent;
+                button.disabled = true;
+                button.textContent = 'Đang hủy...';
+
+                try {
+                    const response = await fetch(cancelUrl, {
+                        method: 'PUT',
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.redirected || response.status === 401) {
+                        throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    }
+
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        throw new Error('Không thể xử lý phản hồi từ máy chủ. Vui lòng tải lại trang.');
+                    }
+
+                    const payload = await response.json();
+                    if (!response.ok || !payload || payload.success !== true) {
+                        throw new Error(payload && payload.message ? payload.message : 'Không thể hủy booking.');
+                    }
+
+                    window.alert(payload.message || 'Hủy sân thành công.');
+                    window.location.reload();
+                } catch (error) {
+                    window.alert(error && error.message ? error.message : 'Có lỗi xảy ra khi hủy booking.');
+                    button.disabled = false;
+                    button.textContent = originalLabel;
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

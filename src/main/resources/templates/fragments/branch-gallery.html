@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .branch-gallery-section { margin-bottom: 30px; }
+        .gallery-main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .gallery-main-image:hover { transform: scale(1.02); }
+        .gallery-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .gallery-thumb {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .gallery-thumb:hover {
+            border-color: #006400;
+            transform: translateY(-2px);
+        }
+        .gallery-thumb.active {
+            border-color: #006400;
+            box-shadow: 0 0 0 2px rgba(0, 100, 0, 0.2);
+        }
+        .gallery-placeholder {
+            width: 100%;
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        .lightbox-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .lightbox-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 15px;
+            transition: opacity 0.2s;
+        }
+        .lightbox-nav:hover { opacity: 0.7; }
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+    </style>
+</head>
+<body>
+
+<div th:fragment="branch-gallery(images)" class="branch-gallery-section">
+    <h2 class="section-title"><i class="fas fa-images"></i> Hình ảnh cơ sở</h2>
+
+    <div th:if="${not #lists.isEmpty(images)}">
+        <div class="gallery-container">
+            <img id="mainGalleryImage" class="gallery-main-image"
+                 th:src="${images[0]}" alt="Hình ảnh cơ sở"
+                 onclick="openLightbox(0)">
+
+            <div class="gallery-thumbnails">
+                <img th:each="img, stat : ${images}"
+                     th:src="${img}" alt="Thumbnail"
+                     class="gallery-thumb"
+                     th:classappend="${stat.index == 0} ? 'active' : ''"
+                     th:attr="data-index=${stat.index}, onclick=|setMainImage(this, ${stat.index})|">
+            </div>
+        </div>
+
+        <div id="lightboxOverlay" class="lightbox-overlay">
+            <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+            <span class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#10094;</span>
+            <img id="lightboxImage" src="" alt="">
+            <span class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#10095;</span>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(images)}" class="gallery-placeholder">
+        <div class="text-center">
+            <i class="fas fa-images text-5xl mb-3"></i>
+            <p>Chưa có hình ảnh</p>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const images = [[${images}]] || [];
+    let currentIndex = 0;
+
+    function setMainImage(thumb, index) {
+        currentIndex = index;
+        document.getElementById('mainGalleryImage').src = images[index];
+        document.querySelectorAll('.gallery-thumb').forEach((t, i) => {
+            t.classList.toggle('active', i === index);
+        });
+    }
+
+    function openLightbox(index) {
+        currentIndex = index;
+        document.getElementById('lightboxImage').src = images[index];
+        document.getElementById('lightboxOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightboxOverlay').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    function navigateLightbox(direction) {
+        currentIndex = (currentIndex + direction + images.length) % images.length;
+        document.getElementById('lightboxImage').src = images[currentIndex];
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (document.getElementById('lightboxOverlay').classList.contains('show')) {
+            if (e.key === 'ArrowLeft') navigateLightbox(-1);
+            if (e.key === 'ArrowRight') navigateLightbox(1);
+            if (e.key === 'Escape') closeLightbox();
+        }
+    });
+</script>
+
+</body>
+</html>
