@@ -4,7 +4,7 @@ import com.badminton.booking.domain.entity.Notification;
 import com.badminton.booking.domain.entity.User;
 import com.badminton.booking.notification.dto.response.NotificationResponse;
 import com.badminton.booking.notification.repository.NotificationRepository;
-import com.badminton.booking.notification.repository.UserRepository;
+import com.badminton.booking.domain.repository.UserRepository;
 import com.badminton.booking.notification.service.NotificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void createNotification(Long userId, String title, String content, String actionUrl){
-        User user = userRepository.findUserById(userId);
+        User user = userRepository.findById(userId).orElse(null);
         Notification notification = new Notification();
 
         if(user != null){

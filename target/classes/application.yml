@@ -3,7 +3,7 @@ spring:
     name: badminton-booking
 
   profiles:
-    active: dev
+    active: prod
 
   thymeleaf:
     cache: false
@@ -19,3 +19,10 @@ server:
 logging:
   level:
     org.springframework.security: INFO
+
+app:
+  security:
+    jwt:
+      # Base64 secret, can be overridden by env/config.
+      secret: YmFkbWludG9uLWJvb2tpbmctand0LXNlY3JldC1rZXktZm9yLWRldg==
+      expiration-ms: 86400000

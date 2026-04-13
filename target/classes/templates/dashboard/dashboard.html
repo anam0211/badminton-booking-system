@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Sân Cầu Lông</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+
+<body class="bg-gray-50 font-sans flex h-screen overflow-hidden">
+
+<div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
+
+<main class="flex-1 overflow-y-auto p-8 relative z-10">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-6">
+                <h1 class="text-2xl font-bold text-gray-800">DASHBOARD</h1>
+
+                <div class="relative w-72" id="branchSelectContainer">
+                    <div class="relative">
+                        <input type="text" id="branchSearchInput" placeholder="🔍 Tìm & chọn cơ sở..."
+                               autocomplete="off"
+                               class="w-full h-[42px] border border-gray-300 rounded-lg px-4 bg-white text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition cursor-text">
+
+                        <input type="hidden" id="selectedBranchId" th:value="${currentBranchId}">
+
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <ul id="branchDropdownList"
+                        class="absolute z-50 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-xl max-h-60 overflow-y-auto hidden">
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex gap-3 items-center">
+                <select id="viewMode"
+                        class="pl-2 pr-2 h-[42px] border border-gray-200 rounded-lg px-4 bg-white text-sm outline-none cursor-pointer">
+                    <option value="monthly" th:selected="${currentMode == 'monthly'}">Theo Tháng</option>
+                    <option value="yearly" th:selected="${currentMode == 'yearly'}">Theo Năm</option>
+                </select>
+
+                <input type="month" id="monthSelector"
+                       th:classappend="${currentMode == 'yearly'} ? 'hidden' : 'block'"
+                       th:value="${currentYear + '-' + (#numbers.formatInteger(currentMonth, 2))}"
+                       class="h-[42px] border border-gray-200 rounded-lg px-4 bg-white text-sm outline-none cursor-pointer">
+
+                <input type="number" id="yearSelector" min="2020" max="2030"
+                       th:classappend="${currentMode == 'monthly'} ? 'hidden' : 'block'" th:value="${currentYear}"
+                       class="h-[42px] border border-gray-200 rounded-lg px-4 bg-white text-sm outline-none cursor-pointer">
+
+                <button type="button" id="btnLoadData"
+                        class="h-[42px] bg-emerald-600 text-white px-4 rounded-lg text-sm hover:bg-emerald-700 transition">
+                    Tải dữ liệu
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h2 class="text-sm font-medium text-gray-500 mb-4">Biểu đồ doanh thu thực tế</h2>
+            <div class="relative h-72">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <div class="lg:col-span-7 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-sm font-medium text-gray-500 mb-4">Tần suất sử dụng sân</h2>
+                <div class="relative h-64">
+                    <canvas id="rankingChart"></canvas>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
+                    <h3 class="text-gray-500 text-sm font-medium">Tổng Doanh Thu</h3>
+                    <p class="text-2xl font-bold text-emerald-600 my-2"
+                       th:text="${#numbers.formatDecimal(overview.totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+                        ₫</p>
+                    <span class="text-xs text-gray-400" th:if="${overview.totalRevenue == 0}">Chưa có dữ liệu</span>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
+                    <h3 class="text-gray-500 text-sm font-medium">Đánh Giá</h3>
+                    <p class="text-2xl font-bold text-yellow-500 my-2"
+                       th:text="${overview.reviewSummary.avgRating} + ' ⭐'">0 ⭐</p>
+                    <span class="text-xs text-gray-400"
+                          th:text="'Dựa trên ' + ${overview.reviewSummary.totalReviews} + ' đánh giá'">0 lượt</span>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
+                    <h3 class="text-gray-500 text-sm font-medium">Tổng Lượt Đặt</h3>
+                    <p class="text-2xl font-bold text-blue-600 my-2"
+                       th:text="${overview.bookingSummary.totalBookings}">0</p>
+                    <span class="text-xs text-gray-400"
+                          th:text="${overview.bookingSummary.completedBookings} + ' ca hoàn thành'">0 ca</span>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
+                    <h3 class="text-gray-500 text-sm font-medium">Khách Hủy Sân</h3>
+                    <p class="text-2xl font-bold text-red-500 my-2"
+                       th:text="${overview.bookingSummary.cancelledBookings}">0</p>
+                    <span class="text-xs text-gray-400">Cần lưu ý kiểm tra</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script th:src="@{/js/sidebar.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.DashboardData = {
+        branchesMap: /*[[${branches}]]*/ {},
+        currentMode: /*[[${currentMode}]]*/ 'monthly',
+        revenueData: /*[[${revenueData}]]*/ null,
+        rankingData: /*[[${rankingData}]]*/ null,
+
+        baseUrl: /*[[@{/admin/dashboard}]]*/ '/admin/dashboard'
+    };
+    /*]]>*/
+</script>
+
+<script th:src="@{/js/dashboard.js}"></script>
+</body>
+
+</html>

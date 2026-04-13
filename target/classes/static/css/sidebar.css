@@ -1,0 +1,46 @@
+/* Sidebar cố định chiều rộng */
+#sidebar {
+    width: 16rem; /* 256px */
+    z-index: 50;
+}
+
+/* Hiệu ứng Dropdown Menu con */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.submenu.open {
+    max-height: 200px;
+}
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+}
+
+.arrow-icon.open {
+    transform: rotate(90deg);
+}
+
+/* =====================
+   HIGHLIGHT TAB ACTIVE
+   ===================== */
+
+/* Highlight cho cả Link chính và Link con */
+.sidebar-link.active {
+    background-color: #ecfdf5 !important;
+    color: #047857 !important;
+    font-weight: 700;
+}
+
+/* Đổi màu icon khi active */
+.sidebar-link.active i {
+    color: #059669;
+}
+
+/* Hover mượt mà */
+.sidebar-link:hover:not(.active) {
+    background-color: #f9fafb;
+    color: #059669;
+}

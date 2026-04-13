@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dang ky</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-page">
+<div class="auth-shell">
+    <div class="auth-panel">
+        <div class="auth-brand">
+            <p class="auth-brand-title">BADMINTON COURT</p>
+            <p class="auth-brand-sub">Booking</p>
+        </div>
+
+        <main class="auth-card">
+            <h1 class="auth-title">Đăng ký</h1>
+            <p th:if="${errorMessage}" th:text="${errorMessage}" class="alert alert-error"></p>
+            <p th:if="${#fields.hasGlobalErrors()}" class="alert alert-error" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+
+            <form th:action="@{/register}" th:object="${registerForm}" method="post">
+                <div>
+                    <label>Email (*)</label>
+                    <input type="email" th:field="*{email}" placeholder="Nhập email của bạn" required>
+                    <small class="alert alert-error" th:errors="*{email}"></small>
+                </div>
+
+                <div>
+                    <label>Số Điện Thoại</label>
+                    <input type="text" th:field="*{phone}" placeholder="Nhập số điện thoại">
+                </div>
+
+                <div>
+                    <label>Họ và Tên (*)</label>
+                    <input type="text" th:field="*{fullName}" placeholder="Nhập họ và tên của bạn" required>
+                    <small class="alert alert-error" th:errors="*{fullName}"></small>
+                </div>
+
+                <div>
+                    <label>Mật khẩu (*)</label>
+                    <input type="password" th:field="*{password}" placeholder="Nhập mật khẩu (*)" required>
+                    <small class="alert alert-error" th:errors="*{password}"></small>
+                </div>
+                <div>
+                    <label>Nhập lại mật khẩu(*)</label>
+                    <input type="password" th:field="*{confirmPassword}" placeholder="Nhập lại mật khẩu" required>
+                    <small class="alert alert-error" th:errors="*{confirmPassword}"></small>
+                </div>
+
+                <button class="auth-submit" type="submit">Đăng ký</button>
+            </form>
+
+            <p class="auth-footer">
+                Bạn đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a>
+            </p>
+        </main>
+    </div>
+</div>
+</body>
+</html>

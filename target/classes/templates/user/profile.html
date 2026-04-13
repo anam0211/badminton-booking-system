@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-page">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="profile-page">
+    <section class="profile-header">
+        <h1 class="profile-title">Thông tin cá nhân</h1>
+        <p class="profile-subtitle">Cập nhật thông tin cá nhân để quản lý tài khoản tốt hơn.</p>
+    </section>
+
+    <p th:if="${successMessage}" th:text="${successMessage}" class="alert alert-success"></p>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="alert alert-error"></p>
+    <p th:if="${#fields.hasGlobalErrors()}" class="alert alert-error" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+
+    <section class="profile-grid">
+        <article class="profile-card">
+            <div class="profile-avatar-wrap">
+                <img
+                        class="profile-avatar"
+                        th:src="${#strings.isEmpty(currentUserDetail.avatarUrl)} ? 'https://via.placeholder.com/120x120?text=Avatar' : @{/images/{file}(file=${currentUserDetail.avatarUrl})}"
+                        alt="Avatar"
+                >
+            </div>
+                <h2 class="profile-name" th:text="${currentUserDetail.fullName}">Tên người dùng</h2>
+            <p class="profile-email" th:text="${currentUserDetail.email}">email</p>
+            <p class="profile-role">
+                Vai trò:
+                <span class="profile-role-badge" th:text="${currentUserDetail.role.name}">CUSTOMER</span>
+            </p>
+        </article>
+
+        <article class="profile-card">
+            <h2 class="profile-section-title">Cập nhật thông tin</h2>
+            <form th:action="@{/user/profile}" th:object="${profileForm}" method="post" enctype="multipart/form-data" class="profile-form">
+                <div>
+                    <label>Họ và tên</label>
+                    <input type="text" th:field="*{fullName}" required>
+                    <small class="alert alert-error" th:errors="*{fullName}"></small>
+                </div>
+                <div>
+                    <label>Số điện thoại</label>
+                    <input type="text" th:field="*{phone}">
+                </div>
+                <div>
+                    <label>Ảnh đại diện</label>
+                    <input type="file" name="avatarFile" accept="image/*">
+                    <input type="hidden" th:field="*{avatarUrl}">
+                    <small class="alert alert-error" th:errors="*{avatarUrl}"></small>
+                </div>
+                <button class="profile-submit" type="submit">Cập nhật</button>
+            </form>
+        </article>
+    </section>
+</main>
+</body>
+</html>

@@ -40,12 +40,12 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private BookingStatus status = BookingStatus.PENDING;
+    private BookingStatus status = BookingStatus.CONFIRMED;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+    private PaymentStatus paymentStatus = PaymentStatus.PAID;
 
     @Column(columnDefinition = "TEXT")
     private String note;
