@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookingSuccessEvent {
     private Long userId;
+    private Long bookingId;
     private String courtName;
     private String playDate;
     private String timeSlot;

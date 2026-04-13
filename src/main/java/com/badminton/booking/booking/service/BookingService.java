@@ -250,6 +250,7 @@ public class BookingService {
         for (BookingDetail bookingDetail : bookingDetails) {
             eventPublisher.publishEvent(new BookingSuccessEvent(
                     userId,
+                    booking.getId(),
                     bookingDetail.getCourt().getName(),
                     bookingDetail.getPlayDate().toString(),
                     formatTimeSlot(bookingDetail.getTimeSlot())
@@ -274,6 +275,7 @@ public class BookingService {
         for (BookingDetail bookingDetail : bookingDetails) {
             eventPublisher.publishEvent(new BookingCancelEvent(
                     userId,
+                    booking.getId(),
                     bookingDetail.getCourt().getName(),
                     bookingDetail.getPlayDate().toString(),
                     formatTimeSlot(bookingDetail.getTimeSlot())
