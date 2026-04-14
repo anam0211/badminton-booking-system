@@ -33,9 +33,9 @@ public class AuthService {
     public void register(RegisterRequest request) {
         if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new BadRequestException("Email đã tồn tại.");
-        } // check mail
+        }//check mail
 
-        Role customerRole = roleRepository.findByName(RoleName.CUSTOMER.name()) // roleid
+        Role customerRole = roleRepository.findByName(RoleName.CUSTOMER.name())// roleid
                 .orElseThrow(() -> new BadRequestException("Chưa khởi tạo role CUSTOMER."));
 
         User user = User.builder()
@@ -54,31 +54,24 @@ public class AuthService {
     @Transactional(readOnly = true)
     public String login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        ); // xác thực tk+mk đúng thì trả về authentication, sai thì throw exception
+            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        ); // xác thực tk+mk đúng thì trả về authentication sai thì throw exception
 
-        UserDetails principal = (UserDetails) authentication.getPrincipal(); // principal gồm : username, password, authorities(role)
+        UserDetails principal = (UserDetails) authentication.getPrincipal(); // principal gồm : username, password, authorities( role)
         return jwtService.generateToken(principal);
     }
 
     @Transactional(readOnly = true)
-    public String resolveLoginSuccessUrl(String email) {
+    public boolean isAdminAccount(String email) {
         return userRepository.findByEmailIgnoreCase(email)
                 .map(User::getRole)
                 .map(Role::getName)
-                .map(roleName -> {
-                    if (RoleName.ADMIN.name().equalsIgnoreCase(roleName)) {
-                        return "/admin/users";
-                    }
-                    if (RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(roleName)) {
-                        return "/admin/dashboard";
-                    }
-                    return "/home";
-                })
-                .orElse("/home");
+                .map(roleName -> RoleName.ADMIN.name().equalsIgnoreCase(roleName)
+                        || RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(roleName))
+                .orElse(false);
     }
 
     public void logout() {
-        // Không lưu state trên server khi chỉ dùng access token.
+        // Khong luu state tren server khi chi dung access token.
     }
 }

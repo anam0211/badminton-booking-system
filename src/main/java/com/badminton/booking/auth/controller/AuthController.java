@@ -5,11 +5,10 @@ import com.badminton.booking.auth.dto.RegisterRequest;
 import com.badminton.booking.auth.service.AuthService;
 import com.badminton.booking.common.exception.BadRequestException;
 import com.badminton.booking.security.JwtAuthenticationFilter;
+import jakarta.validation.Valid;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,12 +16,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.security.core.context.SecurityContextHolder;
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService; // lombok required args constructor hoặc dùng autowired
+    private final AuthService authService; //lombok required args constructor hoặc dùng autowired
 
 
 // login
@@ -43,7 +42,10 @@ public class AuthController {
 
         String accessToken = authService.login(loginRequest);
         response.addCookie(buildAccessTokenCookie(accessToken, 60 * 60 * 24));
-        return "redirect:" + authService.resolveLoginSuccessUrl(email);
+        if (authService.isAdminAccount(email)) {
+            return "redirect:/admin/users";
+        }
+        return "redirect:/home";
     }
 
 // logout
@@ -51,7 +53,7 @@ public class AuthController {
     public String logout(HttpServletResponse response) {
         authService.logout(); // rỗng vì chỉ dùng access token không refreshtoken
         SecurityContextHolder.clearContext();
-        response.addCookie(buildAccessTokenCookie("", 0)); // xóa cookie access token
+        response.addCookie(buildAccessTokenCookie("", 0));// xoá cookie access token
         return "redirect:/login?logout=true";
     }
 
@@ -101,4 +103,5 @@ public class AuthController {
         cookie.setMaxAge(maxAgeSeconds);
         return cookie;
     }
+
 }

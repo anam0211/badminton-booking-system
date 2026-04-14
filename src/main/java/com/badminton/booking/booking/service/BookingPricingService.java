@@ -25,30 +25,19 @@ public class BookingPricingService {
     public BigDecimal calculate(Long courtId, Integer timeSlotId) {
         Court court = courtRepository.findById(courtId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURT_NOT_FOUND));
-        return calculate(court, timeSlotId);
-    }
-
-    public BigDecimal calculate(Court court, Integer timeSlotId) {
-        if (court == null) {
-            throw new AppException(ErrorCode.COURT_NOT_FOUND);
-        }
 
         Long branchId = court.getBranch().getId();
-        String courtType = normalizeCourtType(court.getType());
+        String courtType = court.getType() == null ? null : court.getType().trim();
 
         Price price = priceRepository
                 .findByBranch_IdAndTimeSlot_IdAndCourtTypeIgnoreCase(branchId, timeSlotId, courtType)
                 .or(() -> priceRepository.findByBranch_IdAndTimeSlot_IdAndCourtTypeIsNull(branchId, timeSlotId))
                 .orElseThrow(() -> {
                     log.warn("PRICE_NOT_FOUND courtId={}, branchId={}, timeSlotId={}, courtType={}",
-                            court.getId(), branchId, timeSlotId, courtType);
+                            courtId, branchId, timeSlotId, courtType);
                     return new AppException(ErrorCode.PRICE_NOT_FOUND);
                 });
 
         return price.getPrice();
-    }
-
-    private String normalizeCourtType(String courtType) {
-        return courtType == null ? null : courtType.trim();
     }
 }
