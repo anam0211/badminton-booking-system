@@ -16,9 +16,8 @@ public class CourtViewController {
     private final PriceRepository priceRepository;
 
     @GetMapping("/branches/{branchId}/courts")
-  //  public String list(@PathVariable Long branchId, Model model)
-    public String list(Model model) {
-        Long branchId = 2L;
+    public String list(@PathVariable Long branchId, Model model) {
+
         var courts = repo.findByBranchIdAndIsDeletedFalse(branchId);
 
         model.addAttribute("courts", courts);
