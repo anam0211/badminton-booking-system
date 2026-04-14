@@ -14,7 +14,7 @@
            class="sidebar-link flex items-center px-3 py-2.5 rounded-lg font-medium transition"
            th:classappend="${activePage == 'dashboard' ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
             <i class="fas fa-chart-pie w-6 text-center mr-3"></i>
-            <span>Tá»•ng quan</span>
+            <span>Tổng quan</span>
         </a>
 
         <div th:with="isTransaction=${activePage == 'bookings' || activePage == 'payments'}">
@@ -23,7 +23,7 @@
                     th:classappend="${isTransaction ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
                 <div class="flex items-center">
                     <i class="fas fa-file-invoice-dollar w-6 text-center mr-3"></i>
-                    <span>Quáº£n lĂ½ Giao dá»‹ch</span>
+                    <span>Quản lý giao dịch</span>
                 </div>
                 <i id="arrow-transaction" class="fas fa-chevron-right text-xs arrow-icon"
                    th:classappend="${isTransaction ? 'open' : ''}"></i>
@@ -32,12 +32,10 @@
                  th:classappend="${isTransaction ? 'open' : ''}">
                 <a th:href="@{/admin/bookings}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'bookings' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Lá»‹ch
-                    Ä‘áº·t sĂ¢n</a>
+                   th:classappend="${activePage == 'bookings' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Lịch đặt sân</a>
                 <a th:href="@{/admin/payments}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'payments' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thanh
-                    toĂ¡n</a>
+                   th:classappend="${activePage == 'payments' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thanh toán</a>
             </div>
         </div>
 
@@ -47,7 +45,7 @@
                     th:classappend="${isFacility ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
                 <div class="flex items-center">
                     <i class="fas fa-building w-6 text-center mr-3"></i>
-                    <span>CÆ¡ sá»Ÿ váº­t cháº¥t</span>
+                    <span>Cơ sở vật chất</span>
                 </div>
                 <i id="arrow-facility" class="fas fa-chevron-right text-xs arrow-icon"
                    th:classappend="${isFacility ? 'open' : ''}"></i>
@@ -56,26 +54,27 @@
                  th:classappend="${isFacility ? 'open' : ''}">
                 <a th:href="@{/admin/branches}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'branches' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">ThĂ´ng tin chi nhĂ¡nh</a>
-                <a th:href="@{/admin/areas}"
+                   th:classappend="${activePage == 'branches' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thông tin chi nhánh</a>
+                <a th:if="${currentUser != null and currentUser.role != null and currentUser.role.name == 'ADMIN'}"
+                   th:href="@{/admin/areas}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'areas' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Quáº£n lĂ½ khu vá»±c</a>
+                   th:classappend="${activePage == 'areas' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Quản lý khu vực</a>
                 <a th:href="@{/admin/courts}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'courts' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Danh sĂ¡ch máº·t sĂ¢n</a>
+                   th:classappend="${activePage == 'courts' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Danh sách mặt sân</a>
             </div>
         </div>
 
-        <a th:href="@{/admin/users}"
+        <a th:if="${currentUser != null and currentUser.role != null and currentUser.role.name == 'ADMIN'}"
+           th:href="@{/admin/users}"
            class="sidebar-link flex items-center px-3 py-2.5 rounded-lg font-medium transition"
            th:classappend="${activePage == 'users' ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
             <i class="fas fa-users w-6 text-center mr-3"></i>
-            <span>KhĂ¡ch hĂ ng</span>
+            <span>Khách hàng</span>
         </a>
     </nav>
 
     <div class="p-4 border-t border-gray-100 mt-auto">
-
         <div th:if="${currentUser != null}" id="auth-logged-in" class="flex items-center gap-3 overflow-hidden">
             <img id="admin-avatar"
                  th:src="${'https://ui-avatars.com/api/?background=047857&color=fff&name=' + currentUser.fullName}"
@@ -84,11 +83,11 @@
             <div class="flex-1 min-w-0">
                 <p id="admin-name" class="text-sm font-bold text-gray-800 truncate"
                    th:text="${currentUser.fullName}" th:title="${currentUser.fullName}">
-                    TĂªn Admin
+                    Tên Admin
                 </p>
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="text-xs text-red-500 hover:text-red-700 hover:underline transition cursor-pointer bg-transparent border-none p-0">
-                        ÄÄƒng xuáº¥t
+                        Đăng xuất
                     </button>
                 </form>
             </div>
@@ -98,10 +97,9 @@
             <a th:href="@{/login}"
                class="flex items-center justify-center w-full gap-2 px-4 py-2.5 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition">
                 <i class="fas fa-sign-in-alt"></i>
-                <span>ÄÄƒng nháº­p</span>
+                <span>Đăng nhập</span>
             </a>
         </div>
-
     </div>
 </aside>
 </html>

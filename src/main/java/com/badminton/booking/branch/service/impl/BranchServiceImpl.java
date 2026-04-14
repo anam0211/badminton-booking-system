@@ -5,21 +5,21 @@ import com.badminton.booking.branch.dto.response.BranchListItem;
 import com.badminton.booking.branch.dto.response.BranchResponse;
 import com.badminton.booking.branch.repository.BranchAmenityRepository;
 import com.badminton.booking.branch.repository.BranchImageRepository;
-import com.badminton.booking.dashboard.repository.BranchRepository;
-import com.badminton.booking.branch.service.BranchService;
 import com.badminton.booking.branch.service.BranchSecurityService;
+import com.badminton.booking.branch.service.BranchService;
 import com.badminton.booking.common.enums.BranchStatus;
+import com.badminton.booking.common.exception.AccessDeniedCustomException;
 import com.badminton.booking.common.exception.AppException;
 import com.badminton.booking.common.exception.ErrorCode;
-import com.badminton.booking.common.exception.AccessDeniedCustomException;
 import com.badminton.booking.common.service.ImageStorageService;
+import com.badminton.booking.dashboard.repository.BranchRepository;
 import com.badminton.booking.domain.entity.Area;
 import com.badminton.booking.domain.entity.Branch;
 import com.badminton.booking.domain.entity.BranchAmenity;
 import com.badminton.booking.domain.entity.BranchImage;
 import com.badminton.booking.domain.entity.User;
-import com.badminton.booking.home.repository.AreaRepository;
 import com.badminton.booking.domain.repository.UserRepository;
+import com.badminton.booking.home.repository.AreaRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,9 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,20 +53,14 @@ public class BranchServiceImpl implements BranchService {
     @Override
     @Transactional(readOnly = true)
     public Page<BranchListItem> searchBranches(String keyword, Integer areaId, String status, int page, int size) {
-        // RBAC: branch_admin chỉ xem được branch của mình
         var managedBranch = branchSecurityService.getManagedBranchForCurrentUser();
         if (managedBranch.isPresent()) {
-            // Branch_admin chỉ thấy branch của mình
-            Branch branch = managedBranch.get();
-            // Build a simple BranchListItem without extra queries
-            return new PageImpl<>(List.of(toListItem(branch)), PageRequest.of(page, size), 1);
+            return new PageImpl<>(List.of(toListItem(managedBranch.get())), PageRequest.of(page, size), 1);
         }
 
-        // ADMIN xem tất cả
         Pageable pageable = PageRequest.of(page, size);
         BranchStatus branchStatus = (status != null && !status.trim().isEmpty()) ? BranchStatus.valueOf(status) : null;
-        Page<Branch> branchPage = branchRepository.searchBranches(keyword, areaId, branchStatus, pageable);
-        return branchPage.map(this::toListItem);
+        return branchRepository.searchBranches(keyword, areaId, branchStatus, pageable).map(this::toListItem);
     }
 
     @Override
@@ -74,7 +68,6 @@ public class BranchServiceImpl implements BranchService {
     public BranchResponse getBranchById(Long id) {
         Branch branch = branchRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Chi nhánh"));
-        // RBAC: branch_admin chỉ xem được branch của mình
         branchSecurityService.ensureUserCanManageBranch(id);
         return toResponse(branch);
     }
@@ -84,18 +77,14 @@ public class BranchServiceImpl implements BranchService {
     public BranchResponse getBranchDetail(Long id) {
         Branch branch = branchRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Chi nhánh"));
-        // RBAC: branch_admin chỉ xem được branch của mình
-        branchSecurityService.ensureUserCanManageBranch(id);
         return toResponse(branch);
     }
 
     @Override
     @Transactional
     public BranchResponse createBranch(BranchRequest request) {
-        var managedBranch = branchSecurityService.getManagedBranchForCurrentUser();
-        if (managedBranch.isPresent()) {
-            throw new com.badminton.booking.common.exception.AccessDeniedCustomException(
-                    "Bạn không được phép tạo chi nhánh mới. Chỉ System Admin mới có quyền này.");
+        if (branchSecurityService.getManagedBranchForCurrentUser().isPresent()) {
+            throw new AccessDeniedCustomException("Bạn không được phép tạo chi nhánh mới. Chỉ System Admin mới có quyền này.");
         }
 
         if (branchRepository.existsByNameIgnoreCase(request.getName())) {
@@ -117,41 +106,9 @@ public class BranchServiceImpl implements BranchService {
                 .build();
 
         Branch savedBranch = branchRepository.save(branch);
-
-        // Gán branch admin cho chi nhánh
-        if (request.getManagedBranchAdminId() != null) {
-            User branchAdmin = userRepository.findById(request.getManagedBranchAdminId())
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Branch Admin"));
-            branchAdmin.setManagedBranch(savedBranch);
-            userRepository.save(branchAdmin);
-        }
-
-        // Lưu tiện ích
-        if (request.getAmenityNames() != null && request.getAmenityNames().length > 0) {
-            for (String amenityName : request.getAmenityNames()) {
-                if (amenityName != null && !amenityName.trim().isEmpty()) {
-                    BranchAmenity amenity = BranchAmenity.builder()
-                            .branch(savedBranch)
-                            .amenityName(amenityName.trim())
-                            .build();
-                    branchAmenityRepository.save(amenity);
-                }
-            }
-        }
-
-        // Lưu ảnh từ MultipartFile[]
-        if (request.getImageFiles() != null && request.getImageFiles().length > 0) {
-            for (MultipartFile file : request.getImageFiles()) {
-                if (file != null && !file.isEmpty()) {
-                    String storedPath = imageStorageService.storeImage(file, "branches");
-                    BranchImage image = BranchImage.builder()
-                            .branch(savedBranch)
-                            .imageUrl(storedPath)
-                            .build();
-                    branchImageRepository.save(image);
-                }
-            }
-        }
+        assignManagedBranchAdmin(savedBranch, request.getManagedBranchAdminId());
+        replaceAmenities(savedBranch, request.getAmenityNames());
+        saveUploadedImages(savedBranch, request.getImageFiles());
 
         return getBranchById(savedBranch.getId());
     }
@@ -178,89 +135,9 @@ public class BranchServiceImpl implements BranchService {
         branch.setStatus(BranchStatus.valueOf(request.getStatus() != null ? request.getStatus() : "OPEN"));
         branchRepository.save(branch);
 
-        // Xử lý gán branch admin
-        Long newAdminId = request.getManagedBranchAdminId();
-        List<User> currentAdmins = userRepository.findAllByIsDeletedFalseAndManagedBranchId(id);
-        for (User admin : currentAdmins) {
-            admin.setManagedBranch(null);
-            userRepository.save(admin);
-        }
-        if (newAdminId != null) {
-            User newAdmin = userRepository.findById(newAdminId)
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Branch Admin"));
-            newAdmin.setManagedBranch(branch);
-            userRepository.save(newAdmin);
-        }
-
-        if (request.getAmenityNames() != null) {
-            branchAmenityRepository.deleteAllByBranchId(id);
-            for (String amenityName : request.getAmenityNames()) {
-                if (amenityName != null && !amenityName.trim().isEmpty()) {
-                    BranchAmenity amenity = BranchAmenity.builder()
-                            .branch(branch)
-                            .amenityName(amenityName.trim())
-                            .build();
-                    branchAmenityRepository.save(amenity);
-                }
-            }
-        }
-
-        // Xử lý ảnh
-        // Nếu có imageFiles mới → xóa ảnh cũ và lưu ảnh mới
-        // Nếu có existingImageUrls (giữ nguyên) → không làm gì
-        // Nếu imageUrls được gửi (legacy) → xử lý như cũ
-        MultipartFile[] imageFiles = request.getImageFiles();
-        String[] existingImageUrls = request.getExistingImageUrls();
-
-        boolean hasNewFiles = imageFiles != null && imageFiles.length > 0;
-        boolean hasExplicitExisting = existingImageUrls != null && existingImageUrls.length > 0;
-
-        if (hasNewFiles) {
-            // Xóa ảnh cũ
-            List<BranchImage> oldImages = branchImageRepository.findAllByBranchId(id);
-            for (BranchImage oldImage : oldImages) {
-                imageStorageService.deleteImage(oldImage.getImageUrl());
-            }
-            branchImageRepository.deleteAllByBranchId(id);
-
-            // Lưu ảnh mới
-            for (MultipartFile file : imageFiles) {
-                if (file != null && !file.isEmpty()) {
-                    String storedPath = imageStorageService.storeImage(file, "branches");
-                    BranchImage image = BranchImage.builder()
-                            .branch(branch)
-                            .imageUrl(storedPath)
-                            .build();
-                    branchImageRepository.save(image);
-                }
-            }
-        } else if (hasExplicitExisting) {
-            // Giữ nguyên ảnh cũ theo danh sách existingImageUrls
-            // Ảnh từ frontend có dạng "/uploads/branches/xxx.jpg", trong DB lưu "branches/xxx.jpg"
-            List<BranchImage> oldImages = branchImageRepository.findAllByBranchId(id);
-            List<String> normalizedKeepUrls = Arrays.stream(existingImageUrls)
-                    .map(url -> url.startsWith("/uploads/") ? url.substring("/uploads/".length()) : url)
-                    .collect(Collectors.toList());
-
-            for (BranchImage oldImage : oldImages) {
-                if (!normalizedKeepUrls.contains(oldImage.getImageUrl())) {
-                    imageStorageService.deleteImage(oldImage.getImageUrl());
-                    branchImageRepository.delete(oldImage);
-                }
-            }
-        } else if (request.getImageUrls() != null && request.getImageUrls().length > 0) {
-            // Legacy fallback — xử lý như cũ
-            branchImageRepository.deleteAllByBranchId(id);
-            for (String imageUrl : request.getImageUrls()) {
-                if (imageUrl != null && !imageUrl.trim().isEmpty()) {
-                    BranchImage image = BranchImage.builder()
-                            .branch(branch)
-                            .imageUrl(imageUrl.trim())
-                            .build();
-                    branchImageRepository.save(image);
-                }
-            }
-        }
+        reassignManagedBranchAdmin(branch, request.getManagedBranchAdminId());
+        replaceAmenities(branch, request.getAmenityNames());
+        updateImages(branch, request);
 
         return getBranchById(id);
     }
@@ -272,9 +149,7 @@ public class BranchServiceImpl implements BranchService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Chi nhánh"));
 
         branchSecurityService.ensureUserCanManageBranch(id);
-
-        // Additional: branch_admin cannot delete their own branch (only admin can)
-      if (!branch.getIsDeleted()) {
+        if (!branch.getIsDeleted()) {
             branch.setIsDeleted(true);
             branchRepository.save(branch);
         }
@@ -287,14 +162,127 @@ public class BranchServiceImpl implements BranchService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Chi nhánh"));
 
         branchSecurityService.ensureUserCanManageBranch(id);
-
-        BranchStatus currentStatus = branch.getStatus();
-        if (currentStatus == BranchStatus.OPEN) {
-            branch.setStatus(BranchStatus.CLOSED);
-        } else {
-            branch.setStatus(BranchStatus.OPEN);
-        }
+        branch.setStatus(branch.getStatus() == BranchStatus.OPEN ? BranchStatus.CLOSED : BranchStatus.OPEN);
         branchRepository.save(branch);
+    }
+
+    private void assignManagedBranchAdmin(Branch branch, Long branchAdminId) {
+        if (branchAdminId == null) {
+            return;
+        }
+
+        User branchAdmin = userRepository.findById(branchAdminId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, "Branch Admin"));
+        branchAdmin.setManagedBranch(branch);
+        userRepository.save(branchAdmin);
+    }
+
+    private void reassignManagedBranchAdmin(Branch branch, Long branchAdminId) {
+        List<User> currentAdmins = userRepository.findAllByIsDeletedFalseAndManagedBranchId(branch.getId());
+        for (User admin : currentAdmins) {
+            admin.setManagedBranch(null);
+            userRepository.save(admin);
+        }
+        assignManagedBranchAdmin(branch, branchAdminId);
+    }
+
+    private void replaceAmenities(Branch branch, String[] amenityNames) {
+        if (amenityNames == null) {
+            return;
+        }
+
+        branchAmenityRepository.deleteAllByBranchId(branch.getId());
+        for (String amenityName : amenityNames) {
+            if (amenityName != null && !amenityName.trim().isEmpty()) {
+                branchAmenityRepository.save(BranchAmenity.builder()
+                        .branch(branch)
+                        .amenityName(amenityName.trim())
+                        .build());
+            }
+        }
+    }
+
+    private void saveUploadedImages(Branch branch, MultipartFile[] imageFiles) {
+        if (imageFiles == null || imageFiles.length == 0) {
+            return;
+        }
+
+        for (MultipartFile file : imageFiles) {
+            if (file != null && !file.isEmpty()) {
+                String storedPath = imageStorageService.storeImage(file, "branches");
+                branchImageRepository.save(BranchImage.builder()
+                        .branch(branch)
+                        .imageUrl(storedPath)
+                        .build());
+            }
+        }
+    }
+
+    private void updateImages(Branch branch, BranchRequest request) {
+        MultipartFile[] imageFiles = request.getImageFiles();
+        String[] existingImageUrls = request.getExistingImageUrls();
+        String[] imageUrls = request.getImageUrls();
+
+        boolean hasNewFiles = imageFiles != null && Arrays.stream(imageFiles).anyMatch(file -> file != null && !file.isEmpty());
+        boolean hasExplicitExisting = existingImageUrls != null;
+        boolean hasLegacyImages = imageUrls != null && imageUrls.length > 0;
+
+        if (hasNewFiles) {
+            replaceAllImages(branch, imageFiles);
+            return;
+        }
+
+        if (hasExplicitExisting) {
+            keepOnlySelectedImages(branch, existingImageUrls);
+            return;
+        }
+
+        if (hasLegacyImages) {
+            replaceImagesFromUrls(branch, imageUrls);
+        }
+    }
+
+    private void replaceAllImages(Branch branch, MultipartFile[] imageFiles) {
+        deleteAllStoredImages(branch.getId());
+        branchImageRepository.deleteAllByBranchId(branch.getId());
+        saveUploadedImages(branch, imageFiles);
+    }
+
+    private void keepOnlySelectedImages(Branch branch, String[] existingImageUrls) {
+        List<String> normalizedKeepUrls = Arrays.stream(existingImageUrls)
+                .map(this::normalizeStoredImageUrl)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<BranchImage> oldImages = branchImageRepository.findAllByBranchId(branch.getId());
+        for (BranchImage oldImage : oldImages) {
+            if (!normalizedKeepUrls.contains(oldImage.getImageUrl())) {
+                deleteStoredImageIfNeeded(oldImage.getImageUrl());
+                branchImageRepository.delete(oldImage);
+            }
+        }
+    }
+
+    private void replaceImagesFromUrls(Branch branch, String[] imageUrls) {
+        deleteAllStoredImages(branch.getId());
+        branchImageRepository.deleteAllByBranchId(branch.getId());
+
+        for (String imageUrl : imageUrls) {
+            String normalizedImageUrl = normalizeStoredImageUrl(imageUrl);
+            if (normalizedImageUrl != null) {
+                branchImageRepository.save(BranchImage.builder()
+                        .branch(branch)
+                        .imageUrl(normalizedImageUrl)
+                        .build());
+            }
+        }
+    }
+
+    private void deleteAllStoredImages(Long branchId) {
+        List<BranchImage> oldImages = branchImageRepository.findAllByBranchId(branchId);
+        for (BranchImage oldImage : oldImages) {
+            deleteStoredImageIfNeeded(oldImage.getImageUrl());
+        }
     }
 
     private BranchListItem toListItem(Branch branch) {
@@ -321,22 +309,21 @@ public class BranchServiceImpl implements BranchService {
     private BranchResponse toResponse(Branch branch) {
         List<String> amenities = branch.getBranchAmenities() != null
                 ? branch.getBranchAmenities().stream()
-                    .map(BranchAmenity::getAmenityName)
-                    .collect(Collectors.toList())
+                .map(BranchAmenity::getAmenityName)
+                .collect(Collectors.toList())
                 : List.of();
 
         List<String> images = branch.getBranchImages() != null
                 ? branch.getBranchImages().stream()
-                    .map(img -> img.getImageUrl())
-                    .filter(java.util.Objects::nonNull)
-                    .map(url -> "/uploads/" + url)
-                    .collect(Collectors.toList())
+                .map(BranchImage::getImageUrl)
+                .map(this::toPublicImageUrl)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
                 : List.of();
 
         BigDecimal minPrice = branchRepository.findMinPriceByBranchId(branch.getId());
         Integer courtCount = branchRepository.countCourtsByBranchId(branch.getId());
 
-        // Lấy thông tin branch admin đang quản lý chi nhánh
         List<User> branchAdmins = userRepository.findAllByIsDeletedFalseAndManagedBranchId(branch.getId());
         Long adminId = branchAdmins.isEmpty() ? null : branchAdmins.get(0).getId();
         String adminName = branchAdmins.isEmpty() ? null : branchAdmins.get(0).getFullName();
@@ -360,5 +347,48 @@ public class BranchServiceImpl implements BranchService {
                 .managedBranchAdminName(adminName)
                 .managedBranchAdminEmail(adminEmail)
                 .build();
+    }
+
+    private String normalizeStoredImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmedImageUrl = imageUrl.trim();
+        if (isRemoteImageUrl(trimmedImageUrl)) {
+            return trimmedImageUrl;
+        }
+        if (trimmedImageUrl.startsWith("/uploads/")) {
+            return trimmedImageUrl.substring("/uploads/".length());
+        }
+        if (trimmedImageUrl.startsWith("uploads/")) {
+            return trimmedImageUrl.substring("uploads/".length());
+        }
+        return trimmedImageUrl.startsWith("/") ? trimmedImageUrl.substring(1) : trimmedImageUrl;
+    }
+
+    private String toPublicImageUrl(String imageUrl) {
+        String normalizedImageUrl = normalizeStoredImageUrl(imageUrl);
+        if (normalizedImageUrl == null) {
+            return null;
+        }
+        if (isRemoteImageUrl(normalizedImageUrl)) {
+            return normalizedImageUrl;
+        }
+        return "/uploads/" + normalizedImageUrl;
+    }
+
+    private void deleteStoredImageIfNeeded(String imageUrl) {
+        if (!isRemoteImageUrl(imageUrl)) {
+            imageStorageService.deleteImage(imageUrl);
+        }
+    }
+
+    private boolean isRemoteImageUrl(String imageUrl) {
+        if (imageUrl == null) {
+            return false;
+        }
+        String normalized = imageUrl.trim().toLowerCase();
+        return normalized.startsWith("http://") || normalized.startsWith("https://");
     }
 }

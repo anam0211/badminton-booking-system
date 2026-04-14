@@ -145,7 +145,7 @@
                                     <th:block th:if="${branch.existingImageUrls != null}">
                                         <th:block th:each="img : ${branch.existingImageUrls}">
                                             <div class="existing-image-item">
-                                                <img th:src="@{${img}}" alt="Existing image">
+                                                <img th:src="${img}" alt="Existing image">
                                                 <input type="hidden" name="existingImageUrls" th:value="${img}">
                                                 <button type="button" class="remove-btn"
                                                         th:onclick="removeExistingImg(this)"

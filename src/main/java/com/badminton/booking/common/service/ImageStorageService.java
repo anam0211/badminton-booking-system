@@ -8,7 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -33,11 +37,7 @@ public class ImageStorageService {
     }
 
     /**
-     * Lưu file ảnh vào thư mục con (subDir) và trả về tên file duy nhất.
-     *
-     * @param file   Multipart file
-     * @param subDir Thư mục con (ví dụ: "branches", "reviews")
-     * @return Tên file duy nhất (bao gồm subDir, ví dụ: "branches/abc.jpg")
+     * Lưu file ảnh vào thư mục con và trả về đường dẫn lưu tương đối.
      */
     public String storeImage(MultipartFile file, String subDir) {
         if (file == null || file.isEmpty()) {
@@ -65,20 +65,25 @@ public class ImageStorageService {
     }
 
     /**
-     * Xóa file ảnh khỏi thư mục.
-     *
-     * @param relativePath Đường dẫn tương đối (ví dụ: "branches/abc.jpg")
+     * Xóa file ảnh local nếu tồn tại. Remote URL sẽ được bỏ qua.
      */
     public void deleteImage(String relativePath) {
-        if (relativePath == null || relativePath.trim().isEmpty()) {
+        if (relativePath == null || relativePath.trim().isEmpty() || isRemoteUrl(relativePath)) {
             return;
         }
         try {
             Path filePath = uploadPath.resolve(relativePath).normalize();
             Files.deleteIfExists(filePath);
+        } catch (InvalidPathException e) {
+            log.warn("Skip deleting invalid image path: {}", relativePath);
         } catch (IOException e) {
             log.warn("Could not delete image file: {}", relativePath, e);
         }
+    }
+
+    private boolean isRemoteUrl(String path) {
+        String normalized = path.trim().toLowerCase(Locale.ROOT);
+        return normalized.startsWith("http://") || normalized.startsWith("https://");
     }
 
     private String getFileExtension(String filename) {

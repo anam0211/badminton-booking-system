@@ -20,7 +20,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -62,22 +67,10 @@ public class AdminBranchController {
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        List<AreaResponse> areas = areaService.getAllAreas();
-        List<User> branchAdmins = userRepository.findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name());
-        List<BranchAdminInfo> branchAdminInfos = branchAdmins.stream()
-                .map(u -> BranchAdminInfo.builder()
-                        .id(u.getId())
-                        .fullName(u.getFullName())
-                        .email(u.getEmail())
-                        .build())
-                .toList();
-
+        populateBranchFormOptions(model);
         model.addAttribute("activePage", "branches");
         model.addAttribute("branch", new BranchRequest());
-        model.addAttribute("areas", areas);
-        model.addAttribute("statusOptions", BranchStatus.values());
         model.addAttribute("isEdit", false);
-        model.addAttribute("branchAdminList", branchAdminInfos);
         return "admin/branch/create";
     }
 
@@ -90,37 +83,23 @@ public class AdminBranchController {
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            List<AreaResponse> areas = areaService.getAllAreas();
-            List<User> branchAdmins = userRepository.findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name());
-            List<BranchAdminInfo> branchAdminInfos = branchAdmins.stream()
-                    .map(u -> BranchAdminInfo.builder().id(u.getId()).fullName(u.getFullName()).email(u.getEmail()).build())
-                    .toList();
+            populateBranchFormOptions(model);
             model.addAttribute("activePage", "branches");
-            model.addAttribute("areas", areas);
-            model.addAttribute("statusOptions", BranchStatus.values());
             model.addAttribute("isEdit", false);
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin");
-            model.addAttribute("branchAdminList", branchAdminInfos);
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin.");
             return "admin/branch/create";
         }
 
         try {
             request.setImageFiles(imageFiles);
             BranchResponse branch = branchService.createBranch(request);
-            redirectAttributes.addFlashAttribute("successMessage", "Thêm chi nhánh thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm chi nhánh thành công.");
             return "redirect:/admin/branches/detail/" + branch.getId();
         } catch (AppException ex) {
-            List<AreaResponse> areas = areaService.getAllAreas();
-            List<User> branchAdmins = userRepository.findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name());
-            List<BranchAdminInfo> branchAdminInfos = branchAdmins.stream()
-                    .map(u -> BranchAdminInfo.builder().id(u.getId()).fullName(u.getFullName()).email(u.getEmail()).build())
-                    .toList();
+            populateBranchFormOptions(model);
             model.addAttribute("activePage", "branches");
-            model.addAttribute("areas", areas);
-            model.addAttribute("statusOptions", BranchStatus.values());
             model.addAttribute("isEdit", false);
             model.addAttribute("errorMessage", ex.getMessage());
-            model.addAttribute("branchAdminList", branchAdminInfos);
             return "admin/branch/create";
         }
     }
@@ -139,26 +118,12 @@ public class AdminBranchController {
             request.setExistingImageUrls(branch.getImages() != null ? branch.getImages().toArray(new String[0]) : null);
             request.setManagedBranchAdminId(branch.getManagedBranchAdminId());
 
-            List<AreaResponse> areas = areaService.getAllAreas();
-            List<User> allBranchAdmins = userRepository.findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name());
-            User currentAdmin = null;
-            if (branch.getManagedBranchAdminId() != null) {
-                currentAdmin = userRepository.findById(branch.getManagedBranchAdminId()).orElse(null);
-            }
-            List<BranchAdminInfo> branchAdminInfos = allBranchAdmins.stream()
-                    .map(u -> BranchAdminInfo.builder().id(u.getId()).fullName(u.getFullName()).email(u.getEmail()).build())
-                    .toList();
-
+            populateBranchFormOptions(model);
             model.addAttribute("activePage", "branches");
             model.addAttribute("branch", request);
             model.addAttribute("branchId", id);
-            model.addAttribute("areas", areas);
-            model.addAttribute("statusOptions", BranchStatus.values());
             model.addAttribute("isEdit", true);
-            model.addAttribute("branchAdminList", branchAdminInfos);
-            model.addAttribute("currentBranchAdmin", currentAdmin != null
-                    ? BranchAdminInfo.builder().id(currentAdmin.getId()).fullName(currentAdmin.getFullName()).email(currentAdmin.getEmail()).build()
-                    : null);
+            model.addAttribute("currentBranchAdmin", buildCurrentBranchAdmin(branch));
             return "admin/branch/edit";
         } catch (AppException ex) {
             return "redirect:/admin/branches";
@@ -176,18 +141,11 @@ public class AdminBranchController {
             Model model
     ) {
         if (bindingResult.hasErrors()) {
-            List<AreaResponse> areas = areaService.getAllAreas();
-            List<User> allBranchAdmins = userRepository.findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name());
-            List<BranchAdminInfo> branchAdminInfos = allBranchAdmins.stream()
-                    .map(u -> BranchAdminInfo.builder().id(u.getId()).fullName(u.getFullName()).email(u.getEmail()).build())
-                    .toList();
+            populateBranchFormOptions(model);
             model.addAttribute("activePage", "branches");
-            model.addAttribute("areas", areas);
-            model.addAttribute("statusOptions", BranchStatus.values());
             model.addAttribute("isEdit", true);
             model.addAttribute("branchId", id);
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin");
-            model.addAttribute("branchAdminList", branchAdminInfos);
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin.");
             return "admin/branch/edit";
         }
 
@@ -195,21 +153,14 @@ public class AdminBranchController {
             request.setImageFiles(imageFiles);
             request.setExistingImageUrls(existingImageUrls);
             BranchResponse branch = branchService.updateBranch(id, request);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật chi nhánh thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật chi nhánh thành công.");
             return "redirect:/admin/branches/detail/" + branch.getId();
         } catch (AppException ex) {
-            List<AreaResponse> areas = areaService.getAllAreas();
-            List<User> allBranchAdmins = userRepository.findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name());
-            List<BranchAdminInfo> branchAdminInfos = allBranchAdmins.stream()
-                    .map(u -> BranchAdminInfo.builder().id(u.getId()).fullName(u.getFullName()).email(u.getEmail()).build())
-                    .toList();
+            populateBranchFormOptions(model);
             model.addAttribute("activePage", "branches");
-            model.addAttribute("areas", areas);
-            model.addAttribute("statusOptions", BranchStatus.values());
             model.addAttribute("isEdit", true);
             model.addAttribute("branchId", id);
             model.addAttribute("errorMessage", ex.getMessage());
-            model.addAttribute("branchAdminList", branchAdminInfos);
             return "admin/branch/edit";
         }
     }
@@ -217,7 +168,7 @@ public class AdminBranchController {
     @GetMapping("/detail/{id}")
     public String branchDetail(@PathVariable Long id, Model model) {
         try {
-            BranchResponse branch = branchService.getBranchDetail(id);
+            BranchResponse branch = branchService.getBranchById(id);
             model.addAttribute("activePage", "branches");
             model.addAttribute("branch", branch);
             return "admin/branch/detail";
@@ -227,13 +178,10 @@ public class AdminBranchController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteBranch(
-            @PathVariable Long id,
-            RedirectAttributes redirectAttributes
-    ) {
+    public String deleteBranch(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             branchService.deleteBranch(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Xóa chi nhánh thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa chi nhánh thành công.");
         } catch (AppException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
@@ -241,16 +189,43 @@ public class AdminBranchController {
     }
 
     @PostMapping("/toggle-status/{id}")
-    public String toggleStatus(
-            @PathVariable Long id,
-            RedirectAttributes redirectAttributes
-    ) {
+    public String toggleStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             branchService.toggleBranchStatus(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái thành công.");
         } catch (AppException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/admin/branches/detail/" + id;
+    }
+
+    private void populateBranchFormOptions(Model model) {
+        List<AreaResponse> areas = areaService.getAllAreas();
+        List<BranchAdminInfo> branchAdminInfos = userRepository
+                .findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(RoleName.BRANCH_ADMIN.name())
+                .stream()
+                .map(this::toBranchAdminInfo)
+                .toList();
+
+        model.addAttribute("areas", areas);
+        model.addAttribute("statusOptions", BranchStatus.values());
+        model.addAttribute("branchAdminList", branchAdminInfos);
+    }
+
+    private BranchAdminInfo buildCurrentBranchAdmin(BranchResponse branch) {
+        if (branch.getManagedBranchAdminId() == null) {
+            return null;
+        }
+        return userRepository.findById(branch.getManagedBranchAdminId())
+                .map(this::toBranchAdminInfo)
+                .orElse(null);
+    }
+
+    private BranchAdminInfo toBranchAdminInfo(User user) {
+        return BranchAdminInfo.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .build();
     }
 }

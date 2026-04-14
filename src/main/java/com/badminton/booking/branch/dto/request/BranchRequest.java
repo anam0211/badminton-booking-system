@@ -36,15 +36,15 @@ public class BranchRequest {
 
     private String[] amenityNames;
 
-    // Image upload fields
+    // Ảnh upload mới từ form.
     private MultipartFile[] imageFiles;
 
-    // Keep existing image URLs (for edit without changing images)
+    // Danh sách ảnh hiện có mà người dùng muốn giữ lại.
     private String[] existingImageUrls;
 
-    // For form binding convenience (combined old + new)
+    // Trường legacy để hỗ trợ form cũ.
     private String[] imageUrls;
 
-    // Gán branch admin cho chi nhánh này
+    // Branch admin được gán cho chi nhánh.
     private Long managedBranchAdminId;
 }

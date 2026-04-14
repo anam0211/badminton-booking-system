@@ -1,10 +1,9 @@
-package com.badminton.booking.admin.controller;
+package com.badminton.booking.area.controller;
 
 import com.badminton.booking.area.dto.request.AreaRequest;
 import com.badminton.booking.area.dto.response.AreaResponse;
 import com.badminton.booking.area.service.AreaService;
 import com.badminton.booking.common.exception.AppException;
-import com.badminton.booking.common.exception.ErrorCode;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,11 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -21,7 +24,7 @@ import java.util.List;
 @RequestMapping("/admin/areas")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class AdminAreaController {
+public class AreaAdminController {
 
     AreaService areaService;
 
@@ -51,13 +54,13 @@ public class AdminAreaController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("activePage", "areas");
             model.addAttribute("isEdit", false);
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin");
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin.");
             return "admin/area/create";
         }
 
         try {
             areaService.createArea(request);
-            redirectAttributes.addFlashAttribute("successMessage", "Thêm khu vực thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Thêm khu vực thành công.");
             return "redirect:/admin/areas";
         } catch (AppException ex) {
             model.addAttribute("activePage", "areas");
@@ -95,13 +98,13 @@ public class AdminAreaController {
             model.addAttribute("activePage", "areas");
             model.addAttribute("isEdit", true);
             model.addAttribute("areaId", id);
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin");
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin.");
             return "admin/area/edit";
         }
 
         try {
             areaService.updateArea(id, request);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật khu vực thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật khu vực thành công.");
             return "redirect:/admin/areas";
         } catch (AppException ex) {
             model.addAttribute("activePage", "areas");
@@ -113,13 +116,10 @@ public class AdminAreaController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteArea(
-            @PathVariable Integer id,
-            RedirectAttributes redirectAttributes
-    ) {
+    public String deleteArea(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
             areaService.deleteArea(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Xóa khu vực thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa khu vực thành công.");
         } catch (AppException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }

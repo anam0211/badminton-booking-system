@@ -24,11 +24,11 @@ public class BranchSecurityService {
     }
 
     public void ensureUserCanManageBranch(User user, Long branchId) {
-        if (user.getRole().getName().equals("ADMIN")) {
+        if ("ADMIN".equals(user.getRole().getName())) {
             return;
         }
 
-        if (user.getRole().getName().equals("BRANCH_ADMIN")) {
+        if ("BRANCH_ADMIN".equals(user.getRole().getName())) {
             if (user.getManagedBranch() == null || !user.getManagedBranch().getId().equals(branchId)) {
                 throw new AccessDeniedCustomException("Bạn chỉ được quản lý chi nhánh của mình.");
             }
@@ -40,7 +40,7 @@ public class BranchSecurityService {
 
     public Optional<Branch> getManagedBranchForCurrentUser() {
         User currentUser = getCurrentUserOrThrow();
-        if (currentUser.getRole().getName().equals("BRANCH_ADMIN")) {
+        if ("BRANCH_ADMIN".equals(currentUser.getRole().getName())) {
             return Optional.ofNullable(currentUser.getManagedBranch());
         }
         return Optional.empty();
@@ -48,10 +48,10 @@ public class BranchSecurityService {
 
     public boolean canUserAccessBranch(Long branchId) {
         User currentUser = getCurrentUserOrThrow();
-        if (currentUser.getRole().getName().equals("ADMIN")) {
+        if ("ADMIN".equals(currentUser.getRole().getName())) {
             return true;
         }
-        if (currentUser.getRole().getName().equals("BRANCH_ADMIN")) {
+        if ("BRANCH_ADMIN".equals(currentUser.getRole().getName())) {
             return currentUser.getManagedBranch() != null && currentUser.getManagedBranch().getId().equals(branchId);
         }
         return false;

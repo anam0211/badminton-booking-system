@@ -33,7 +33,7 @@
                  style="cursor: pointer;"
                  th:onclick="|window.location.href='@{/branches/{id}(id=${branch.branchId})}'|">
 
-                <img th:src="${branch.branchImage != null ? '/uploads/' + branch.branchImage : 'https://cdn-icons-png.flaticon.com/512/7486/7486744.png'}"
+                <img th:src="${branch.branchImage != null ? ((#strings.startsWith(branch.branchImage, 'http://') or #strings.startsWith(branch.branchImage, 'https://')) ? branch.branchImage : '/uploads/' + branch.branchImage) : 'https://cdn-icons-png.flaticon.com/512/7486/7486744.png'}"
                      alt="Branch Image">
 
                 <div class="card-info">
