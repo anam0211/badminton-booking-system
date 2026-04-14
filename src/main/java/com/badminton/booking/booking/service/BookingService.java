@@ -5,8 +5,8 @@ import com.badminton.booking.booking.dto.request.Slots;
 import com.badminton.booking.booking.dto.response.BookingResponse;
 import com.badminton.booking.booking.repository.BookingDetailRepository;
 import com.badminton.booking.booking.repository.BookingRepository;
-import com.badminton.booking.booking.repository.BookingCourtRepository;
-import com.badminton.booking.booking.repository.BookingTimeSlotRepository;
+import com.badminton.booking.booking.repository.CourtRepository;
+import com.badminton.booking.booking.repository.TimeSlotRepository;
 import com.badminton.booking.booking.validator.BookingValidator;
 import com.badminton.booking.common.enums.BookingStatus;
 import com.badminton.booking.common.enums.CourtStatus;
@@ -41,8 +41,8 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final BookingDetailRepository bookingDetailRepository;
-    private final BookingCourtRepository courtRepository;
-    private final BookingTimeSlotRepository timeSlotRepository;
+    private final CourtRepository courtRepository;
+    private final TimeSlotRepository timeSlotRepository;
     private final BookingValidator bookingValidator;
     private final BookingPricingService bookingPricingService;
     private final BookingAccessService bookingAccessService;

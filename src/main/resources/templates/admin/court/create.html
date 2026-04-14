@@ -1,79 +1,72 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Tạo sân</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    
     <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #f4f7fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .card {
+        .custom-form-card {
             width: 400px;
             background: white;
             padding: 25px;
             border-radius: 14px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
         }
-
-        h1 {
-            text-align: center;
-            color: #0f5132;
-            margin-bottom: 20px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #198754;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #198754;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
     </style>
 </head>
-<body>
-    <div class="card">
-        <h1>Tạo sân</h1>
-        <form th:action="@{/admin/courts}" method="post">
-            <input type="hidden" name="branchId" th:value="${branchId}">
-            
-            <input type="text" name="name" placeholder="Tên sân" required>
-            <input type="text" name="type" placeholder="Loại sân" required>
 
-            <select name="status">
+
+<head>
+    <title>Tạo sân</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+</head>
+
+<body class="flex h-screen bg-gray-50 overflow-hidden">
+
+<div class="flex-shrink-0"
+     th:replace="~{fragments/sidebar :: sidebar('courts')}"></div>
+
+<main class="flex-1 flex items-center justify-center">
+
+    <div class="bg-white p-6 rounded-xl shadow w-[400px]">
+        <h1 class="text-xl font-semibold text-emerald-700 text-center mb-4">
+            Tạo sân
+        </h1>
+
+        <form th:action="@{/admin/courts}" method="post" class="space-y-3">
+            <input type="hidden" name="branchId" th:value="${branchId}">
+
+            <input type="text" name="name" placeholder="Tên sân"
+                   class="w-full border p-2 rounded" required>
+
+            <input type="text" name="type" placeholder="Loại sân"
+                   class="w-full border p-2 rounded" required>
+
+            <select name="status" class="w-full border p-2 rounded">
                 <option value="AVAILABLE">AVAILABLE</option>
                 <option value="MAINTENANCE">MAINTENANCE</option>
             </select>
 
-            <button type="submit">Tạo sân</button>
+            <button class="w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700">
+                Tạo sân
+            </button>
         </form>
-        <a th:href="@{/admin/courts(branchId=${branchId})}">⬅ Quay lại</a>
+
+        <a th:href="@{/admin/courts(branchId=${branchId})}"
+           class="block text-center mt-4 text-emerald-600">
+            ⬅ Quay lại
+        </a>
     </div>
+
+</main>
+
+<script th:src="@{/js/sidebar.js}"></script>
 </body>
+
+
 </html>

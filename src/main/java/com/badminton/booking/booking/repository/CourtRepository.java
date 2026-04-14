@@ -9,7 +9,7 @@ import com.badminton.booking.domain.entity.Court;
 import java.util.List;
 
 @Repository
-public interface BookingCourtRepository extends JpaRepository<Court, Long> {
+public interface CourtRepository extends JpaRepository<Court, Long> {
      List<Court> findByBranch_IdOrderByNameAsc(Long branchId);
 
      long countByBranch_IdAndIsDeletedFalse(Long branchId);

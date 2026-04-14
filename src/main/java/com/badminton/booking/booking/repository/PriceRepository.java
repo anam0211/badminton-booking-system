@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface BookingPriceRepository extends JpaRepository<Price, Long> {
+public interface PriceRepository extends JpaRepository<Price, Long> {
 
     Optional<Price> findByBranch_IdAndTimeSlot_IdAndCourtTypeIgnoreCase(
             Long branchId,

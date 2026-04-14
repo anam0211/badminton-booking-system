@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.badminton.booking.domain.entity.TimeSlot;
 
 @Repository
-public interface BookingTimeSlotRepository extends JpaRepository<TimeSlot, Integer> {
+public interface TimeSlotRepository extends JpaRepository<TimeSlot, Integer> {
      List<TimeSlot> findAllByOrderByStartTimeAsc();
   
 }
