@@ -11,11 +11,59 @@
         </a>
 
         <div class="search-filter-group">
-            <form th:action="@{/search}" method="GET" class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" name="keyword" placeholder="Tìm kiếm sân cầu lông...">
+            <form th:action="@{/branches}" method="GET" id="mainSearchForm">
+
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="keyword" placeholder="Tìm kiếm sân cầu lông..." th:value="${param.keyword}">
+                </div>
+
+                <div class="filter-wrapper">
+                    <button type="button" class="btn-filter" id="btnFilterToggle">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
+
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <div class="filter-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Khu vực (Hà Nội)</label>
+                            <select name="district" class="filter-select">
+                                <option value="">Tất cả quận/huyện</option>
+                                <option th:each="dist : ${@areaService.findAllAreas()}"
+                                        th:value="${dist.id}"
+                                        th:text="${dist.name}"
+                                        th:selected="${param.district != null and param.district[0] == dist.id.toString()}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label><i class="fas fa-money-bill-wave"></i> Mức giá / giờ</label>
+                            <select name="priceRange" class="filter-select">
+                                <option value="" th:selected="${param.priceRange == null}">Mọi mức giá</option>
+                                <option value="0-50000" th:selected="${param.priceRange != null and param.priceRange[0] == '0-50000'}">Dưới 50.000đ</option>
+                                <option value="50000-100000" th:selected="${param.priceRange != null and param.priceRange[0] == '50000-100000'}">50.000đ - 100.000đ</option>
+                                <option value="100000-200000" th:selected="${param.priceRange != null and param.priceRange[0] == '100000-200000'}">100.000đ - 200.000đ</option>
+                                <option value="200000-9999999" th:selected="${param.priceRange != null and param.priceRange[0] == '200000-9999999'}">Trên 200.000đ</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label><i class="fas fa-star"></i> Đánh giá</label>
+                            <select name="rating" class="filter-select">
+                                <option value="" th:selected="${param.rating == null}">Mọi đánh giá</option>
+                                <option value="5" th:selected="${param.rating != null and param.rating[0] == '5'}">5 Sao (Xuất sắc)</option>
+                                <option value="4" th:selected="${param.rating != null and param.rating[0] == '4'}">Từ 4 Sao trở lên</option>
+                                <option value="3" th:selected="${param.rating != null and param.rating[0] == '3'}">Từ 3 Sao trở lên</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-footer">
+                            <button type="button" class="btn-reset" id="btnResetFilter">Xóa lọc</button>
+                            <button type="submit" class="btn-apply-filter">Áp dụng</button>
+                        </div>
+                    </div>
+                </div>
             </form>
-            <button class="btn-filter"><i class="fas fa-filter"></i> Lọc</button>
         </div>
 
         <div class="right-group">
@@ -82,7 +130,6 @@
                         <ul class="user-dropdown">
                             <li><a th:href="@{/profile}">Tài khoản</a></li>
                             <li><a th:href="@{/change-password}">Đổi mật khẩu</a></li>
-                            <li><a th:href="@{/bookings/history}">Lịch sử đặt sân</a></li>
                             <li class="divider"></li>
 
                             <li>

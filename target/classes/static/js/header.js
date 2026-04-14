@@ -1,25 +1,21 @@
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ==========================================
+    // 1. XỬ LÝ THÔNG BÁO (NOTIFICATION)
+    // ==========================================
     const bellBtn = document.getElementById('bellBtn');
     const notiDropdown = document.getElementById('notiDropdown');
     const markAllReadBtn = document.getElementById('markAllReadBtn');
     const notiBadge = document.getElementById('notiBadge');
 
     if (bellBtn && notiDropdown) {
-        // 1. CLICK CHUÔNG: Mở / Đóng
+        // Mở / Đóng hộp thông báo
         bellBtn.addEventListener('click', function (e) {
-            e.stopPropagation(); // Ngăn click lọt ra ngoài
+            e.stopPropagation();
             notiDropdown.classList.toggle('show');
         });
 
-        // 2. CLICK RA NGOÀI: Đóng hộp
-        document.addEventListener('click', function (e) {
-            // Nếu vị trí click KHÔNG nằm trên chuông VÀ KHÔNG nằm trong hộp -> Đóng!
-            if (!bellBtn.contains(e.target) && !notiDropdown.contains(e.target)) {
-                notiDropdown.classList.remove('show');
-            }
-        });
-
-        // 3. CLICK VÀO 1 THÔNG BÁO: Đóng hộp ngay lập tức
+        // Click 1 thông báo -> Đóng hộp
         const notiItems = document.querySelectorAll('.noti-item');
         notiItems.forEach(item => {
             item.addEventListener('click', function () {
@@ -27,28 +23,23 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        // 4. CLICK "ĐÁNH DẤU ĐÃ ĐỌC": Clear UI và đóng hộp
+        // Đánh dấu đã đọc
         if (markAllReadBtn) {
             markAllReadBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                fetch('/notifications/mark-all-read', {method: 'POST'}) // Nhớ thêm CSRF token nếu Spring Security yêu cầu
+                fetch('/notifications/mark-all-read', { method: 'POST' })
                     .then(response => {
                         if (response.ok) {
-                            // Ẩn chấm đỏ
                             if (notiBadge) notiBadge.style.display = 'none';
-                            // Gỡ màu xanh chưa đọc
                             document.querySelectorAll('.noti-item.unread').forEach(item => {
                                 item.classList.remove('unread');
                             });
-                            // Đóng hộp
                             notiDropdown.classList.remove('show');
 
                             if (window.location.pathname === '/notifications') {
-                                // Nếu đang đứng ở trang danh sách -> F5 load lại trang luôn để update data mới nhất
                                 window.location.reload();
                             }
-                        }
-                        else if (response.status === 401) {
+                        } else if (response.status === 401) {
                             response.text().then(msg => alert("Lỗi: " + msg));
                         }
                     })
@@ -56,4 +47,51 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
+
+    // ==========================================
+    // 2. XỬ LÝ BỘ LỌC TÌM KIẾM
+    // ==========================================
+    const btnFilterToggle = document.getElementById('btnFilterToggle');
+    const filterDropdown = document.getElementById('filterDropdown');
+    const btnResetFilter = document.getElementById('btnResetFilter');
+    const mainSearchForm = document.getElementById('mainSearchForm');
+
+    if (btnFilterToggle && filterDropdown) {
+        // Mở / Đóng bộ lọc
+        btnFilterToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            filterDropdown.classList.toggle('show');
+        });
+
+        // Ngăn click bên trong dropdown làm đóng menu
+        filterDropdown.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    }
+
+    // Xử lý nút Xóa Lọc
+    if (btnResetFilter && mainSearchForm) {
+        btnResetFilter.addEventListener('click', function () {
+            const selects = mainSearchForm.querySelectorAll('select');
+            selects.forEach(select => {
+                select.selectedIndex = 0;
+            });
+        });
+    }
+
+    // ==========================================
+    // 3. XỬ LÝ CLICK RA NGOÀI
+    // ==========================================
+    document.addEventListener('click', function (e) {
+        // Xử lý đóng Thông báo
+        if (bellBtn && notiDropdown && !bellBtn.contains(e.target) && !notiDropdown.contains(e.target)) {
+            notiDropdown.classList.remove('show');
+        }
+
+        // Xử lý đóng Bộ lọc
+        if (btnFilterToggle && filterDropdown && !btnFilterToggle.contains(e.target) && !filterDropdown.contains(e.target)) {
+            filterDropdown.classList.remove('show');
+        }
+    });
+
 });

@@ -1,90 +1,98 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Chi tiết sân</title>
-
+    <title>Chi tiết admin sân</title>
     <style>
-        body{
-            margin:0;
-            font-family:Arial;
-            background:#f4f7fb;
-            display:flex;
-            justify-content:center;
+        body {
+            font-family: Arial;
+            background: #f4f7fb;
+            padding: 30px;
         }
 
-        .container{
-            width:70%;
-            margin-top:40px;
+        .card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
 
-        .card{
-            background:white;
-            padding:20px;
-            border-radius:12px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom:20px;
+        h1 {
+            color: #198754;
+            margin-top: 0;
         }
 
-        h1,h2{
-            color:#0f5132;
-            text-align:center;
+        .info-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
+        .info-section p {
+            margin: 8px 0;
+            color: #444;
         }
 
-        th{
-            background:#198754;
-            color:white;
-            padding:10px;
+        .info-section span {
+            font-weight: bold;
+            color: #000;
         }
 
-        td{
-            text-align:center;
-            padding:10px;
-            border-bottom:1px solid #eee;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #198754;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #198754;
         }
     </style>
 </head>
-
 <body>
+    <div class="card">
+        <h1 th:text="${court.name}">Tên sân</h1>
 
-<div class="container">
+        <div class="info-section">
+            <p>Trạng thái: <span th:text="${court.status}">AVAILABLE</span></p>
+            <p>Cơ sở: <span th:text="${court.branch.name}">Tên chi nhánh</span></p>
+            <p>Loại sân: <span th:text="${court.type}">Loại sân</span></p>
+        </div>
 
-<div class="card">
-    <h1>Chi tiết sân</h1>
+        <h2>Bảng khung giờ - giá</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Khung giờ</th>
+                    <th>Giá (VNĐ)</th>
+                </tr>
+            </thead>
+            </tr> <tr th:each="p : ${prices}"> 
+                <td th:text="${p.timeSlot.slotName}"></td> 
+                <td th:text="${p.price}"></td>
+            </tr> 
+        </table> 
+    </div> 
+</body> 
 
-    <p><b>ID:</b> <span th:text="${court.id}"></span></p>
-    <p><b>Tên:</b> <span th:text="${court.name}"></span></p>
-    <p><b>Loại:</b> <span th:text="${court.type}"></span></p>
-    <p><b>Trạng thái:</b> <span th:text="${court.status}"></span></p>
-    <p><b>Chi nhánh:</b> <span th:text="${court.branch.name}"></span></p>
-    <p><b>Địa chỉ:</b> <span th:text="${court.branch.address}"></span></p>
-</div>
-
-<div class="card">
-    <h2>Giá theo khung giờ</h2>
-
-    <table>
-        <tr>
-            <th>Khung giờ</th>
-            <th>Giá</th>
-        </tr>
-
-        <tr th:each="p : ${prices}">
-            <td>
-                <span th:text="${p.timeSlot.startTime}"></span>
-                -
-                <span th:text="${p.timeSlot.endTime}"></span>
-            </td>
-            <td th:text="${p.price} + ' VND'"></td>
-        </tr>
-    </table>
-</div>
-
-</div>
-
-</body>
 </html>

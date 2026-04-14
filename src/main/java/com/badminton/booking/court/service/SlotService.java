@@ -2,8 +2,8 @@
 package com.badminton.booking.court.service;
 
 import com.badminton.booking.domain.entity.TimeSlot;
-import com.badminton.booking.court.repository.TimeSlotRepository;
-import com.badminton.booking.court.repository.TimeSlotRepository;
+import com.badminton.booking.court.repository.CourtTimeSlotRepository;
+import com.badminton.booking.court.repository.CourtTimeSlotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SlotService {
 
-    private final TimeSlotRepository repo;
+    private final CourtTimeSlotRepository repo;
 
     public List<TimeSlot> getAll() {
         return repo.findAll();

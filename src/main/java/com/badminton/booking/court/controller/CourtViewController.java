@@ -1,19 +1,19 @@
 package com.badminton.booking.court.controller;
 
-import com.badminton.booking.court.repository.CourtRepository;
+import com.badminton.booking.court.repository.CourtCourtRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
-import com.badminton.booking.court.repository.PriceRepository;
+import com.badminton.booking.court.repository.CourtPriceRepository;
 import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
 public class CourtViewController {
 
-    private final CourtRepository repo;
-    private final PriceRepository priceRepository;
+    private final CourtCourtRepository repo;
+    private final CourtPriceRepository priceRepository;
 
     @GetMapping("/branches/{branchId}/courts")
     public String list(@PathVariable Long branchId, Model model) {

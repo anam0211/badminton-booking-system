@@ -21,17 +21,20 @@
         </div>
     </section>
 
-    <section class="featured-courts">
+    <section class="featured-branches">
         <div class="section-header">
             <h2>Cơ sở tiêu biểu</h2>
-            <a th:href="@{/branches}" class="view-all">View All ></a>
+            <a th:href="@{/branches}" class="view-all">Xem tất cả ></a>
         </div>
 
-        <div class="court-grid">
-            <div class="court-card" th:each="branch : ${featureBranches}">
+        <div class="branch-grid">
 
-                <img th:src="${branch.branchImage != null ? branch.branchImage : '/images/default-court.jpg'}"
-                     alt="Court Image">
+            <div class="branch-card" th:each="branch : ${featureBranches}"
+                 style="cursor: pointer;"
+                 th:onclick="|window.location.href='@{/branches/{id}(id=${branch.branchId})}'|">
+
+                <img th:src="${branch.branchImage != null ? branch.branchImage : '/images/default-branch.jpg'}"
+                     alt="Branch Image">
 
                 <div class="card-info">
                     <h3 th:text="${branch.branchName}">Tên cơ sở</h3>
@@ -42,7 +45,8 @@
 
                     <div class="rating">
                         <i class="fas fa-star" style="color: #ffc107;"></i>
-                        <span style="font-weight: bold; color: #333;" th:text="${branch.avgRating != null ? branch.avgRating : '5.0'}">4.5</span>
+                        <span style="font-weight: bold; color: #333;"
+                              th:text="${branch.avgRating != null ? branch.avgRating : '5.0'}">4.5</span>
                         <span style="font-size: 0.8rem; color: #888;"
                               th:text="'(' + ${branch.totalReviews != null ? branch.totalReviews : 0} + ' đánh giá)'">(0 đánh giá)</span>
                     </div>
@@ -51,13 +55,15 @@
                         <span class="price" style="font-weight: 500; color: #e74c3c;"
                               th:text="'Từ ' + ${#numbers.formatDecimal(branch.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">Từ 50,000 đ</span>
 
-                        <a th:href="@{/bookings/create(branchId=${branch.branchId})}" class="btn-booking">Đặt sân</a>
+                        <a th:href="@{/bookings/create(branchId=${branch.branchId})}"
+                           class="btn-booking"
+                           onclick="event.stopPropagation()">Đặt sân</a>
                     </div>
                 </div>
 
             </div>
 
-            <div th:if="${#lists.isEmpty(branchList)}">
+            <div th:if="${#lists.isEmpty(featureBranches)}">
                 <p>Hiện tại chưa có cơ sở nào để hiển thị.</p>
             </div>
         </div>

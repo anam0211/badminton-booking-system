@@ -8,7 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.*;
@@ -17,27 +19,47 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/admin/courts")
 @RequiredArgsConstructor
-public class AdminCourtController {
+    
+    public class AdminCourtController {
 
-    private final CourtRepository courtRepo;
-    private final PriceRepository priceRepo;
-    private final TimeSlotRepository timeSlotRepo;
+        private final CourtCourtRepository courtRepo;
+        private final CourtPriceRepository priceRepo;
+        private final CourtTimeSlotRepository timeSlotRepo;
+        private final CourtUserRepository userRepo;
 
-    // ================= LIST =================
+
+
     @GetMapping
-    public String list(@PathVariable Long branchId, Model model) {
-  
-        var courts = courtRepo.findByBranchIdAndIsDeletedFalse(branchId);
-        var prices = priceRepo.findByBranchId(branchId);
-        var timeslots = timeSlotRepo.findAll();
+    public String list(Model model) {
 
-        model.addAttribute("courts", courts);
-        model.addAttribute("prices", prices);
-        model.addAttribute("timeslots", timeslots);
-        model.addAttribute("branchId", branchId);
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
-        return "admin/court/list";
+        if (principal instanceof UserDetails userDetails) {
 
+            String email = userDetails.getUsername();
+
+            User user = userRepo.findByEmail(email).orElseThrow();
+
+            Branch branch = user.getManagedBranch();
+
+            List<Branch> branches = List.of(branch);
+
+            Map<Long, List<Court>> courtMap = new HashMap<>();
+
+            for (Branch b : branches) {
+                courtMap.put(b.getId(),
+                    courtRepo.findByBranchIdAndIsDeletedFalse(b.getId()));
+            }
+
+            model.addAttribute("branches", branches);
+            model.addAttribute("courtMap", courtMap);
+
+            return "admin/court/list";
+        }
+
+        return "redirect:/login";
     }
 
     @GetMapping("/create")
@@ -93,110 +115,106 @@ public class AdminCourtController {
             priceRepo.save(p);
         }
 
-        return "redirect:/admin/courts?branchId=" + branchId;
+        return "redirect:/admin/courts";
     }
 
 
     @GetMapping("/edit/{id}")
-public String edit(@PathVariable Long id, Model model) {
+    public String edit(@PathVariable Long id, Model model) {
 
-    Court court = courtRepo.findById(id).orElseThrow();
+        Court court = courtRepo.findById(id).orElseThrow();
 
-    Long branchId = court.getBranch().getId();
+        model.addAttribute("court", court);
 
-    // GLOBAL PRICE (KHÔNG FILTER COURT TYPE)
-    var prices = priceRepo.findByBranchId(branchId);
-
-    var timeslots = timeSlotRepo.findAll().stream()
-            .map(t -> {
-                Map<String, Object> m = new HashMap<>();
-                m.put("id", t.getId());
-                m.put("slotName", t.getSlotName());
-                m.put("startTime", t.getStartTime());
-                m.put("endTime", t.getEndTime());
-                return m;
-            })
-            .toList();
-
-    model.addAttribute("court", court);
-    model.addAttribute("prices", prices);
-    model.addAttribute("timeslots", timeslots);
-    model.addAttribute("branchId", branchId);
-
-    return "admin/court/edit";
-}
-
-   @Transactional
-@PostMapping("/update/{id}")
-public String update(@PathVariable Long id,
-                     @RequestParam(required = false) List<Integer> timeSlotIds,
-                     @RequestParam(required = false) List<String> startTimes,
-                     @RequestParam(required = false) List<String> endTimes,
-                     @RequestParam(required = false) List<BigDecimal> prices,
-                     @ModelAttribute Court req) {
-
-    Court c = courtRepo.findById(id).orElseThrow();
-    Long branchId = c.getBranch().getId();
-
-    c.setName(req.getName());
-    c.setType(req.getType());
-    c.setStatus(req.getStatus());
-    courtRepo.save(c);
-
-    // delete old prices
-    List<Price> old = priceRepo.findByBranchId(branchId);
-    priceRepo.deleteAll(old);
-
-    if (prices == null) return "redirect:/admin/courts?branchId=" + branchId;
-
-    int size = prices.size();
-
-    for (int i = 0; i < size; i++) {
-
-        TimeSlot t;
-
-        Integer slotId = (timeSlotIds != null && i < timeSlotIds.size())
-                ? timeSlotIds.get(i)
-                : null;
-
-        String start = startTimes.get(i);
-        String end = endTimes.get(i);
-
-        // 🟢 CASE 1: UPDATE EXISTING TIME SLOT
-        if (slotId != null && slotId > 0) {
-            t = timeSlotRepo.findById(slotId)
-                    .orElseThrow();
-
-            t.setStartTime(java.time.LocalTime.parse(start));
-            t.setEndTime(java.time.LocalTime.parse(end));
-            t.setSlotName(start + "-" + end);
-
-            t = timeSlotRepo.save(t);
-        }
-        // 🟢 CASE 2: CREATE NEW TIME SLOT
-        else {
-            t = new TimeSlot();
-            t.setStartTime(java.time.LocalTime.parse(start));
-            t.setEndTime(java.time.LocalTime.parse(end));
-            t.setSlotName(start + "-" + end);
-
-            t = timeSlotRepo.save(t);
-        }
-
-        Price p = new Price();
-        p.setBranch(c.getBranch());
-        p.setTimeSlot(t);
-        p.setPrice(prices.get(i));
-
-        priceRepo.save(p);
+        return "admin/court/edit";
     }
 
-    return "redirect:/admin/courts?branchId=" + branchId;
-}
+
+    @Transactional
+    @PostMapping("/update/{id}")
+    public String update(@PathVariable Long id,
+                        @ModelAttribute Court req) {
+
+        Court c = courtRepo.findById(id).orElseThrow();
+
+        c.setName(req.getName());
+        c.setType(req.getType());
+        c.setStatus(req.getStatus());
+
+        courtRepo.save(c);
+
+        return "redirect:/admin/courts";
+    }
+
+
+    @GetMapping("/prices/edit")
+    public String editPrice(Model model) {
+
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = userRepo.findByEmail(((UserDetails) principal).getUsername())
+                .orElseThrow();
+
+        Long branchId = user.getManagedBranch().getId();
+
+        var prices = priceRepo.findByBranchId(branchId);
+
+        model.addAttribute("prices", prices);
+        model.addAttribute("branchId", branchId);
+
+        return "admin/price/edit";
+    }
+
+
+
+    @Transactional
+    @PostMapping("/prices/update")
+    public String updatePrices(@RequestParam List<String> startTimes,
+                            @RequestParam List<String> endTimes,
+                            @RequestParam List<BigDecimal> prices) {
+
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = userRepo.findByEmail(((UserDetails) principal).getUsername())
+                .orElseThrow();
+
+        Branch branch = user.getManagedBranch();
+
+        // Xóa toàn bộ price cũ
+        priceRepo.deleteAll(priceRepo.findByBranchId(branch.getId()));
+
+        
+        int size = Math.min(prices.size(),
+            Math.min(startTimes.size(), endTimes.size()));
+
+            for (int i = 0; i < size; i++) {
+
+            TimeSlot t = new TimeSlot();
+            t.setStartTime(LocalTime.parse(startTimes.get(i)));
+            t.setEndTime(LocalTime.parse(endTimes.get(i)));
+            t.setSlotName(startTimes.get(i) + "-" + endTimes.get(i));
+
+            t = timeSlotRepo.save(t); 
+
+            Price p = new Price();
+            p.setBranch(branch);
+            p.setTimeSlot(t);
+            p.setPrice(prices.get(i));
+
+            priceRepo.save(p);
+        }
+
+        return "redirect:/admin/courts";
+    }
                 
+    
 
 
-    // ================= DELETE =================
+
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
 
@@ -205,6 +223,9 @@ public String update(@PathVariable Long id,
         c.setIsDeleted(true);
         courtRepo.save(c);
 
-        return "redirect:/admin/courts?branchId=" + c.getBranch().getId();
+        return "redirect:/admin/courts";  
     }
+
+
+
 }

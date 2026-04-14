@@ -73,9 +73,12 @@
                         <span class="legend-box locked"></span>
                         <span>Khóa</span>
                     </div>
-                    <a class="price-link" th:href="@{/courts}">Xem sân và bảng giá</a>
+                    <a class="price-link"
+                        th:href="@{/branches/{id}/courts(id=${bookingRequest.branchId})}">
+                            Xem sân và bảng giá
+                    </a>
+                    </div>
                 </div>
-            </div>
 
             <div th:if="${errorMessage}" class="error-box" th:text="${errorMessage}"></div>
             <div th:if="${#fields.hasGlobalErrors()}" class="error-box">

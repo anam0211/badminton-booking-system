@@ -1,6 +1,6 @@
 package com.badminton.booking.court.service.impl;
 
-import com.badminton.booking.court.repository.CourtRepository;
+import com.badminton.booking.court.repository.CourtCourtRepository;
 import com.badminton.booking.domain.entity.Court;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.util.List;
 @Transactional
 public class CourtServiceImpl implements com.badminton.booking.court.service.CourtService {
 
-    private final CourtRepository courtRepository;
+    private final CourtCourtRepository courtRepository;
 
     @Override
     public Court getById(Long id) {
