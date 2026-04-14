@@ -241,7 +241,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    private BranchOverviewResponse realtimeOverviewByMonth(Long branchId, int year, int month, ReviewRepository.ReviewSummary reviewSummary) {
+    public BranchOverviewResponse realtimeOverviewByMonth(Long branchId, int year, int month, ReviewRepository.ReviewSummary reviewSummary) {
 
         BigDecimal revenue = bookingDetailRepository.sumRevenueByMonth(branchId, month, year);
         revenue = revenue != null ? revenue : BigDecimal.ZERO;
@@ -250,8 +250,8 @@ public class DashboardServiceImpl implements DashboardService {
         Long completedBookings = bookingDetailRepository.getCompletedBookingsByMonth(branchId, month, year);
         Long cancelledBookings = bookingDetailRepository.getCancelledBookingsByMonth(branchId, month, year);
 
-        Integer totalReviews = reviewSummary.getTotalReviews();
-        Float avgRating = reviewSummary.getAvgRating();
+        Integer totalReviews = reviewSummary != null && reviewSummary.getTotalReviews() != null ? reviewSummary.getTotalReviews() : 0;
+        Float avgRating = reviewSummary != null && reviewSummary.getAvgRating() != null ? reviewSummary.getAvgRating() : 0f;
         avgRating = avgRating == null ? 0f : Math.round(avgRating * 100) / 100f;
 
         return BranchOverviewResponse.builder()
@@ -269,7 +269,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .build();
     }
 
-    private BranchOverviewResponse snapshotToResponse(MonthlyStatistic snapshot, ReviewRepository.ReviewSummary reviewSummary) {
+    public BranchOverviewResponse snapshotToResponse(MonthlyStatistic snapshot, ReviewRepository.ReviewSummary reviewSummary) {
         Long branchId = snapshot.getBranch().getId();
 
         BigDecimal revenue = snapshot.getTotalRevenue();
@@ -278,8 +278,8 @@ public class DashboardServiceImpl implements DashboardService {
         Long completedBookings = snapshot.getCompletedBookings();
         Long cancelledBookings = snapshot.getCancelledBookings();
 
-        Integer totalReviews = reviewSummary.getTotalReviews();
-        Float avgRating = reviewSummary.getAvgRating();
+        Integer totalReviews = reviewSummary != null && reviewSummary.getTotalReviews() != null ? reviewSummary.getTotalReviews() : 0;
+        Float avgRating = reviewSummary != null && reviewSummary.getAvgRating() != null ? reviewSummary.getAvgRating() : 0f;
         avgRating = avgRating == null ? 0f : Math.round(avgRating * 100) / 100f;
 
         return BranchOverviewResponse.builder()
