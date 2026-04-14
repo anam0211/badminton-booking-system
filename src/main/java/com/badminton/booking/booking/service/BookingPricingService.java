@@ -1,7 +1,7 @@
 package com.badminton.booking.booking.service;
 
-import com.badminton.booking.booking.repository.CourtRepository;
-import com.badminton.booking.booking.repository.PriceRepository;
+import com.badminton.booking.booking.repository.BookingCourtRepository;
+import com.badminton.booking.booking.repository.BookingPriceRepository;
 import com.badminton.booking.common.exception.AppException;
 import com.badminton.booking.common.exception.ErrorCode;
 import com.badminton.booking.domain.entity.Court;
@@ -19,25 +19,36 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class BookingPricingService {
 
-    private final CourtRepository courtRepository;
-    private final PriceRepository priceRepository;
+    private final BookingCourtRepository courtRepository;
+    private final BookingPriceRepository priceRepository;
 
     public BigDecimal calculate(Long courtId, Integer timeSlotId) {
         Court court = courtRepository.findById(courtId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURT_NOT_FOUND));
+        return calculate(court, timeSlotId);
+    }
+
+    public BigDecimal calculate(Court court, Integer timeSlotId) {
+        if (court == null) {
+            throw new AppException(ErrorCode.COURT_NOT_FOUND);
+        }
 
         Long branchId = court.getBranch().getId();
-        String courtType = court.getType() == null ? null : court.getType().trim();
+        String courtType = normalizeCourtType(court.getType());
 
         Price price = priceRepository
                 .findByBranch_IdAndTimeSlot_IdAndCourtTypeIgnoreCase(branchId, timeSlotId, courtType)
                 .or(() -> priceRepository.findByBranch_IdAndTimeSlot_IdAndCourtTypeIsNull(branchId, timeSlotId))
                 .orElseThrow(() -> {
                     log.warn("PRICE_NOT_FOUND courtId={}, branchId={}, timeSlotId={}, courtType={}",
-                            courtId, branchId, timeSlotId, courtType);
+                            court.getId(), branchId, timeSlotId, courtType);
                     return new AppException(ErrorCode.PRICE_NOT_FOUND);
                 });
 
         return price.getPrice();
+    }
+
+    private String normalizeCourtType(String courtType) {
+        return courtType == null ? null : courtType.trim();
     }
 }

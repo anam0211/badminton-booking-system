@@ -1,7 +1,7 @@
 package com.badminton.booking.config;
 
-import com.badminton.booking.security.JwtAuthenticationFilter;
 import com.badminton.booking.security.CustomUserDetailsService;
+import com.badminton.booking.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,10 +11,10 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/home",
                                 "/branches",
                                 "/branches/**"
-                        ).permitAll()//cho phép public ko cần login
+                        ).permitAll()
+                        .requestMatchers("/admin/users", "/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "BRANCH_ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -59,8 +60,6 @@ public class SecurityConfig {
                                 response.sendRedirect("/login")
                         )
                 )
-                // Mặc định Spring Security cũng đăng ký /logout; nếu không tắt, LogoutFilter chạy trước
-                // DispatcherServlet nên AuthController không được gọi → cookie ACCESS_TOKEN không bị xóa.
                 .logout(logout -> logout.disable());
 
         return http.build();

@@ -2,6 +2,7 @@ package com.badminton.booking.booking.service;
 
 import com.badminton.booking.booking.dto.response.SlotView;
 import com.badminton.booking.booking.repository.BookingDetailRepository;
+import com.badminton.booking.common.enums.CourtStatus;
 import com.badminton.booking.common.exception.AppException;
 import com.badminton.booking.domain.entity.BookingDetail;
 import com.badminton.booking.domain.entity.Court;
@@ -60,15 +61,19 @@ public class BookingSlotGridService {
         String status;
         BigDecimal price = null;
 
-        String occupiedStatus = occupiedStatuses.get(buildSlotKey(court.getId(), timeSlot.getId(), playDate));
-        if (occupiedStatus != null) {
-            status = occupiedStatus;
+        if (court.getStatus() == CourtStatus.MAINTENANCE) {
+            status = "LOCKED";
         } else {
-            try {
-                price = bookingPricingService.calculate(court.getId(), timeSlot.getId());
-                status = resolveStatus(playDate, today, now, timeSlot.getStartTime());
-            } catch (AppException ex) {
-                status = "LOCKED";
+            String occupiedStatus = occupiedStatuses.get(buildSlotKey(court.getId(), timeSlot.getId(), playDate));
+            if (occupiedStatus != null) {
+                status = occupiedStatus;
+            } else {
+                try {
+                    price = bookingPricingService.calculate(court, timeSlot.getId());
+                    status = resolveStatus(playDate, today, now, timeSlot.getStartTime());
+                } catch (AppException ex) {
+                    status = "LOCKED";
+                }
             }
         }
 
