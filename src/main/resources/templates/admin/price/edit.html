@@ -3,14 +3,10 @@
 <head>
     <title>Sửa giá - giờ</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body{
-            margin:0;
-            font-family:Arial;
-            background:#f4f7fb;
-            display:flex;
-            justify-content:center;
-        }
+        
 
         .container{
             width:80%;
@@ -49,7 +45,7 @@
             width:90%;
         }
 
-        button{
+        form button{
             padding:6px 10px;
             background:#198754;
             color:white;
@@ -66,76 +62,94 @@
             margin-top:15px;
         }
     </style>
+
+
+
+<head>
+    <title>Sửa giá - giờ</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 
-<body>
+<body class="flex h-screen bg-gray-50 overflow-hidden">
 
-<div class="container">
+<div class="flex-shrink-0"
+     th:replace="~{fragments/sidebar :: sidebar('courts')}"></div>
 
-<h1>Bảng giá - giờ</h1>
+<main class="flex-1 overflow-y-auto p-8">
+
+<div class="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow">
+
+<h1 class="text-xl font-semibold text-emerald-700 text-center mb-6">
+    Bảng giá - giờ
+</h1>
 
 <form th:action="@{/admin/courts/prices/update}" method="post">
 
-<table id="priceTable">
-    <tr>
-        <th>Start</th>
-        <th>End</th>
-        <th>Giá</th>
-        <th>X</th>
-    </tr>
+<table class="w-full border rounded-lg overflow-hidden">
+    <thead>
+        <tr class="bg-emerald-600 text-white">
+            <th class="p-2">Start</th>
+            <th class="p-2">End</th>
+            <th class="p-2">Giá</th>
+            <th class="p-2">X</th>
+        </tr>
+    </thead>
 
-    <tr th:each="p : ${prices}">
-        <td>
-            <input type="time" name="startTimes"
-                th:value="${p.timeSlot.startTime}">
-        </td>
-
-        <td>
-            <input type="time" name="endTimes"
-                th:value="${p.timeSlot.endTime}">
-        </td>
-
-        <td>
-            <input type="number" name="prices"
-                th:value="${p.price}">
-        </td>
-
-        <td>
-            <button type="button" class="danger"
-                onclick="removeRow(this)">X</button>
-        </td>
-    </tr>
+    <tbody>
+        <tr th:each="p : ${prices}" class="text-center border-b">
+            <td><input type="time" name="startTimes" th:value="${p.timeSlot.startTime}" class="border p-1 rounded"></td>
+            <td><input type="time" name="endTimes" th:value="${p.timeSlot.endTime}" class="border p-1 rounded"></td>
+            <td><input type="number" name="prices" th:value="${p.price}" class="border p-1 rounded"></td>
+            <td>
+                <button type="button"
+                        class="bg-red-500 text-white px-2 py-1 rounded"
+                        onclick="removeRow(this)">X</button>
+            </td>
+        </tr>
+    </tbody>
 </table>
 
-<div class="actions">
-    <button type="button" onclick="addRow()">+ Thêm dòng</button>
-    <button type="submit">Cập nhật</button>
+<div class="flex justify-center gap-3 mt-4">
+    <button type="button"
+            class="bg-gray-500 text-white px-4 py-2 rounded"
+            onclick="addRow()">+ Thêm dòng</button>
+
+    <button type="submit"
+            class="bg-emerald-600 text-white px-4 py-2 rounded">
+        Cập nhật
+    </button>
 </div>
 
 </form>
 
 </div>
 
+</main>
+
+<script th:src="@{/js/sidebar.js}"></script>
+
 <script>
-function addRow(){
-    const table = document.querySelector("#priceTable");
-
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-        <td><input type="time" name="startTimes"></td>
-        <td><input type="time" name="endTimes"></td>
-        <td><input type="number" name="prices"></td>
-        <td><button type="button" onclick="removeRow(this)">X</button></td>
+function addRow() {
+    const tbody = document.querySelector('table tbody');
+    const newRow = document.createElement('tr');
+    newRow.className = "text-center border-b";
+    newRow.innerHTML = `
+        <td><input type="time" name="startTimes" class="border p-1 rounded" required></td>
+        <td><input type="time" name="endTimes" class="border p-1 rounded" required></td>
+        <td><input type="number" name="prices" class="border p-1 rounded" required></td>
+        <td>
+            <button type="button" class="bg-red-500 text-white px-2 py-1 rounded" onclick="removeRow(this)">X</button>
+        </td>
     `;
-
-    table.appendChild(row);
+    tbody.appendChild(newRow);
 }
 
-function removeRow(btn){
-    btn.closest("tr").remove();
+function removeRow(btn) {
+    const row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
 }
 </script>
-
 </body>
 </html>
