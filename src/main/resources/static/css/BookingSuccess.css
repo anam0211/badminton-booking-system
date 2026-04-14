@@ -321,6 +321,12 @@
     color: #17392b;
 }
 
+.action-btn-disabled {
+    background: #eef2f0;
+    color: #7b8c84;
+    cursor: default;
+}
+
 .action-btn-danger {
     border: 1px solid #fecdca;
     background: #fee4e2;

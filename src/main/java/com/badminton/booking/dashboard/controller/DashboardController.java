@@ -28,8 +28,15 @@ public class DashboardController {
     BranchRepository branchRepository;
 
     @GetMapping
-    public String redirectToDashboard() {
-        return "redirect:/admin/dashboard";
+    public String redirectToDashboard(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        if (customUserDetails != null
+                && customUserDetails.getUser() != null
+                && customUserDetails.getUser().getRole() != null
+                && RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(customUserDetails.getUser().getRole().getName())) {
+            return "redirect:/admin/dashboard";
+        }
+
+        return "redirect:/admin/branches";
     }
 
     @GetMapping("/dashboard")
@@ -97,7 +104,6 @@ public class DashboardController {
             model.addAttribute("revenueData", dashboardService.getBranchRevenueByYear(req));
             model.addAttribute("rankingData", dashboardService.getCourtRankingByYear(req));
         }
-
         // Trả về file HTML
         return "dashboard/dashboard";
     }

@@ -130,10 +130,29 @@ public class ReviewServiceImpl implements ReviewService {
                 .branchName(review.getBranch().getName())
                 .userId(review.getUser().getId())
                 .userFullName(review.getUser().getFullName())
-                .userAvatarUrl(review.getUser().getAvatarUrl())
+                .userAvatarUrl(resolveUserAvatarUrl(review.getUser().getAvatarUrl()))
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())
                 .build();
+    }
+
+    private String resolveUserAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalizedAvatarUrl = avatarUrl.trim();
+        if (normalizedAvatarUrl.startsWith("http://")
+                || normalizedAvatarUrl.startsWith("https://")
+                || normalizedAvatarUrl.startsWith("/images/")) {
+            return normalizedAvatarUrl;
+        }
+
+        if (normalizedAvatarUrl.startsWith("images/")) {
+            return "/" + normalizedAvatarUrl;
+        }
+
+        return "/images/" + normalizedAvatarUrl;
     }
 }

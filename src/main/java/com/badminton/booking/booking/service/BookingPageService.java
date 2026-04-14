@@ -6,14 +6,16 @@ import com.badminton.booking.booking.dto.response.BookingPageMode;
 import com.badminton.booking.booking.dto.response.BookingResponse;
 import com.badminton.booking.booking.dto.response.BookingResultPageData;
 import com.badminton.booking.booking.dto.response.SlotView;
-import com.badminton.booking.booking.repository.BranchRepository;
 import com.badminton.booking.booking.repository.BookingCourtRepository;
 import com.badminton.booking.booking.repository.BookingTimeSlotRepository;
+import com.badminton.booking.booking.repository.BranchRepository;
+import com.badminton.booking.common.enums.BookingStatus;
 import com.badminton.booking.common.enums.RoleName;
 import com.badminton.booking.domain.entity.Branch;
 import com.badminton.booking.domain.entity.Court;
 import com.badminton.booking.domain.entity.TimeSlot;
 import com.badminton.booking.domain.entity.User;
+import com.badminton.booking.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ public class BookingPageService {
     private final BookingTimeSlotRepository timeSlotRepository;
     private final BookingSlotGridService bookingSlotGridService;
     private final BookingService bookingService;
+    private final ReviewService reviewService;
 
     public BookingCreatePageData buildCreatePageData(Long branchId, LocalDate playDate) {
         List<Branch> branches = branchRepository.findAll();
@@ -43,7 +46,7 @@ public class BookingPageService {
 
         return BookingCreatePageData.builder()
                 .playDate(playDate)
-                .selectedBranchName(resolveSelectedBranchName(branches, branchId))
+                .selectedBranchName(resolveSelectedBranchName(branchId))
                 .branches(branches)
                 .courts(courts)
                 .timeSlots(timeSlots)
@@ -59,8 +62,11 @@ public class BookingPageService {
     }
 
     public BookingListPageData buildHistoryPageData(Long userId) {
+        List<BookingResponse> bookings = bookingService.getBookingHistory(userId);
+        applyReviewAvailability(bookings, userId);
+
         return buildListPageData(
-                bookingService.getBookingHistory(userId),
+                bookings,
                 false,
                 "Lịch sử đặt sân",
                 "Theo dõi các booking bạn đã tạo và lịch chơi đã chọn.",
@@ -134,6 +140,21 @@ public class BookingPageService {
         return new BookingListSummary(totalAmount, activeBookings, cancelledBookings, defaultBranchId);
     }
 
+    private void applyReviewAvailability(List<BookingResponse> bookings, Long userId) {
+        for (BookingResponse booking : bookings) {
+            if (booking == null || booking.getId() == null) {
+                continue;
+            }
+
+            boolean completedBooking = booking.getStatus() != null
+                    && BookingStatus.COMPLETED.name().equalsIgnoreCase(booking.getStatus());
+            boolean reviewed = completedBooking && reviewService.hasUserReviewedBooking(booking.getId(), userId);
+
+            booking.setReviewed(reviewed);
+            booking.setReviewable(completedBooking && !reviewed);
+        }
+    }
+
     private List<Court> getCourtsByBranch(Long branchId) {
         if (branchId == null) {
             return Collections.emptyList();
@@ -141,15 +162,13 @@ public class BookingPageService {
         return courtRepository.findByBranch_IdOrderByNameAsc(branchId);
     }
 
-    private String resolveSelectedBranchName(List<Branch> branches, Long branchId) {
-        if (branchId == null || branches == null || branches.isEmpty()) {
+    private String resolveSelectedBranchName(Long branchId) {
+        if (branchId == null) {
             return null;
         }
 
-        return branches.stream()
-                .filter(branch -> branchId.equals(branch.getId()))
+        return branchRepository.findById(branchId)
                 .map(Branch::getName)
-                .findFirst()
                 .orElse(null);
     }
 

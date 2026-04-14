@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.badminton.booking.domain.entity.Booking;
+import com.badminton.booking.common.enums.BookingStatus;
 
 import java.util.List;
 
@@ -42,4 +43,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             order by b.bookingDate desc, b.id desc
             """)
     List<Booking> findAllWithUserByBranchIdOrderByBookingDateDesc(@Param("branchId") Long branchId);
+
+    List<Booking> findAllByStatusOrderByBookingDateAsc(BookingStatus status);
 }

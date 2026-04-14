@@ -68,7 +68,7 @@ public class AuthService {
                 .map(Role::getName)
                 .map(roleName -> {
                     if (RoleName.ADMIN.name().equalsIgnoreCase(roleName)) {
-                        return "/admin/users";
+                        return "/admin/branches";
                     }
                     if (RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(roleName)) {
                         return "/admin/dashboard";

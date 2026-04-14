@@ -145,6 +145,15 @@
                                    th:href="@{/bookings/{bookingId}(bookingId=${booking.id})}">
                                     Xem chi tiết
                                 </a>
+                                <a class="action-btn action-btn-secondary"
+                                   th:if="${!adminView and booking.reviewable == true}"
+                                   th:href="@{/reviews/create(bookingId=${booking.id})}">
+                                    Đánh giá
+                                </a>
+                                <span class="action-btn action-btn-disabled"
+                                      th:if="${!adminView and booking.reviewed == true}">
+                                    Đã đánh giá
+                                </span>
                                 <button type="button"
                                         class="action-btn action-btn-danger admin-cancel-booking-btn"
                                         th:if="${adminView and booking.cancellable == true}"

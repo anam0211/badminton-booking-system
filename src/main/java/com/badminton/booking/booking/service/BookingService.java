@@ -3,9 +3,9 @@ package com.badminton.booking.booking.service;
 import com.badminton.booking.booking.dto.request.BookingRequest;
 import com.badminton.booking.booking.dto.request.Slots;
 import com.badminton.booking.booking.dto.response.BookingResponse;
+import com.badminton.booking.booking.repository.BookingCourtRepository;
 import com.badminton.booking.booking.repository.BookingDetailRepository;
 import com.badminton.booking.booking.repository.BookingRepository;
-import com.badminton.booking.booking.repository.BookingCourtRepository;
 import com.badminton.booking.booking.repository.BookingTimeSlotRepository;
 import com.badminton.booking.booking.validator.BookingValidator;
 import com.badminton.booking.common.enums.BookingStatus;
@@ -30,7 +30,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -67,6 +70,8 @@ public class BookingService {
     }
 
     public BookingResponse getBookingByIdForViewer(Long bookingId, User viewer) {
+        completeFinishedBookings();
+
         Booking booking = findBookingOrThrow(bookingId);
         if (!bookingAccessService.canViewBooking(viewer, booking)) {
             throw new AccessDeniedCustomException("Bạn không có quyền xem booking này.");
@@ -75,10 +80,13 @@ public class BookingService {
     }
 
     public List<BookingResponse> getBookingHistory(Long userId) {
+        completeFinishedBookings();
         return bookingResponseService.toResponses(bookingRepository.findBookingHistoryByUserId(userId));
     }
 
     public List<BookingResponse> getAllBookingsForViewer(User viewer) {
+        completeFinishedBookings();
+
         if (bookingAccessService.isSystemAdmin(viewer)) {
             return bookingResponseService.toResponses(bookingRepository.findAllWithUserOrderByBookingDateDesc());
         }
@@ -123,6 +131,33 @@ public class BookingService {
 
         bookingEventService.publishCancelledSafely(booking, bookingDetails);
         return bookingResponseService.toResponse(booking);
+    }
+
+    public int completeFinishedBookings() {
+        List<Booking> confirmedBookings = bookingRepository.findAllByStatusOrderByBookingDateAsc(BookingStatus.CONFIRMED);
+        if (confirmedBookings.isEmpty()) {
+            return 0;
+        }
+
+        List<Long> bookingIds = confirmedBookings.stream()
+                .map(Booking::getId)
+                .toList();
+        Map<Long, List<BookingDetail>> detailsByBookingId = bookingDetailRepository.findDetailedByBookingIds(bookingIds)
+                .stream()
+                .collect(Collectors.groupingBy(detail -> detail.getBooking().getId()));
+
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> completedBookings = confirmedBookings.stream()
+                .filter(booking -> shouldMarkCompleted(detailsByBookingId.get(booking.getId()), now))
+                .toList();
+
+        if (completedBookings.isEmpty()) {
+            return 0;
+        }
+
+        completedBookings.forEach(booking -> booking.setStatus(BookingStatus.COMPLETED));
+        bookingRepository.saveAll(completedBookings);
+        return completedBookings.size();
     }
 
     private Booking createDraftBooking(BookingRequest request, Long userId) {
@@ -210,7 +245,7 @@ public class BookingService {
         }
 
         LocalDateTime earliestStart = bookingDetails.stream()
-                .filter(detail -> detail != null && detail.getActiveKey() != null && detail.getActiveKey() == ACTIVE_KEY)
+                .filter(this::isActiveDetail)
                 .filter(detail -> detail.getPlayDate() != null)
                 .filter(detail -> detail.getTimeSlot() != null && detail.getTimeSlot().getStartTime() != null)
                 .map(detail -> LocalDateTime.of(detail.getPlayDate(), detail.getTimeSlot().getStartTime()))
@@ -220,6 +255,38 @@ public class BookingService {
         if (Duration.between(LocalDateTime.now(), earliestStart).toMinutes() < 30) {
             throw new AppException(ErrorCode.CANCELLATION_WINDOW_EXPIRED);
         }
+    }
+
+    private boolean shouldMarkCompleted(List<BookingDetail> bookingDetails, LocalDateTime now) {
+        if (bookingDetails == null || bookingDetails.isEmpty()) {
+            return false;
+        }
+
+        LocalDateTime latestEnd = bookingDetails.stream()
+                .filter(this::isActiveDetail)
+                .map(this::resolveSlotEndTime)
+                .filter(endTime -> endTime != null)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+
+        return latestEnd != null && !latestEnd.isAfter(now);
+    }
+
+    private boolean isActiveDetail(BookingDetail detail) {
+        return detail != null
+                && detail.getActiveKey() != null
+                && detail.getActiveKey() == ACTIVE_KEY;
+    }
+
+    private LocalDateTime resolveSlotEndTime(BookingDetail detail) {
+        if (detail == null
+                || detail.getPlayDate() == null
+                || detail.getTimeSlot() == null
+                || detail.getTimeSlot().getEndTime() == null) {
+            return null;
+        }
+
+        return LocalDateTime.of(detail.getPlayDate(), detail.getTimeSlot().getEndTime());
     }
 
     private record BookingCreationResult(List<BookingDetail> bookingDetails, BigDecimal totalAmount) {

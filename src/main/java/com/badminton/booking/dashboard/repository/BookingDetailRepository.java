@@ -17,7 +17,7 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
                     JOIN bd.court c
                     WHERE c.branch.id = :branchId
                     AND bk.paymentStatus = 'PAID'
-                    AND bk.status = 'COMPLETED'
+                    AND bk.status IN ('CONFIRMED', 'COMPLETED')
                     AND bd.activeKey = 1
                     AND MONTH(bd.playDate) = :month
                     AND YEAR(bd.playDate) = :year
@@ -36,7 +36,7 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
                     JOIN bd.court c
                     WHERE c.branch.id = :branchId
                     AND bk.paymentStatus = 'PAID'
-                    AND bk.status = 'COMPLETED'
+                    AND bk.status IN ('CONFIRMED', 'COMPLETED')
                     AND bd.activeKey = 1
                     AND MONTH(bd.playDate) = :month
                     AND YEAR(bd.playDate) = :year
@@ -49,7 +49,7 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
     );
 
     @Query("""
-                SELECT COUNT(bd.id) as totalBookings FROM BookingDetail bd
+                SELECT COUNT(DISTINCT bk.id) as totalBookings FROM BookingDetail bd
                 JOIN bd.court c 
                 JOIN bd.booking bk
                 WHERE c.branch.id = :branchId
@@ -63,11 +63,11 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
     );
 
     @Query("""
-                SELECT COUNT(bd.id) as completedBookings FROM BookingDetail bd
+                SELECT COUNT(DISTINCT bk.id) as completedBookings FROM BookingDetail bd
                 JOIN bd.court c 
                 JOIN bd.booking bk
                 WHERE c.branch.id = :branchId
-                AND bk.status = 'COMPLETED'
+                AND bk.status IN ('CONFIRMED', 'COMPLETED')
                 AND bd.activeKey = 1
                 AND MONTH(bd.playDate) = :month
                 AND YEAR(bd.playDate) = :year   
@@ -79,12 +79,11 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, Lo
     );
 
     @Query("""
-                SELECT COUNT(bd.id) as cancelledBookings FROM BookingDetail bd
+                SELECT COUNT(DISTINCT bk.id) as cancelledBookings FROM BookingDetail bd
                 JOIN bd.court c 
                 JOIN bd.booking bk
                 WHERE c.branch.id = :branchId
                 AND bk.status = 'CANCELLED'
-                AND bd.activeKey IS NULL
                 AND MONTH(bd.playDate) = :month
                 AND YEAR(bd.playDate) = :year   
             """)

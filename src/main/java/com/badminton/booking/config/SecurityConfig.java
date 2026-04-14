@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/branches",
                                 "/branches/**"
                         ).permitAll()
+                        .requestMatchers("/admin/dashboard").hasRole("BRANCH_ADMIN")
                         .requestMatchers("/admin/users", "/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/admin/areas", "/admin/areas/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "BRANCH_ADMIN")

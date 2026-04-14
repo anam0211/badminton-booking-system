@@ -3,7 +3,7 @@ spring:
     name: badminton-booking
 
   profiles:
-    active: prod
+    active: dev
 
   thymeleaf:
     cache: false

@@ -10,7 +10,8 @@
     </div>
 
     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        <a th:href="@{/admin/dashboard}"
+        <a th:if="${currentUser != null and currentUser.role != null and currentUser.role.name == 'BRANCH_ADMIN'}"
+           th:href="@{/admin/dashboard}"
            class="sidebar-link flex items-center px-3 py-2.5 rounded-lg font-medium transition"
            th:classappend="${activePage == 'dashboard' ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
             <i class="fas fa-chart-pie w-6 text-center mr-3"></i>

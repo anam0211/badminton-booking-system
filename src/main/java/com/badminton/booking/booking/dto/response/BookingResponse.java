@@ -25,5 +25,7 @@ public class BookingResponse {
     private LocalDate latestPlayDate;
     private Boolean cancellable;
     private String cancellationReason;
+    private Boolean reviewable;
+    private Boolean reviewed;
     private List<BookingDetailResponse> items;
 }

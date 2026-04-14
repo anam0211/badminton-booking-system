@@ -121,7 +121,8 @@
 
                 <div id="auth-user" class="auth-box" th:if="${currentUser != null}">
                     <div class="user-profile">
-                        <img th:src="${currentUser.avatarUrl != null ? currentUser.avatarUrl : 'https://ui-avatars.com/api/?name=' + currentUser.fullName + '&background=random&color=fff'}"
+                        <img th:with="avatarPath=${currentUser.avatarUrl}"
+                             th:src="${#strings.isEmpty(avatarPath) ? 'https://ui-avatars.com/api/?name=' + currentUser.fullName + '&background=random&color=fff' : ((#strings.startsWith(avatarPath, 'http://') or #strings.startsWith(avatarPath, 'https://') or #strings.startsWith(avatarPath, '/images/')) ? avatarPath : '/images/' + avatarPath)}"
                              alt="Avatar" class="user-avatar">
 
                         <span class="user-name" th:text="${currentUser.fullName}">Nguyễn A</span>
