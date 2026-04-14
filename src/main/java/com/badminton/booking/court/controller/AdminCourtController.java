@@ -25,27 +25,20 @@ public class AdminCourtController {
 
     // ================= LIST =================
     @GetMapping
-    public String list(Model model) {
+    public String list(@PathVariable Long branchId, Model model) {
+  
+        var courts = courtRepo.findByBranchIdAndIsDeletedFalse(branchId);
+        var prices = priceRepo.findByBranchId(branchId);
+        var timeslots = timeSlotRepo.findAll();
 
-        try {
-            Long branchId = 2L;
+        model.addAttribute("courts", courts);
+        model.addAttribute("prices", prices);
+        model.addAttribute("timeslots", timeslots);
+        model.addAttribute("branchId", branchId);
 
-            var courts = courtRepo.findByBranchIdAndIsDeletedFalse(branchId);
-            var prices = priceRepo.findByBranchId(branchId);
-            var timeslots = timeSlotRepo.findAll();
+        return "admin/court/list";
 
-            model.addAttribute("courts", courts);
-            model.addAttribute("prices", prices);
-            model.addAttribute("timeslots", timeslots);
-            model.addAttribute("branchId", branchId);
-
-            return "admin/court/list";
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-            }
-        }
+    }
 
     @GetMapping("/create")
     public String createPage(@RequestParam Long branchId, Model model) {
