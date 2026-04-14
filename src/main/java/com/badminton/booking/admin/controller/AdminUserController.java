@@ -27,8 +27,13 @@ public class AdminUserController {
     @GetMapping
     public String userManagementPage(
             @RequestParam(value = "keyword", required = false) String keyword,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Model model
     ) {
+        if (!isAdmin(customUserDetails)) {
+            return "error/403";
+        }
+
         model.addAttribute("activePage", "users");
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("users", adminUserService.getUsers(keyword));
@@ -45,11 +50,11 @@ public class AdminUserController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            User currentUser = customUserDetails.getUser();
-            if (!RoleName.ADMIN.name().equalsIgnoreCase(currentUser.getRole().getName())) {
+            if (!isAdmin(customUserDetails)) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Chỉ ADMIN mới có quyền đổi role.");
                 return "redirect:/admin/users";
             }
+            User currentUser = customUserDetails.getUser();
             adminUserService.updateUserRole(userId, roleName, currentUser.getId());
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật role thành công.");
         } catch (BadRequestException ex) {
@@ -65,16 +70,23 @@ public class AdminUserController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            User currentUser = customUserDetails.getUser();
-            if (!RoleName.ADMIN.name().equalsIgnoreCase(currentUser.getRole().getName())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Chỉ ADMIN mới có quyền khóa/mở khóa tài khoản.");
+            if (!isAdmin(customUserDetails)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Chỉ ADMIN mới có quyền khóa hoặc mở khóa tài khoản.");
                 return "redirect:/admin/users";
             }
+            User currentUser = customUserDetails.getUser();
             adminUserService.toggleLockUser(userId, currentUser.getId());
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật trạng thái tài khoản thành công.");
         } catch (BadRequestException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
         return "redirect:/admin/users";
+    }
+
+    private boolean isAdmin(CustomUserDetails customUserDetails) {
+        return customUserDetails != null
+                && customUserDetails.getUser() != null
+                && customUserDetails.getUser().getRole() != null
+                && RoleName.ADMIN.name().equalsIgnoreCase(customUserDetails.getUser().getRole().getName());
     }
 }
