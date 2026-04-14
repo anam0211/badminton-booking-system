@@ -7,10 +7,9 @@ import com.badminton.booking.domain.entity.*;
 import com.badminton.booking.domain.repository.UserRepository;
 import com.badminton.booking.booking.repository.BookingDetailRepository;
 import com.badminton.booking.booking.repository.BookingRepository;
-import com.badminton.booking.booking.repository.CourtRepository;
 import com.badminton.booking.review.dto.CreateReviewRequest;
 import com.badminton.booking.review.dto.ReviewResponse;
-import com.badminton.booking.review.repository.ReviewRepository;
+import com.badminton.booking.review.repository.ReviewManagementRepository;
 import com.badminton.booking.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
 
-    private final ReviewRepository reviewRepository;
+    private final ReviewManagementRepository reviewRepository;
     private final UserRepository userRepository;
-    private final CourtRepository courtRepository;
     private final BookingRepository bookingRepository;
     private final BookingDetailRepository bookingDetailRepository;
     private final com.badminton.booking.dashboard.repository.BranchRepository branchRepository;
@@ -51,27 +49,24 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
         }
 
-        Court court = courtRepository.findById(request.getCourtId())
-                .orElseThrow(() -> new AppException(ErrorCode.COURT_NOT_FOUND));
-
         List<BookingDetail> details = bookingDetailRepository.findByBooking_Id(request.getBookingId());
-        if (details.isEmpty() || !details.stream()
-                .anyMatch(d -> d.getCourt().getBranch().getId().equals(court.getBranch().getId()))) {
+        if (details.isEmpty()) {
             throw new AppException(ErrorCode.BOOKING_CANNOT_BE_REVIEWED);
         }
 
-        Review review = Review.builder()
-                .user(user)
-                .branch(court.getBranch())
-                .court(court)
-                .booking(booking)
-                .rating(request.getRating())
-                .comment(request.getComment())
-                .build();
+        // Branch được xác định từ booking details (tất cả detail thuộc cùng 1 branch)
+        Branch branch = details.get(0).getCourt().getBranch();
+
+        Review review = new Review();
+        review.setUser(user);
+        review.setBranch(branch);
+        review.setBooking(booking);
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
 
         Review saved = reviewRepository.save(review);
 
-        recalculateBranchRating(court.getBranch().getId());
+        recalculateBranchRating(branch.getId());
 
         return toResponse(saved);
     }
@@ -105,19 +100,32 @@ public class ReviewServiceImpl implements ReviewService {
         }
         long total = reviewRepository.countByBranchId(branchId);
 
+        final Float finalAvg = avgRating;
+        final int finalTotal = (int) total;
+
         branchRepository.findById(branchId).ifPresent(branch -> {
-            branch.setAverageRating(Math.round(avgRating * 100) / 100f);
-            branch.setTotalReviews((int) total);
+            branch.setAverageRating(Math.round(finalAvg * 100) / 100f);
+            branch.setTotalReviews(finalTotal);
             branchRepository.save(branch);
         });
     }
 
     private ReviewResponse toResponse(Review review) {
+        // Lấy court name từ booking detail
+        String courtName = "N/A";
+        try {
+            List<BookingDetail> details = bookingDetailRepository.findByBooking_Id(review.getBooking().getId());
+            if (!details.isEmpty()) {
+                courtName = details.get(0).getCourt().getName();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
         return ReviewResponse.builder()
                 .id(review.getId())
                 .bookingId(review.getBooking().getId())
-                .courtId(review.getCourt().getId())
-                .courtName(review.getCourt().getName())
+                .courtName(courtName)
                 .branchId(review.getBranch().getId())
                 .branchName(review.getBranch().getName())
                 .userId(review.getUser().getId())

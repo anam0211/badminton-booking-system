@@ -16,12 +16,6 @@ public class CreateReviewRequest {
     @NotNull(message = "Booking ID is required")
     private Long bookingId;
 
-    @NotNull(message = "Court ID is required")
-    private Long courtId;
-
-    @NotNull(message = "Branch ID is required")
-    private Long branchId;
-
     @NotNull(message = "Rating is required")
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must not exceed 5")

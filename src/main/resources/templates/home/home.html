@@ -33,7 +33,7 @@
                  style="cursor: pointer;"
                  th:onclick="|window.location.href='@{/branches/{id}(id=${branch.branchId})}'|">
 
-                <img th:src="${branch.branchImage != null ? branch.branchImage : '/images/default-branch.jpg'}"
+                <img th:src="${branch.branchImage != null ? '/uploads/' + branch.branchImage : 'https://cdn-icons-png.flaticon.com/512/7486/7486744.png'}"
                      alt="Branch Image">
 
                 <div class="card-info">
@@ -53,7 +53,10 @@
 
                     <div class="card-footer" style="margin-top: 15px;">
                         <span class="price" style="font-weight: 500; color: #e74c3c;"
+                              th:if="${branch.minPrice != null}"
                               th:text="'Từ ' + ${#numbers.formatDecimal(branch.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">Từ 50,000 đ</span>
+                        <span class="price" style="font-weight: 500; color: #e74c3c;"
+                              th:if="${branch.minPrice == null}">Liên hệ</span>
 
                         <a th:href="@{/bookings/create(branchId=${branch.branchId})}"
                            class="btn-booking"

@@ -28,4 +28,7 @@ public class BranchResponse {
     private List<String> images;
     private BigDecimal minPrice;
     private Integer courtCount;
+    private Long managedBranchAdminId;
+    private String managedBranchAdminName;
+    private String managedBranchAdminEmail;
 }

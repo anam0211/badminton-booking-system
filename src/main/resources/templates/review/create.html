@@ -65,8 +65,6 @@
 
         <form th:action="@{/reviews/create}" th:object="${reviewRequest}" method="post">
             <input type="hidden" th:field="*{bookingId}" />
-            <input type="hidden" th:field="*{courtId}" />
-            <input type="hidden" th:field="*{branchId}" />
             <input type="hidden" th:field="*{rating}" id="ratingValue" />
 
             <div class="form-group">

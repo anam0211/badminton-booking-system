@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 public class ReviewResponse {
     private Long id;
     private Long bookingId;
-    private Long courtId;
     private String courtName;
     private Long branchId;
     private String branchName;

@@ -101,12 +101,12 @@
     <div th:if="${not #lists.isEmpty(images)}">
         <div class="gallery-container">
             <img id="mainGalleryImage" class="gallery-main-image"
-                 th:src="${images[0]}" alt="Hình ảnh cơ sở"
+                 th:src="${'/uploads/' + images[0]}" alt="Hình ảnh cơ sở"
                  onclick="openLightbox(0)">
 
             <div class="gallery-thumbnails">
                 <img th:each="img, stat : ${images}"
-                     th:src="${img}" alt="Thumbnail"
+                     th:src="${'/uploads/' + img}" alt="Thumbnail"
                      class="gallery-thumb"
                      th:classappend="${stat.index == 0} ? 'active' : ''"
                      th:attr="data-index=${stat.index}, onclick=|setMainImage(this, ${stat.index})|">
@@ -130,12 +130,13 @@
 </div>
 
 <script th:inline="javascript">
-    const images = [[${images}]] || [];
-    let currentIndex = 0;
+    var rawImages = /*[[${images != null ? images : {}}]]*/ [];
+    var galleryImages = rawImages.map(function(url) { return '/uploads/' + url; });
+    var currentIndex = 0;
 
     function setMainImage(thumb, index) {
         currentIndex = index;
-        document.getElementById('mainGalleryImage').src = images[index];
+        document.getElementById('mainGalleryImage').src = galleryImages[index];
         document.querySelectorAll('.gallery-thumb').forEach((t, i) => {
             t.classList.toggle('active', i === index);
         });
@@ -143,7 +144,7 @@
 
     function openLightbox(index) {
         currentIndex = index;
-        document.getElementById('lightboxImage').src = images[index];
+        document.getElementById('lightboxImage').src = galleryImages[index];
         document.getElementById('lightboxOverlay').classList.add('show');
         document.body.style.overflow = 'hidden';
     }
@@ -154,8 +155,8 @@
     }
 
     function navigateLightbox(direction) {
-        currentIndex = (currentIndex + direction + images.length) % images.length;
-        document.getElementById('lightboxImage').src = images[currentIndex];
+        currentIndex = (currentIndex + direction + galleryImages.length) % galleryImages.length;
+        document.getElementById('lightboxImage').src = galleryImages[currentIndex];
     }
 
     document.addEventListener('keydown', function(e) {

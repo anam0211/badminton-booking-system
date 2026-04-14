@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -35,5 +36,15 @@ public class BranchRequest {
 
     private String[] amenityNames;
 
+    // Image upload fields
+    private MultipartFile[] imageFiles;
+
+    // Keep existing image URLs (for edit without changing images)
+    private String[] existingImageUrls;
+
+    // For form binding convenience (combined old + new)
     private String[] imageUrls;
+
+    // Gán branch admin cho chi nhánh này
+    private Long managedBranchAdminId;
 }

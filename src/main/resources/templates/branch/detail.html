@@ -148,11 +148,11 @@
                         <div th:if="${not #lists.isEmpty(branch.images)}">
                             <div class="gallery-container">
                                 <img id="galleryMain" class="gallery-main"
-                                     th:src="${branch.images[0]}" alt="Hình ảnh"
+                                     th:src="${not #lists.isEmpty(branch.images) ? '/uploads/' + branch.images[0] : ''}" alt="Hình ảnh"
                                      onclick="openLightbox(0)">
                                 <div class="gallery-grid">
                                     <img th:each="img, stat : ${branch.images}"
-                                         th:src="${img}" alt="Thumbnail"
+                                         th:src="${'/uploads/' + img}" alt="Thumbnail"
                                          class="gallery-thumb"
                                          th:classappend="${stat.index == 0} ? 'active' : ''"
                                          th:attr="data-index=${stat.index}, onclick=|setMainImg(this, ${stat.index})|">
@@ -263,9 +263,10 @@
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script>
-    const images = [[${branch.images}]] || [];
-    let currentIdx = 0;
+<script th:inline="javascript">
+    var rawImages = /*[[${branch.images != null ? branch.images : {}}]]*/ [];
+    var images = rawImages.map(function(url) { return '/uploads/' + url; });
+    var currentIdx = 0;
 
     function setMainImg(thumb, idx) {
         currentIdx = idx;

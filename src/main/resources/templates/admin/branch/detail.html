@@ -122,6 +122,15 @@
                                 <p class="text-sm font-medium text-gray-800" th:text="${branch.courtCount != null ? branch.courtCount : 0}">4</p>
                             </div>
                         </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-user-tie text-gray-400 mt-0.5 w-4"></i>
+                            <div>
+                                <p class="text-xs text-gray-500">Branch Admin</p>
+                                <p th:if="${branch.managedBranchAdminName != null}" class="text-sm font-medium text-gray-800" th:text="${branch.managedBranchAdminName}">Nguyễn Văn A</p>
+                                <p th:if="${branch.managedBranchAdminEmail != null}" class="text-xs text-gray-500" th:text="${branch.managedBranchAdminEmail}">email@example.com</p>
+                                <p th:if="${branch.managedBranchAdminName == null}" class="text-sm text-gray-400 italic">Chưa gán</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div th:if="${branch.mapLink != null and !branch.mapLink.isEmpty()}" class="mt-4">
