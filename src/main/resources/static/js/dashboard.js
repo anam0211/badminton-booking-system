@@ -1,4 +1,4 @@
-const {currentMode, revenueData, rankingData, baseUrl} = window.DashboardData;
+const {currentMode, revenueData, rankingData, baseUrl, currentBranchId} = window.DashboardData;
 
 // ==========================================
 // XỬ LÝ ẨN/HIỆN Ô NGÀY THÁNG VÀ NÚT TẢI
@@ -21,6 +21,10 @@ document.getElementById('btnLoadData').addEventListener('click', (e) => {
 
     // Dùng baseUrl động từ Thymeleaf thay vì gõ cứng
     let url = `${baseUrl}?mode=${mode}`;
+
+    if (currentBranchId) {
+        url += `&branchId=${currentBranchId}`;
+    }
 
     if (mode === 'monthly') {
         const val = document.getElementById('monthSelector').value;

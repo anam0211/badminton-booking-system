@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý sân</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .branch-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .branch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .branch-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .branch-address {
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            margin-left: 6px;
+        }
+
+        /* ✅ Xanh lá chủ đạo */
+        .btn-create { background: #16a34a; }
+        .btn-edit { background: #059669; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #16a34a;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        tr:hover {
+            background: #ecfdf5;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            margin: 0 2px;
+        }
+
+        .edit-btn { background: #0ea5e9; }      /* xanh dương nhẹ */
+        .delete-btn { background: #ef4444; }    /* đỏ */
+        .detail-btn { background: #10b981; }    /* xanh lá */
+    </style>
+</head>
+
+<body class="flex h-screen bg-gray-50 overflow-hidden">
+
+<!-- SIDEBAR -->
+<div th:replace="~{fragments/sidebar :: sidebar('courts')}"></div>
+
+<!-- MAIN -->
+<main class="flex-1 overflow-y-auto p-8">
+
+    <div class="container">
+
+        <h1 class="text-2xl font-semibold text-gray-800 mb-6">
+            Quản lý sân
+        </h1>
+
+        <div th:each="b : ${branches}" class="branch-card">
+
+            <!-- HEADER -->
+            <div class="branch-header">
+
+                <div>
+                    <div class="branch-title" th:text="${b.name}"></div>
+                    <div class="branch-address" th:text="${b.address}"></div>
+                </div>
+
+                <div>
+                    <a th:href="@{/admin/courts/create(branchId=${b.id})}">
+                        <button class="btn btn-create">
+                            <i class="fa fa-plus"></i> Tạo sân
+                        </button>
+                    </a>
+
+                    <a th:href="@{/admin/courts/prices/edit}">
+                        <button class="btn btn-edit">
+                            <i class="fa fa-clock"></i> Giá - giờ
+                        </button>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- TABLE -->
+            <table class="w-full border-collapse overflow-hidden rounded-xl">
+                <thead>
+                    <tr class="bg-emerald-600 text-white text-sm">
+                        <th class="py-3 w-[80px]">ID</th>
+                        <th class="py-3">Tên sân</th>
+                        <th class="py-3 w-[150px]">Loại</th>
+                        <th class="py-3 w-[180px]">Trạng thái</th>
+                        <th class="py-3 w-[180px]">Hành động</th>
+                        <th class="py-3 w-[120px]">Chi tiết</th>
+                    </tr>
+                </thead>
+
+                <tbody class="text-gray-700 text-sm">
+
+                    <tr th:each="c : ${courtMap[b.id]}" class="border-b hover:bg-emerald-50 transition">
+
+                        <td class="py-3" th:text="${c.id}"></td>
+
+                        <td class="py-3 font-medium" th:text="${c.name}"></td>
+
+                        <td class="py-3" th:text="${c.type}"></td>
+
+                        <!-- STATUS PILL -->
+                        <td class="py-3">
+                            <span th:if="${c.status.name() == 'AVAILABLE'}"
+                                class="px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-700">
+                                AVAILABLE
+                            </span>
+
+                            <span th:if="${c.status.name() == 'MAINTENANCE'}"
+                                class="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
+                                MAINTENANCE
+                            </span>
+                        </td>
+
+                        <!-- ACTION -->
+                        <td class="py-3 space-x-2">
+
+                            <a th:href="@{/admin/courts/edit/{id}(id=${c.id})}">
+                                <button class="px-3 py-1 bg-sky-500 text-white rounded-md hover:bg-sky-600">
+                                    <i class="fa fa-pen"></i>
+                                </button>
+                            </a>
+
+                            <a th:href="@{/admin/courts/delete/{id}(id=${c.id})}">
+                                <button class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </a>
+
+                        </td>
+
+                        <!-- DETAIL -->
+                        <td class="py-3">
+                            <a th:href="@{/courts/{id}(id=${c.id})}">
+                                <button class="px-3 py-1 bg-emerald-500 text-white rounded-md hover:bg-emerald-600">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </a>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script th:src="@{/js/sidebar.js}"></script>
+
+</body>
+</html>

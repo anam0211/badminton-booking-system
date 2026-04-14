@@ -1,5 +1,7 @@
 package com.badminton.booking.home.controller;
 
+import com.badminton.booking.area.service.AreaService;
+import com.badminton.booking.area.dto.response.AreaResponse;
 import com.badminton.booking.home.dto.response.BranchListResponse;
 import com.badminton.booking.home.service.BranchListService;
 import lombok.AccessLevel;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ import java.math.BigDecimal;
 public class BranchListController {
 
     BranchListService branchListService;
+    AreaService areaService;
 
     @GetMapping("/branches")
     public String showBranches(
@@ -44,6 +48,7 @@ public class BranchListController {
         Page<BranchListResponse> branchPage = branchListService.getBranchList(
                 searchKeyword, districtId, minPrice, maxPrice, rating, page, size
         );
+        List<AreaResponse> areas = areaService.getAllAreas();
 
         model.addAttribute("branchList", branchPage.getContent());
         model.addAttribute("branchPage", branchPage);
@@ -51,6 +56,7 @@ public class BranchListController {
         model.addAttribute("district", districtId);
         model.addAttribute("priceRange", priceRange);
         model.addAttribute("rating", rating);
+        model.addAttribute("areas", areas);
 
         return "branch/branch-list";
     }

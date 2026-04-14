@@ -1,6 +1,8 @@
 package com.badminton.booking.dashboard.controller;
 
+import com.badminton.booking.common.enums.RoleName;
 import com.badminton.booking.dashboard.dto.request.*;
+import com.badminton.booking.dashboard.repository.BranchRepository;
 import com.badminton.booking.dashboard.service.DashboardService;
 import com.badminton.booking.domain.entity.User;
 import com.badminton.booking.security.CustomUserDetails;
@@ -23,22 +25,51 @@ import java.time.LocalDate;
 public class DashboardController {
 
     DashboardService dashboardService;
+    BranchRepository branchRepository;
+
+    @GetMapping
+    public String redirectToDashboard() {
+        return "redirect:/admin/dashboard";
+    }
 
     @GetMapping("/dashboard")
     public String showDashboard(
             @RequestParam(value = "mode", defaultValue = "monthly") String mode,
             @RequestParam(value = "month", required = false) Integer month,
             @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "branchId", required = false) Long requestBranchId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Model model) {
         User currentAdmin = customUserDetails.getUser();
+        String roleName = currentAdmin.getRole().getName();
 
-        if (currentAdmin.getManagedBranch() == null) {
-            model.addAttribute("errorMessage", "Tài khoản của bạn hiện chưa được phân công quản lý khu vực nào. Vui lòng liên hệ với người quản lý nhân sự để được thiết lập quyền.");
+        Long branchId = null;
+
+        if (RoleName.BRANCH_ADMIN.name().equalsIgnoreCase(roleName)) {
+            if (currentAdmin.getManagedBranch() == null) {
+                model.addAttribute("errorMessage", "Tài khoản của bạn hiện chưa được phân công quản lý khu vực nào. Vui lòng liên hệ với người quản lý nhân sự để được thiết lập quyền.");
+                return "error/403";
+            }
+            branchId = currentAdmin.getManagedBranch().getId();
+        } else if (RoleName.ADMIN.name().equalsIgnoreCase(roleName)) {
+            if (requestBranchId != null) {
+                branchId = requestBranchId;
+            } else {
+                branchId = branchRepository.findAll().stream()
+                        .filter(b -> !b.getIsDeleted())
+                        .findFirst()
+                        .map(com.badminton.booking.domain.entity.Branch::getId)
+                        .orElse(null);
+            }
+        } else {
+            model.addAttribute("errorMessage", "Bạn không có quyền truy cập trang này.");
             return "error/403";
         }
 
-        Long branchId = currentAdmin.getManagedBranch().getId();
+        if (branchId == null) {
+            model.addAttribute("errorMessage", "Không tìm thấy chi nhánh nào trong hệ thống.");
+            return "error/403";
+        }
 
         // Khởi tạo giá trị mặc định nếu người dùng chưa chọn
         LocalDate now = LocalDate.now();
@@ -49,6 +80,7 @@ public class DashboardController {
         model.addAttribute("currentMode", mode);
         model.addAttribute("currentMonth", reqMonth);
         model.addAttribute("currentYear", reqYear);
+        model.addAttribute("currentBranchId", branchId);
 
         // Lấy dữ liệu Thống kê theo Mode (Tháng / Năm)
         if ("monthly".equals(mode)) {

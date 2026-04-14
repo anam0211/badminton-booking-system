@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sửa giá - giờ</title>
+
+    <style>
+        body{
+            margin:0;
+            font-family:Arial;
+            background:#f4f7fb;
+            display:flex;
+            justify-content:center;
+        }
+
+        .container{
+            width:80%;
+            margin-top:40px;
+        }
+
+        h1{
+            text-align:center;
+            color:#0f5132;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            border-radius:12px;
+            overflow:hidden;
+        }
+
+        th{
+            background:#198754;
+            color:white;
+            padding:10px;
+        }
+
+        td{
+            text-align:center;
+            padding:10px;
+            border-bottom:1px solid #eee;
+        }
+
+        input{
+            padding:6px;
+            border-radius:6px;
+            border:1px solid #ddd;
+            width:90%;
+        }
+
+        button{
+            padding:6px 10px;
+            background:#198754;
+            color:white;
+            border:none;
+            border-radius:8px;
+        }
+
+        .danger{
+            background:red;
+        }
+
+        .actions{
+            text-align:center;
+            margin-top:15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bảng giá - giờ</h1>
+
+<form th:action="@{/admin/courts/prices/update}" method="post">
+
+<table id="priceTable">
+    <tr>
+        <th>Start</th>
+        <th>End</th>
+        <th>Giá</th>
+        <th>X</th>
+    </tr>
+
+    <tr th:each="p : ${prices}">
+        <td>
+            <input type="time" name="startTimes"
+                th:value="${p.timeSlot.startTime}">
+        </td>
+
+        <td>
+            <input type="time" name="endTimes"
+                th:value="${p.timeSlot.endTime}">
+        </td>
+
+        <td>
+            <input type="number" name="prices"
+                th:value="${p.price}">
+        </td>
+
+        <td>
+            <button type="button" class="danger"
+                onclick="removeRow(this)">X</button>
+        </td>
+    </tr>
+</table>
+
+<div class="actions">
+    <button type="button" onclick="addRow()">+ Thêm dòng</button>
+    <button type="submit">Cập nhật</button>
+</div>
+
+</form>
+
+</div>
+
+<script>
+function addRow(){
+    const table = document.querySelector("#priceTable");
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+        <td><input type="time" name="startTimes"></td>
+        <td><input type="time" name="endTimes"></td>
+        <td><input type="number" name="prices"></td>
+        <td><button type="button" onclick="removeRow(this)">X</button></td>
+    `;
+
+    table.appendChild(row);
+}
+
+function removeRow(btn){
+    btn.closest("tr").remove();
+}
+</script>
+
+</body>
+</html>

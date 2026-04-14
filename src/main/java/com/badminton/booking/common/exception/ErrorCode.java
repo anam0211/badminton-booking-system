@@ -13,7 +13,12 @@ public enum ErrorCode {
     BOOKING_NOT_FOUND(404, "Kh\u00f4ng t\u00ecm th\u1ea5y booking"),
     INVALID_REQUEST(401, "D\u1eef li\u1ec7u kh\u00f4ng h\u1ee3p l\u1ec7"),
     DUPLICATE_SLOT_IN_REQUEST(402, "Slot b\u1ecb l\u1eb7p trong request"),
-    CANCELLATION_WINDOW_EXPIRED(410, "Ch\u1ec9 \u0111\u01b0\u1ee3c h\u1ee7y s\u00e2n tr\u01b0\u1edbc 30 ph\u00fat so v\u1edbi gi\u1edd b\u1eaft \u0111\u1ea7u");
+    CANCELLATION_WINDOW_EXPIRED(410, "Ch\u1ec9 \u0111\u01b0\u1ee3c h\u1ee7y s\u00e2n tr\u01b0\u1edbc 30 ph\u00fat so v\u1edbi gi\u1edd b\u1eaft \u0111\u1ea7u"),
+    NOT_FOUND(404, "Kh\u00f4ng t\u00ecm th\u1ea5y"),
+    CONFLICT(409, "D\u1eef li\u1ec7u \u0111\u00e3 t\u1ed3n t\u1ea1i"),
+    REVIEW_ALREADY_EXISTS(409, "B\u1ea1n \u0111\u00e3 \u0111\u00e1nh gi\u00e1 s\u00e2n n\u00e0y cho booking n\u00e0y r\u1ed3i"),
+    BOOKING_CANNOT_BE_REVIEWED(400, "Booking ch\u01b0a ho\u00e0n th\u00e0nh ho\u1eb7c kh\u00f4ng thu\u1ed9c t\u00e0i kho\u1ea3n c\u1ee7a b\u1ea1n"),
+    BRANCH_NOT_FOUND(404, "Kh\u00f4ng t\u00ecm th\u1ea5y c\u01a1 s\u1edf");
 
     private final int code;
     private final String message;

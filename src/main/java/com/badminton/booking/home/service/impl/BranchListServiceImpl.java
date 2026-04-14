@@ -33,6 +33,7 @@ public class BranchListServiceImpl implements BranchListService {
                 list.getBranchName(),
                 list.getBranchImage(),
                 list.getAddress(),
+                list.getAreaName(),
                 list.getMinPrice(),
                 list.getTotalReviews(),
                 list.getAvgRating()

@@ -7,8 +7,8 @@ import com.badminton.booking.booking.dto.response.BookingResponse;
 import com.badminton.booking.booking.dto.response.BookingResultPageData;
 import com.badminton.booking.booking.dto.response.SlotView;
 import com.badminton.booking.booking.repository.BranchRepository;
-import com.badminton.booking.booking.repository.CourtRepository;
-import com.badminton.booking.booking.repository.TimeSlotRepository;
+import com.badminton.booking.booking.repository.BookingCourtRepository;
+import com.badminton.booking.booking.repository.BookingTimeSlotRepository;
 import com.badminton.booking.common.enums.RoleName;
 import com.badminton.booking.domain.entity.Branch;
 import com.badminton.booking.domain.entity.Court;
@@ -30,8 +30,8 @@ public class BookingPageService {
     private static final String CANCELLED_STATUS = "CANCELLED";
 
     private final BranchRepository branchRepository;
-    private final CourtRepository courtRepository;
-    private final TimeSlotRepository timeSlotRepository;
+    private final BookingCourtRepository courtRepository;
+    private final BookingTimeSlotRepository timeSlotRepository;
     private final BookingSlotGridService bookingSlotGridService;
     private final BookingService bookingService;
 

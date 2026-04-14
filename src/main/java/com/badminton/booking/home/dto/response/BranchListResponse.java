@@ -16,6 +16,7 @@ public class BranchListResponse {
     private String branchName;
     private String branchImage;
     private String address;
+    private String areaName;
     private BigDecimal minPrice;
     private Integer totalReviews;
     private Float avgRating;

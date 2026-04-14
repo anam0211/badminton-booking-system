@@ -1,7 +1,7 @@
 package com.badminton.booking.booking.service;
 
-import com.badminton.booking.booking.repository.CourtRepository;
-import com.badminton.booking.booking.repository.PriceRepository;
+import com.badminton.booking.booking.repository.BookingCourtRepository;
+import com.badminton.booking.booking.repository.BookingPriceRepository;
 import com.badminton.booking.common.exception.AppException;
 import com.badminton.booking.common.exception.ErrorCode;
 import com.badminton.booking.domain.entity.Court;
@@ -19,8 +19,8 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class BookingPricingService {
 
-    private final CourtRepository courtRepository;
-    private final PriceRepository priceRepository;
+    private final BookingCourtRepository courtRepository;
+    private final BookingPriceRepository priceRepository;
 
     public BigDecimal calculate(Long courtId, Integer timeSlotId) {
         Court court = courtRepository.findById(courtId)

@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return "error/403";
     }
 
+    @ExceptionHandler(AppException.class)
+    public String handleAppException(AppException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error/400";
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleGeneralException(Exception ex, Model model) {
         model.addAttribute("errorMessage", ex.getMessage());

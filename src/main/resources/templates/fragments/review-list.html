@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="reviewList(reviews, branchId)">
+    <div class="review-section">
+        <div class="review-list-header">
+            <h2 class="section-heading">
+                <i class="fas fa-star" style="color: #ffc107;"></i>
+                Đánh giá từ khách hàng
+            </h2>
+            <span class="review-count-badge" th:if="${not #lists.isEmpty(reviews)}"
+                  th:text="${#lists.size(reviews) + ' đánh giá'}">0 đánh giá</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reviews)}" class="review-empty">
+            <i class="fas fa-star-half-alt" style="font-size: 2.5rem; color: #ddd; margin-bottom: 8px;"></i>
+            <p>Chưa có đánh giá nào cho cơ sở này.</p>
+            <p>Hãy là người đầu tiên đánh giá!</p>
+        </div>
+
+        <div class="review-items" th:if="${not #lists.isEmpty(reviews)}">
+            <div class="review-card" th:each="review : ${reviews}">
+                <div class="review-card-header">
+                    <div class="review-avatar">
+                        <img th:if="${review.userAvatarUrl != null}"
+                             th:src="${review.userAvatarUrl}"
+                             alt="Avatar">
+                        <div th:if="${review.userAvatarUrl == null}"
+                             class="avatar-placeholder"
+                             th:text="${#strings.substring(review.userFullName, 0, 1).toUpperCase()}">U</div>
+                    </div>
+                    <div class="review-meta">
+                        <div class="review-user-name" th:text="${review.userFullName}">Tên người dùng</div>
+                        <div class="review-date" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy')}">01/01/2025</div>
+                    </div>
+                    <div class="review-rating-stars">
+                        <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                            <i class="fas fa-star"
+                               th:style="${i <= review.rating} ? 'color: #ffc107;' : 'color: #ddd;'"></i>
+                        </th:block>
+                    </div>
+                </div>
+
+                <div class="review-court-label" th:if="${review.courtName != null}">
+                    <i class="fas fa-running" style="font-size: 0.8rem; color: #888;"></i>
+                    <span th:text="'Sân: ' + ${review.courtName}">Sân: Sân 1</span>
+                </div>
+
+                <div class="review-comment" th:if="${review.comment != null and !review.comment.isEmpty()}"
+                     th:text="${review.comment}">
+                    Bình luận của người dùng...
+                </div>
+                <div class="review-comment review-no-comment" th:if="${review.comment == null or review.comment.isEmpty()}">
+                    <i>Không có nhận xét.</i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .review-section { margin-top: 24px; }
+        .review-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .review-count-badge {
+            background: #f0fdf4;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #bbf7d0;
+        }
+        .btn-write-review {
+            padding: 8px 16px;
+            background: #006400;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-write-review:hover { background: #004d00; }
+        .review-empty {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+            background: white;
+            border-radius: 12px;
+            border: 1px dashed #ddd;
+        }
+        .review-items { display: flex; flex-direction: column; gap: 16px; }
+        .review-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px 20px;
+            border: 1px solid #eee;
+            transition: box-shadow 0.2s;
+        }
+        .review-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .review-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .review-avatar img,
+        .avatar-placeholder {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .avatar-placeholder {
+            background: #006400;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .review-meta { flex: 1; }
+        .review-user-name { font-weight: 700; color: #222; font-size: 0.95rem; }
+        .review-date { font-size: 0.8rem; color: #999; margin-top: 2px; }
+        .review-rating-stars i { font-size: 0.85rem; }
+        .review-court-label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .review-comment { font-size: 0.95rem; color: #444; line-height: 1.6; }
+        .review-no-comment { color: #bbb; font-style: italic; }
+    </style>
+</th:block>
+
+</html>

@@ -31,7 +31,7 @@ public class HomeServiceImpl implements HomeService {
             BigDecimal minPrice = list.getMinPrice();
             Integer totalReviews = list.getTotalReviews();
             Float avgRating = list.getAvgRating();
-            response.add(new BranchListResponse(branchId, branchName, branchImage, address, minPrice, totalReviews, avgRating));
+            response.add(new BranchListResponse(branchId, branchName, branchImage, address, list.getAreaName(), minPrice, totalReviews, avgRating));
         }
         return response;
     }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service("areaService")
+@Service("homeAreaService")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AreaServiceImpl {

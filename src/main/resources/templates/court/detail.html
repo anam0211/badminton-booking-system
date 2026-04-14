@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết admin sân</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f7fb;
+            padding: 30px;
+        }
+
+        .card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #198754;
+            margin-top: 0;
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .info-section p {
+            margin: 8px 0;
+            color: #444;
+        }
+
+        .info-section span {
+            font-weight: bold;
+            color: #000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #198754;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #198754;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 th:text="${court.name}">Tên sân</h1>
+
+        <div class="info-section">
+            <p>Trạng thái: <span th:text="${court.status}">AVAILABLE</span></p>
+            <p>Cơ sở: <span th:text="${court.branch.name}">Tên chi nhánh</span></p>
+            <p>Loại sân: <span th:text="${court.type}">Loại sân</span></p>
+        </div>
+
+        <h2>Bảng khung giờ - giá</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Khung giờ</th>
+                    <th>Giá (VNĐ)</th>
+                </tr>
+            </thead>
+            </tr> <tr th:each="p : ${prices}"> 
+                <td th:text="${p.timeSlot.slotName}"></td> 
+                <td th:text="${p.price}"></td>
+            </tr> 
+        </table> 
+    </div> 
+</body> 
+
+</html>

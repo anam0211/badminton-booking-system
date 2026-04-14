@@ -33,4 +33,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdAndIsDeletedFalse(Long id);
 
     boolean existsByEmailIgnoreCase(String email);
+
+    @EntityGraph(attributePaths = {"role", "managedBranch"})
+    List<User> findByRoleNameAndIsDeletedFalse(String roleName);
+
+    @EntityGraph(attributePaths = {"role", "managedBranch"})
+    List<User> findByRoleNameAndIsDeletedFalseAndManagedBranchIsNull(String roleName);
+
+    @Query("SELECT u FROM User u WHERE u.isDeleted = false AND u.managedBranch.id = :branchId")
+    List<User> findAllByIsDeletedFalseAndManagedBranchId(@Param("branchId") Long branchId);
 }

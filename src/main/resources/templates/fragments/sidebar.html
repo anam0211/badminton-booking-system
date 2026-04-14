@@ -23,7 +23,7 @@
                     th:classappend="${isTransaction ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
                 <div class="flex items-center">
                     <i class="fas fa-file-invoice-dollar w-6 text-center mr-3"></i>
-                    <span>Quản lý Giao dịch</span>
+                    <span>Quản lý giao dịch</span>
                 </div>
                 <i id="arrow-transaction" class="fas fa-chevron-right text-xs arrow-icon"
                    th:classappend="${isTransaction ? 'open' : ''}"></i>
@@ -32,16 +32,14 @@
                  th:classappend="${isTransaction ? 'open' : ''}">
                 <a th:href="@{/admin/bookings}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'bookings' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Lịch
-                    đặt sân</a>
+                   th:classappend="${activePage == 'bookings' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Lịch đặt sân</a>
                 <a th:href="@{/admin/payments}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'payments' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thanh
-                    toán</a>
+                   th:classappend="${activePage == 'payments' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thanh toán</a>
             </div>
         </div>
 
-        <div th:with="isFacility=${activePage == 'branches' || activePage == 'courts'}">
+        <div th:with="isFacility=${activePage == 'branches' || activePage == 'courts' || activePage == 'areas'}">
             <button onclick="toggleSubmenu('menu-facility', 'arrow-facility')"
                     class="sidebar-link w-full flex items-center justify-between px-3 py-2.5 rounded-lg font-medium transition"
                     th:classappend="${isFacility ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
@@ -56,16 +54,19 @@
                  th:classappend="${isFacility ? 'open' : ''}">
                 <a th:href="@{/admin/branches}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'branches' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thông
-                    tin chi nhánh</a>
+                   th:classappend="${activePage == 'branches' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Thông tin chi nhánh</a>
+                <a th:if="${currentUser != null and currentUser.role != null and currentUser.role.name == 'ADMIN'}"
+                   th:href="@{/admin/areas}"
+                   class="sidebar-link py-2 text-sm transition"
+                   th:classappend="${activePage == 'areas' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Quản lý khu vực</a>
                 <a th:href="@{/admin/courts}"
                    class="sidebar-link py-2 text-sm transition"
-                   th:classappend="${activePage == 'courts' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Danh
-                    sách mặt sân</a>
+                   th:classappend="${activePage == 'courts' ? 'active' : 'text-gray-500 hover:text-emerald-600'}">Danh sách mặt sân</a>
             </div>
         </div>
 
-        <a th:href="@{/admin/users}"
+        <a th:if="${currentUser != null and currentUser.role != null and currentUser.role.name == 'ADMIN'}"
+           th:href="@{/admin/users}"
            class="sidebar-link flex items-center px-3 py-2.5 rounded-lg font-medium transition"
            th:classappend="${activePage == 'users' ? 'active' : 'text-gray-600 hover:bg-gray-50 hover:text-emerald-600'}">
             <i class="fas fa-users w-6 text-center mr-3"></i>
@@ -74,7 +75,6 @@
     </nav>
 
     <div class="p-4 border-t border-gray-100 mt-auto">
-
         <div th:if="${currentUser != null}" id="auth-logged-in" class="flex items-center gap-3 overflow-hidden">
             <img id="admin-avatar"
                  th:src="${'https://ui-avatars.com/api/?background=047857&color=fff&name=' + currentUser.fullName}"
@@ -100,7 +100,6 @@
                 <span>Đăng nhập</span>
             </a>
         </div>
-
     </div>
 </aside>
 </html>

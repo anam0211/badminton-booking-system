@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Sửa chi nhánh' : 'Thêm chi nhánh mới'}">Thêm chi nhánh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <style>
+        .image-preview-item { position: relative; }
+        .image-preview-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+        .image-preview-item .remove-btn {
+            position: absolute; top: 4px; right: 4px; background: rgba(220,38,38,0.9);
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;
+        }
+        .amenity-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 9999px; font-size: 13px; color: #065f46; }
+        .amenity-tag .remove-amenity { cursor: pointer; color: #059669; font-weight: bold; }
+        .amenity-tag .remove-amenity:hover { color: #dc2626; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans flex h-screen overflow-hidden">
+
+<aside id="sidebar" th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+<main class="flex-1 overflow-y-auto p-8 relative z-10">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+        <div class="flex items-center gap-3 text-sm text-gray-500">
+            <a th:href="@{/admin/branches}" class="hover:text-emerald-600 transition">
+                <i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h1 class="text-xl font-bold text-gray-800" th:text="${isEdit ? 'Sửa thông tin chi nhánh' : 'Thêm chi nhánh mới'}">
+                    Thêm chi nhánh mới
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">Điền đầy đủ thông tin chi nhánh</p>
+            </div>
+
+            <div class="p-6">
+                <div th:if="${errorMessage}" class="mb-4 px-4 py-3 rounded-lg bg-red-100 text-red-700 text-sm flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+                </div>
+
+                <form th:action="${isEdit ? '/admin/branches/edit/' + branchId : '/admin/branches/create'}"
+                      th:object="${branch}"
+                      method="post"
+                      enctype="multipart/form-data"
+                      id="branchForm">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    Tên chi nhánh <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" th:field="*{name}" placeholder="VD: Badminton Center Ba Đình"
+                                       class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    Khu vực <span class="text-red-500">*</span>
+                                </label>
+                                <select th:field="*{areaId}"
+                                        class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-white">
+                                    <option value="">-- Chọn khu vực --</option>
+                                    <option th:each="area : ${areas}" th:value="${area.id}" th:text="${area.name}"></option>
+                                </select>
+                                <p th:if="${#fields.hasErrors('areaId')}" th:errors="*{areaId}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    Địa chỉ <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" th:field="*{address}" placeholder="VD: 123 Đội Cấn, Ba Đình, Hà Nội"
+                                       class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="mt-1 text-xs text-red-500"></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    Link Google Maps
+                                </label>
+                                <input type="text" th:field="*{mapLink}" placeholder="https://maps.google.com/..."
+                                       class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    Trạng thái
+                                </label>
+                                <select th:field="*{status}"
+                                        class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-white">
+                                    <option th:each="s : ${statusOptions}" th:value="${s.name()}" th:text="${s.name()}"></option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    <i class="fas fa-user-tie mr-1 text-emerald-600"></i> Branch Admin
+                                </label>
+                                <select th:field="*{managedBranchAdminId}"
+                                        class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition bg-white">
+                                    <option value="">-- Chưa gán --</option>
+                                    <option th:each="admin : ${branchAdminList}" th:value="${admin.id}"
+                                            th:text="${admin.fullName} + ' (' + ${admin.email} + ')'"></option>
+                                </select>
+                                <small class="text-gray-500 text-xs mt-1 block">Chọn người quản lý chi nhánh này</small>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    <i class="fas fa-concierge-bell mr-1 text-emerald-600"></i> Tiện ích / Dịch vụ
+                                </label>
+                                <div class="flex gap-2 mb-2">
+                                    <input type="text" id="amenityInput" placeholder="VD: Wifi miễn phí, Parking..."
+                                           class="flex-1 h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                    <button type="button" onclick="addAmenity()" class="h-10 px-4 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div id="amenityList" class="flex flex-wrap gap-2 min-h-[40px] p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                </div>
+                                <div id="amenityInputs"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                                    <i class="fas fa-images mr-1 text-emerald-600"></i> Hình ảnh (Upload file)
+                                </label>
+                                <div class="mb-2">
+                                    <input type="file"
+                                           id="imageFilesInput"
+                                           name="imageFiles"
+                                           multiple
+                                           accept="image/*"
+                                           class="w-full h-10 border border-gray-300 rounded-lg px-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                </div>
+                                <div id="imagePreviewList" class="grid grid-cols-3 gap-3 min-h-[120px] p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                </div>
+                                <div id="existingImagesInputs" th:if="${isEdit}">
+                                    <!-- Giữ ảnh cũ nếu không upload mới -->
+                                    <input type="hidden" name="existingImageUrls" th:each="img : ${branch.images}" th:value="${img}">
+                                </div>
+                                <small class="text-gray-500 text-xs mt-1 block">Chọn nhiều ảnh cùng lúc. Ảnh sẽ được upload khi lưu.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-100 mt-6">
+                        <button type="submit"
+                                class="w-full h-12 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i>
+                            <span th:text="${isEdit ? 'Cập nhật chi nhánh' : 'Tạo chi nhánh'}">Tạo chi nhánh</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/sidebar.js}"></script>
+<script>
+    const amenities = [];
+
+    function addAmenity() {
+        const input = document.getElementById('amenityInput');
+        const val = input.value.trim();
+        if (val && !amenities.includes(val)) {
+            amenities.push(val);
+            renderAmenities();
+            input.value = '';
+        }
+    }
+
+    function removeAmenity(val) {
+        const idx = amenities.indexOf(val);
+        if (idx > -1) { amenities.splice(idx, 1); renderAmenities(); }
+    }
+
+    function renderAmenities() {
+        const el = document.getElementById('amenityList');
+        const inputsEl = document.getElementById('amenityInputs');
+        el.innerHTML = amenities.map((a, i) =>
+            '<span class="amenity-tag"><i class="fas fa-check-circle"></i>' + a +
+            '<span class="remove-amenity" onclick="removeAmenity(\'' + a.replace(/'/g, "\\'") + '\')">&times;</span></span>'
+        ).join('');
+        inputsEl.innerHTML = amenities.map((a, i) =>
+            '<input type="hidden" name="amenityNames" value="' + a.replace(/"/g, "&quot;") + '">'
+        ).join('');
+    }
+
+    // Image file upload preview
+    let imageFiles = [];
+
+    document.getElementById('imageFilesInput').addEventListener('change', function(e) {
+        const files = e.target.files;
+        for (let file of files) {
+            if (file && file.type.startsWith('image/')) {
+                imageFiles.push(file);
+            }
+        }
+        renderImagePreviews();
+    });
+
+    function renderImagePreviews() {
+        const el = document.getElementById('imagePreviewList');
+        el.innerHTML = '';
+        imageFiles.forEach((file, idx) => {
+            const url = URL.createObjectURL(file);
+            el.innerHTML +=
+                '<div class="image-preview-item">' +
+                '<img src="' + url + '" alt="Preview" style="width:100%;height:120px;object-fit:cover;border-radius:8px;">' +
+                '<button type="button" class="remove-btn" onclick="removeImage(' + idx + ')">&times;</button>' +
+                '</div>';
+        });
+    }
+
+    function removeImage(idx) {
+        imageFiles.splice(idx, 1);
+        renderImagePreviews();
+        // Reset input to allow re-select same file if needed
+        document.getElementById('imageFilesInput').value = '';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        renderAmenities();
+        // Nếu có ảnh cũ trong edit mode, hiển thị thông tin
+        const existingImages = document.querySelectorAll('[name="existingImageUrls"]');
+        // Các input hidden đã có, template sẽ hiển thị ảnh cũ nếu cần
+    });
+</script>
+</body>
+</html>
