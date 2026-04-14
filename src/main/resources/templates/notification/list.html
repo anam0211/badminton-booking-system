@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head_info('Tất cả thông báo', '/css/notification.css')}"></head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="noti-container">
+
+    <div class="noti-page-header">
+        <h2>Thông báo của bạn</h2>
+        <button th:if="${!notificationPage.isEmpty()}" id="btnMarkAllReadPage" class="btn-mark-all-read">
+            <i class="fas fa-check-double"></i> Đánh dấu đã đọc
+        </button>
+    </div>
+
+    <div th:if="${notificationPage.isEmpty()}" class="noti-empty-state">
+        <i class="fas fa-bell-slash"></i>
+        <p>Bạn chưa có thông báo nào.</p>
+    </div>
+
+    <div th:unless="${notificationPage.isEmpty()}">
+
+        <div class="noti-list-wrapper">
+            <div th:each="noti : ${notificationPage.content}">
+                <a th:href="@{/notifications/read/{id}(id=${noti.id})}"
+                   th:classappend="${!noti.isRead} ? 'unread' : ''"
+                   class="noti-item-page">
+                    <div class="noti-title" th:text="${noti.title}">Tiêu đề</div>
+                    <div class="noti-content" th:text="${noti.content}">Nội dung thông báo</div>
+                    <div class="noti-time" th:text="${noti.timeDisplay}">10 phút trước</div>
+                </a>
+            </div>
+        </div>
+
+        <ul class="pagination" th:if="${notificationPage.totalPages > 1}">
+            <li th:classappend="${notificationPage.first} ? 'disabled' : ''">
+                <a th:if="${not notificationPage.first}" th:href="@{/notifications(page=0)}">&laquo;&laquo; Đầu</a>
+                <span th:if="${notificationPage.first}">&laquo;&laquo; Đầu</span>
+            </li>
+
+            <li th:classappend="${notificationPage.first} ? 'disabled' : ''">
+                <a th:if="${not notificationPage.first}" th:href="@{/notifications(page=${notificationPage.number - 1})}">&laquo;</a>
+                <span th:if="${notificationPage.first}">&laquo;</span>
+            </li>
+
+            <li th:each="i : ${#numbers.sequence(0, notificationPage.totalPages - 1)}"
+                th:if="${i >= notificationPage.number - 2 and i <= notificationPage.number + 2}"
+                th:classappend="${i == notificationPage.number} ? 'active' : ''">
+                <a th:href="@{/notifications(page=${i})}" th:text="${i + 1}">1</a>
+            </li>
+
+            <li th:classappend="${notificationPage.last} ? 'disabled' : ''">
+                <a th:if="${not notificationPage.last}" th:href="@{/notifications(page=${notificationPage.number + 1})}">&raquo;</a>
+                <span th:if="${notificationPage.last}">&raquo;</span>
+            </li>
+
+            <li th:classappend="${notificationPage.last} ? 'disabled' : ''">
+                <a th:if="${not notificationPage.last}"
+                   th:href="@{/notifications(page=${notificationPage.totalPages - 1})}">Cuối &raquo;&raquo;</a>
+                <span th:if="${notificationPage.last}">Cuối &raquo;&raquo;</span>
+            </li>
+        </ul>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnMarkAllReadPage = document.getElementById('btnMarkAllReadPage');
+        if (btnMarkAllReadPage) {
+            btnMarkAllReadPage.addEventListener('click', function() {
+                fetch('/notifications/mark-all-read', { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) window.location.reload();
+                    })
+                    .catch(error => console.error('Lỗi API:', error));
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

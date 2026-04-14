@@ -1,0 +1,421 @@
+/* --- HEADER BASE --- */
+.main-header {
+    background-color: #006400;
+    color: white;
+    padding: 10px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    color: white;
+    text-decoration: none;
+    font-size: 1.3rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* --- SEARCH & FILTER --- */
+.search-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 450px;
+}
+
+.search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 38px;
+}
+
+.search-box i {
+    color: #666;
+    margin-right: 8px;
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.9rem;
+    background: transparent;
+}
+
+.search-box input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.btn-filter {
+    border: none;
+    padding: 0 16px;
+    margin-top: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    height: 38px;
+    background: #e0e0e0;
+    color: #333;
+}
+
+/* --- RIGHT GROUP (GRID CỐ ĐỊNH VỊ TRÍ) --- */
+.right-group {
+    display: grid;
+    grid-template-columns: auto 40px 180px;
+    align-items: center;
+    gap: 20px;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.main-nav a:hover {
+    color: #8fdf8f;
+}
+
+/* ============================ */
+/* --- NOTIFICATION  --- */
+/* ============================ */
+.notification-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* Gốc tọa độ cho dropdown */
+}
+
+.notification-bell {
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 10px;
+    transition: transform 0.2s;
+    position: relative; /* Thêm cái này để chấm đỏ bám sát vào cái chuông */
+}
+
+.notification-bell:hover {
+    transform: scale(1.1);
+}
+
+.notification-bell .dot {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    background-color: #ff3b30;
+    border-radius: 50%;
+    border: 2px solid #006400;
+}
+
+/* --- NOTI DROPDOWN BOX --- */
+.noti-dropdown {
+    position: absolute;
+    top: calc(100% + 15px); /* Đẩy hộp xuống một chút cho thoáng */
+    right: -80px; /* Căn giữa hộp với cái chuông */
+    width: 350px; /* Tăng chiều rộng lên xíu để chữ "Đánh dấu đã đọc" không bị chèn ép */
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    display: none; /* Mặc định ẩn, chờ JS gọi */
+    z-index: 1005;
+    overflow: hidden;
+    color: #333;
+}
+
+/* Class kích hoạt từ JavaScript + Hiệu ứng trượt mượt mà */
+.noti-dropdown.show {
+    display: block !important;
+    animation: fadeInDropdown 0.2s ease-out forwards;
+}
+
+@keyframes fadeInDropdown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.noti-header {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.noti-header a:hover {
+    text-decoration: underline !important;
+}
+
+.noti-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.noti-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f1f1;
+    text-decoration: none;
+    display: block;
+    transition: background 0.2s;
+}
+
+.noti-item:hover {
+    background: #f9f9f9;
+}
+
+.noti-item.unread {
+    background: #f0fdf4; /* Đổi sang màu xanh nhạt xịn hơn */
+    border-left: 3px solid #28a745; /* Thêm vạch xanh bên trái cho nổi bật */
+}
+
+.noti-item.unread h4 {
+    color: #000; /* Tiêu đề đậm màu hơn khi chưa đọc */
+}
+
+.noti-item h4 {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    color: #006400;
+}
+
+.noti-item p {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Chỉ hiện tối đa 2 dòng nội dung */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.noti-item span {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.noti-footer {
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+.noti-footer a {
+    color: #006400;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.noti-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Tùy chỉnh thanh cuộn cho danh sách thông báo */
+.noti-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.noti-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* ========================================= */
+/* --- AUTH CONTAINER (GUEST & USER) --- */
+/* ========================================= */
+.auth-container {
+    width: 100%;
+    display: flex;
+}
+
+.auth-box {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-signin,
+.user-profile {
+    width: 200px;
+    height: 40px;
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: none;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.btn-signin {
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.user-profile {
+    justify-content: space-between;
+    position: relative;
+}
+
+.btn-signin:hover,
+.user-profile:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #28a745;
+}
+
+.user-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    flex: 1;
+    margin: 0 10px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- DROPDOWN MENU TÀI KHOẢN --- */
+/* Phần này mình vẫn giữ :hover vì nó ít bị click nhầm hơn thông báo */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    color: #333;
+    list-style: none;
+    width: 180px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1001;
+    padding: 5px 0;
+}
+
+.user-dropdown::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+}
+
+.user-dropdown li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.85rem;
+}
+
+.user-dropdown li:hover {
+    background: #f5f5f5;
+}
+
+.user-profile:hover .user-dropdown {
+    display: block;
+}
+
+.divider {
+    height: 1px;
+    background: #eee;
+    margin: 5px 0;
+}
+
+#btnLogout {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    width: 100%;
+    text-align: left;
+
+    color: #333;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: inherit;
+    transition: background 0.2s;
+}
+
+#btnLogout:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* 3. Đảm bảo form không làm lệch layout */
+.user-dropdown form {
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+.user-dropdown li:has(#btnLogout):hover {
+    background: transparent;
+}

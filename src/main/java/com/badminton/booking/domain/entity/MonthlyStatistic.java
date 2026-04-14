@@ -1,72 +1,56 @@
 package com.badminton.booking.domain.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(
-        name = "monthly_statistics",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_branch_month_year",
-                        columnNames = {"branch_id", "month", "year"}
-                )
-        }
-)
 @Getter
 @Setter
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "monthly_statistics", uniqueConstraints = {@UniqueConstraint(
+        name = "uk_branch_month_year",
+        columnNames = {"branch_id", "month", "year"}
+)})
 public class MonthlyStatistic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "branch_id", nullable = false)
     private Branch branch;
 
+    @NotNull
     @Column(nullable = false)
     private Integer month;
 
+    @NotNull
     @Column(nullable = false)
     private Integer year;
 
-    @Column(name = "total_revenue", precision = 15, scale = 2)
+    @Column(precision = 15, scale = 2)
     @Builder.Default
     private BigDecimal totalRevenue = BigDecimal.ZERO;
 
-    @Column(name = "actual_revenue", precision = 15, scale = 2)
     @Builder.Default
-    private BigDecimal actualRevenue = BigDecimal.ZERO;
+    private Long totalBookings = 0L;
 
-    @Column(name = "expected_revenue", precision = 15, scale = 2)
     @Builder.Default
-    private BigDecimal expectedRevenue = BigDecimal.ZERO;
+    private Long completedBookings = 0L;
 
-    @Column(name = "total_bookings")
     @Builder.Default
-    private Integer totalBookings = 0;
-
-    @Column(name = "completed_bookings")
-    @Builder.Default
-    private Integer completedBookings = 0;
-
-    @Column(name = "cancelled_bookings")
-    @Builder.Default
-    private Integer cancelledBookings = 0;
-
-    @Column(name = "occupancy_rate", precision = 5, scale = 2)
-    @Builder.Default
-    private BigDecimal occupancyRate = BigDecimal.ZERO;
+    private Long cancelledBookings = 0L;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 }

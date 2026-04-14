@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết admin sân</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f7fb;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #198754;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1 th:text="${court.name}"></h1>
+
+<p>Trạng thái: <span th:text="${court.status}"></span></p>
+<p>Cơ sở: <span th:text="${court.branch.name}"></span></p>
+
+<h2>Bảng khung giờ - giá</h2>
+
+<table>
+    <tr>
+        <th>Khung giờ</th>
+        <th>Giá</th>
+        <th>Loại sân</th>
+    </tr>
+
+    <tr th:each="p : ${prices}">
+        <td th:text="${p.timeSlot.slotName}"></td>
+        <td th:text="${p.price}"></td>
+        <td th:text="${p.courtType}"></td>
+    </tr>
+</table>
+
+</div>
+
+</body>
+</html>

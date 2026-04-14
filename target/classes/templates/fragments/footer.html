@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<footer class="main-footer" th:fragment="footer">
+    <div class="container footer-container">
+
+        <div class="footer-col about-col">
+            <a th:href="@{/home}" class="logo">
+                BADMINTON
+                <i class="fas fa-shuttlecock"></i>
+            </a>
+            <p>Hệ thống đặt sân cầu lông nhanh chóng, tiện lợi và uy tín nhất.</p>
+            <div class="social-links">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-col links-col">
+            <h3>Khám Phá</h3>
+            <ul>
+                <li><a th:href="@{/home}">Trang chủ</a></li>
+                <li><a th:href="@{/services}">Dịch vụ</a></li>
+                <li><a th:href="@{/branches/nearby}">Tìm sân gần đây</a></li>
+                <li><a th:href="@{/terms}">Quy định đặt sân</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col contact-col">
+            <h3>Liên Hệ</h3>
+            <p><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận Thủ Đức, TP.HCM</p>
+            <p><i class="fas fa-phone-alt"></i> 0123 456 789</p>
+            <p><i class="fas fa-envelope"></i> contact@badminton.com</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Badminton Court Booking. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>

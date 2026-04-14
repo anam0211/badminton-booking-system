@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head_info('Trang chủ', '/css/home.css')}"></head>
+
+<body>
+<div id="spinner-overlay" class="spinner-overlay">
+    <div class="spinner"></div>
+</div>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="container">
+    <h1>Trang chủ</h1>
+    <section class="banner-slider">
+        <div class="slider-track" id="sliderTrack">
+            <img th:src="@{https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1200&q=80}" alt="Banner 1">
+            <img th:src="@{https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?w=1200&q=80}" alt="Banner 2">
+            <img th:src="@{https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=1200&q=80}" alt="Banner 3">
+            <img th:src="@{https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?w=1200&q=80}" alt="Banner 4">
+        </div>
+    </section>
+
+    <section class="featured-courts">
+        <div class="section-header">
+            <h2>Cơ sở tiêu biểu</h2>
+            <a th:href="@{/branches}" class="view-all">View All ></a>
+        </div>
+
+        <div class="court-grid">
+            <div class="court-card" th:each="branch : ${featureBranches}">
+
+                <img th:src="${branch.branchImage != null ? branch.branchImage : '/images/default-court.jpg'}"
+                     alt="Court Image">
+
+                <div class="card-info">
+                    <h3 th:text="${branch.branchName}">Tên cơ sở</h3>
+
+                    <p style="font-size: 0.85rem; color: #666; margin: 5px 0;">
+                        <i class="fas fa-map-marker-alt"></i> <span th:text="${branch.address}">Địa chỉ</span>
+                    </p>
+
+                    <div class="rating">
+                        <i class="fas fa-star" style="color: #ffc107;"></i>
+                        <span style="font-weight: bold; color: #333;" th:text="${branch.avgRating != null ? branch.avgRating : '5.0'}">4.5</span>
+                        <span style="font-size: 0.8rem; color: #888;"
+                              th:text="'(' + ${branch.totalReviews != null ? branch.totalReviews : 0} + ' đánh giá)'">(0 đánh giá)</span>
+                    </div>
+
+                    <div class="card-footer" style="margin-top: 15px;">
+                        <span class="price" style="font-weight: 500; color: #e74c3c;"
+                              th:text="'Từ ' + ${#numbers.formatDecimal(branch.minPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">Từ 50,000 đ</span>
+
+                        <a th:href="@{/bookings/create(branchId=${branch.branchId})}" class="btn-booking">Đặt sân</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div th:if="${#lists.isEmpty(branchList)}">
+                <p>Hiện tại chưa có cơ sở nào để hiển thị.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/home.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt sân trực quan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/CreateBooking.css}">
+</head>
+<body>
+<main class="booking-layout booking-layout-fullscreen">
+    <div class="page">
+        <form th:action="@{/bookings/save}"
+              th:data-create-url="@{/bookings/create}"
+              method="post"
+              th:object="${bookingRequest}"
+              id="bookingForm">
+
+            <div class="topbar">
+                <div class="topbar-row">
+                    <div class="topbar-left">
+                        <a href="#" class="back-btn" onclick="history.back(); return false;" aria-label="Quay lại">&#8249;</a>
+
+                        <div class="chip chip-readonly topbar-branch-chip"
+                             th:if="${bookingRequest.branchId != null and selectedBranchName != null}">
+                            <input type="hidden" th:field="*{branchId}" id="branchId">
+                            <div class="chip-value" id="selectedBranchName" th:text="${selectedBranchName}">Chi nhánh</div>
+                        </div>
+
+                        <div class="chip topbar-branch-chip"
+                             th:if="${(bookingRequest.branchId == null or selectedBranchName == null) and branches != null and !#lists.isEmpty(branches)}">
+                            <select th:field="*{branchId}" id="branchId" required onchange="applyFilters()">
+                                <option value="">Chọn chi nhánh</option>
+                                <option th:each="branch : ${branches}"
+                                        th:value="${branch.id}"
+                                        th:text="${branch.name}">
+                                </option>
+                            </select>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 10L12 15L17 10" stroke="#8fd19e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="title">Đặt sân trực quan</div>
+
+                    <div class="header-actions">
+                        <div class="chip">
+                            <input type="date"
+                                   id="playDatePicker"
+                                   th:value="${playDate}"
+                                   required
+                                   onchange="applyFilters()">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 2V5M17 2V5M3 9H21M5 4H19C20.1046 4 21 4.89543 21 6V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V6C3 4.89543 3.89543 4 5 4Z"
+                                      stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="legend">
+                        <span class="legend-box available"></span>
+                        <span>Có thể chọn</span>
+                    </div>
+                    <div class="legend">
+                        <span class="legend-box booked"></span>
+                        <span>Đã đặt</span>
+                    </div>
+                    <div class="legend">
+                        <span class="legend-box locked"></span>
+                        <span>Khóa</span>
+                    </div>
+                    <a class="price-link" th:href="@{/courts}">Xem sân và bảng giá</a>
+                </div>
+            </div>
+
+            <div th:if="${errorMessage}" class="error-box" th:text="${errorMessage}"></div>
+            <div th:if="${#fields.hasGlobalErrors()}" class="error-box">
+                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            </div>
+            <div th:if="${#fields.hasErrors('branchId')}" class="error-box" th:errors="*{branchId}"></div>
+            <div th:if="${#fields.hasErrors('slots')}" class="error-box" th:errors="*{slots}"></div>
+
+            <div class="notice-bar">
+                <b>Lưu ý:</b>
+                Slot được đặt sẽ khóa ngay sau khi bạn xác nhận booking.
+            </div>
+
+            <div class="schedule-wrap"
+                 th:if="${bookingRequest.branchId != null and courts != null and !#lists.isEmpty(courts) and timeSlots != null and !#lists.isEmpty(timeSlots)}">
+                <div class="schedule" th:style="'--slot-count:' + ${#lists.size(timeSlots)}">
+                    <div class="time-header">
+                        <div class="corner"></div>
+                        <div class="time-cell" th:each="ts : ${timeSlots}">
+                            <span th:text="${ts.startTime}">05:00</span>
+                        </div>
+                    </div>
+
+                    <div class="court-row" th:each="court : ${courts}">
+                        <div class="court-name" th:text="${court.name}">Sân 1</div>
+
+                        <button th:each="ts : ${timeSlots}"
+                                type="button"
+                                class="slot"
+                                th:with="slot=${slotGrid[court.id][ts.id]}"
+                                th:classappend="${slot.status == 'BOOKED'} ? ' status-booked' : (${slot.status == 'LOCKED'} ? ' status-locked' : ' status-available')"
+                                th:data-court-id="${slot.courtId}"
+                                th:data-court-name="${slot.courtName}"
+                                th:data-time-slot-id="${slot.timeSlotId}"
+                                th:data-time-label="${slot.timeLabel}"
+                                th:data-end-time-label="${slot.endTimeLabel}"
+                                th:data-status="${slot.status}"
+                                th:data-price="${slot.price != null ? slot.price : 0}"
+                                th:data-duration-minutes="${slot.durationMinutes}">
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${bookingRequest.branchId == null}">
+                Vui lòng chọn chi nhánh để xem sân và khung giờ.
+            </div>
+
+            <div class="empty-state"
+                 th:if="${bookingRequest.branchId != null and (courts == null or #lists.isEmpty(courts) or timeSlots == null or #lists.isEmpty(timeSlots))}">
+                Chưa có dữ liệu sân hoặc khung giờ để hiển thị.
+            </div>
+
+            <div id="serverSelections">
+                <span th:each="slot : *{slots}"
+                      class="server-slot"
+                      th:data-court-id="${slot.courtId}"
+                      th:data-time-slot-id="${slot.timeSlotId}"
+                      th:data-play-date="${slot.playDate}">
+                </span>
+            </div>
+
+            <div id="selectedSlotsHolder"></div>
+
+            <div class="bottom-bar">
+                <div class="bottom-bar-toggle" id="bottomBarToggle" role="button" tabindex="0" aria-expanded="false">
+                    <svg id="toggleIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 15L12 9L6 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <div class="selected-summary collapsed hidden" id="selectedSummary">
+                    <div class="selected-summary-grid" id="selectionList"></div>
+                </div>
+
+                <div class="booking-summary">
+                    <div class="summary-row">
+                        <div>Tổng giờ: <span id="totalHours">0h00</span></div>
+                        <div>Tổng tiền: <span id="totalAmount">0 đ</span></div>
+                    </div>
+                    <button type="submit" class="submit-btn">Tiếp theo</button>
+                </div>
+            </div>
+
+            <div class="confirm-modal hidden" id="bookingConfirmModal" aria-hidden="true">
+                <div class="confirm-modal-backdrop" data-confirm-close></div>
+                <div class="confirm-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingConfirmTitle">
+                    <div class="confirm-modal-header">
+                        <h2 id="bookingConfirmTitle">Xác nhận đặt sân</h2>
+                        <button type="button" class="confirm-modal-close" data-confirm-close aria-label="Đóng">&times;</button>
+                    </div>
+
+                    <div class="confirm-modal-body">
+                        <div class="confirm-summary-grid">
+                            <div class="confirm-summary-item">
+                                <span>Chi nhánh</span>
+                                <strong id="confirmBranchName">-</strong>
+                            </div>
+                            <div class="confirm-summary-item">
+                                <span>Ngày chơi</span>
+                                <strong id="confirmPlayDate">-</strong>
+                            </div>
+                            <div class="confirm-summary-item">
+                                <span>Tổng giờ</span>
+                                <strong id="confirmTotalHours">0h00</strong>
+                            </div>
+                            <div class="confirm-summary-item">
+                                <span>Tổng tiền</span>
+                                <strong id="confirmTotalAmount">0 đ</strong>
+                            </div>
+                        </div>
+
+                        <div class="confirm-selection-block">
+                            <div class="confirm-selection-title">Khung giờ đã chọn</div>
+                            <div class="confirm-selection-list" id="confirmSelectionList"></div>
+                        </div>
+                    </div>
+
+                    <div class="confirm-modal-actions">
+                        <button type="button" class="confirm-cancel-btn" data-confirm-close>Kiểm tra lại</button>
+                        <button type="button" class="confirm-submit-btn" id="confirmSubmitBtn">Xác nhận đặt sân</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script th:src="@{/js/CreateBooking.js}"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+package com.badminton.booking.court.controller;
+
+import com.badminton.booking.court.repository.CourtRepository;
+import com.badminton.booking.domain.entity.Court;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequiredArgsConstructor
+public class CourtViewController {
+
+    private final CourtRepository courtRepository;
+
+    @GetMapping("/courts/{id}")
+    public String viewCourt(@PathVariable Long id, Model model) {
+
+        Court court = courtRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Court not found"));
+
+        model.addAttribute("court", court);
+
+        return "court/detail"; // trỏ tới templates/court/detail.html
+    }
+}
