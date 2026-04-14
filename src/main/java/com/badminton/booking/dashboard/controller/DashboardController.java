@@ -31,6 +31,10 @@ public class DashboardController {
             @RequestParam(value = "year", required = false) Integer year,
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             Model model) {
+        if (customUserDetails == null) {
+            return "redirect:/auth/login";
+        }
+
         User currentAdmin = customUserDetails.getUser();
 
         if (currentAdmin.getManagedBranch() == null) {
