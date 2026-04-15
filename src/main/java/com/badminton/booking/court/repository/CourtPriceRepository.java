@@ -8,13 +8,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
 public interface CourtPriceRepository extends JpaRepository<Price, Long> {
 
+    List<Price> findByBranchIdAndTimeSlotId(Long branchId, Integer timeSlotId);
     List<Price> findByBranchId(Long branchId);
-
 
     @Modifying
     @Transactional
@@ -25,6 +26,14 @@ public interface CourtPriceRepository extends JpaRepository<Price, Long> {
     """)
     void deleteByBranchIdAndTimeSlotId(Long branchId, Integer timeSlotId);
 
+    @Query("""
+        SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END
+        FROM Price p
+        WHERE p.branch.id = :branchId
+        AND p.timeSlot.startTime = :start
+        AND p.timeSlot.endTime = :end
+    """)
+    boolean existsByBranchIdAndStartEnd(Long branchId, LocalTime start, LocalTime end);
 
 }
 
