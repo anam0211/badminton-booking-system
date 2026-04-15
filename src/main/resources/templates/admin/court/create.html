@@ -1,79 +1,167 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo sân</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #f4f7fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .card {
-            width: 400px;
-            background: white;
-            padding: 25px;
-            border-radius: 14px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
-        }
-
-        h1 {
-            text-align: center;
-            color: #0f5132;
-            margin-bottom: 20px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #198754;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #198754;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <div class="card">
-        <h1>Tạo sân</h1>
-        <form th:action="@{/admin/courts}" method="post">
+<body class="flex h-screen bg-gray-50 overflow-hidden">
+
+<div th:replace="~{fragments/sidebar :: sidebar('courts')}"></div>
+
+<main class="flex-1 overflow-y-auto p-8">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">Danh sách mặt sân</p>
+                <h1 class="text-3xl font-bold text-slate-900">Tạo sân mới</h1>
+                <p class="mt-2 text-sm text-slate-500">Tạo thông tin sân và gắn bảng giá theo khung giờ ngay trên cùng màn hình.</p>
+            </div>
+
+            <a th:href="@{/admin/courts}"
+               class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700">
+                <i class="fas fa-arrow-left text-xs"></i>
+                Quay lại danh sách
+            </a>
+        </div>
+
+        <form th:action="@{/admin/courts}" method="post" class="space-y-6" id="createCourtForm">
             <input type="hidden" name="branchId" th:value="${branchId}">
-            
-            <input type="text" name="name" placeholder="Tên sân" required>
-            <input type="text" name="type" placeholder="Loại sân" required>
 
-            <select name="status">
-                <option value="AVAILABLE">AVAILABLE</option>
-                <option value="MAINTENANCE">MAINTENANCE</option>
-            </select>
+            <section class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div class="mb-5">
+                        <h2 class="text-lg font-semibold text-slate-900">Thông tin sân</h2>
+                        <p class="mt-1 text-sm text-slate-500">Nhập các thuộc tính cơ bản trước khi cấu hình lịch đặt sân.</p>
+                    </div>
 
-            <button type="submit">Tạo sân</button>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-medium text-slate-700">Tên sân</span>
+                            <input type="text" name="name" required
+                                   class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                                   placeholder="Ví dụ: Sân 1">
+                        </label>
+
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-medium text-slate-700">Loại sân</span>
+                            <input type="text" name="type" required
+                                   class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                                   placeholder="Ví dụ: VIP, thường">
+                        </label>
+                    </div>
+
+                    <div class="mt-5 grid gap-5 md:grid-cols-2">
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-medium text-slate-700">Trạng thái</span>
+                            <select name="status"
+                                    class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100">
+                                <option value="AVAILABLE">AVAILABLE</option>
+                                <option value="MAINTENANCE">MAINTENANCE</option>
+                            </select>
+                        </label>
+
+                        <div class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                            <p class="font-semibold">Lưu ý</p>
+                            <p class="mt-1">Chỉ những khung giờ được chọn và có giá mới được tạo cùng sân.</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </section>
+
+            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="mb-5 flex items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900">Lịch đặt sân và bảng giá</h2>
+                        <p class="mt-1 text-sm text-slate-500">Bật khung giờ cần dùng và nhập mức giá tương ứng.</p>
+                    </div>
+                    <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                        Khung giờ có sẵn
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead>
+                        <tr class="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            <th class="px-4 py-3">Chọn</th>
+                            <th class="px-4 py-3">Khung giờ</th>
+                            <th class="px-4 py-3">Bắt đầu</th>
+                            <th class="px-4 py-3">Kết thúc</th>
+                            <th class="px-4 py-3">Giá (VNĐ)</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+                        <tr th:each="slot, stat : ${timeslots}" class="transition hover:bg-slate-50">
+                            <td class="px-4 py-4 align-middle">
+                                <label class="inline-flex cursor-pointer items-center">
+                                    <input type="checkbox"
+                                           class="slot-toggle h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                           th:data-index="${stat.index}">
+                                </label>
+                                <input type="hidden" name="timeSlotIds" th:value="${slot.id}" disabled
+                                       th:id="${'timeSlotId-' + stat.index}">
+                            </td>
+                            <td class="px-4 py-4 font-medium" th:text="${slot.slotName}">06:00 - 07:00</td>
+                            <td class="px-4 py-4" th:text="${slot.startTime}">06:00</td>
+                            <td class="px-4 py-4" th:text="${slot.endTime}">07:00</td>
+                            <td class="px-4 py-4">
+                                <input type="number" min="0" step="1000" name="prices" disabled
+                                       th:id="${'price-' + stat.index}"
+                                       class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100"
+                                       placeholder="Ví dụ: 120000">
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(timeslots)}">
+                            <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">
+                                Chưa có khung giờ nào để gắn giá. Hãy tạo khung giờ trước khi cấu hình sân.
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="flex justify-end gap-3">
+                <a th:href="@{/admin/courts}"
+                   class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                    Hủy
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                    Tạo sân
+                </button>
+            </div>
         </form>
-        <a th:href="@{/admin/courts(branchId=${branchId})}">⬅ Quay lại</a>
     </div>
+</main>
+
+<script th:src="@{/js/sidebar.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.slot-toggle').forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                const index = checkbox.dataset.index;
+                const timeSlotInput = document.getElementById('timeSlotId-' + index);
+                const priceInput = document.getElementById('price-' + index);
+                const enabled = checkbox.checked;
+
+                timeSlotInput.disabled = !enabled;
+                priceInput.disabled = !enabled;
+                priceInput.required = enabled;
+
+                if (!enabled) {
+                    priceInput.value = '';
+                }
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
