@@ -8,12 +8,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PriceRepository extends JpaRepository<Price, Long> {
 
     List<Price> findByBranchId(Long branchId);
+
+    List<Price> findByBranchIdAndCourtTypeIgnoreCaseOrderByTimeSlot_StartTimeAsc(Long branchId, String courtType);
+
+    Optional<Price> findByIdAndBranch_Id(Long id, Long branchId);
+
+    boolean existsByBranch_IdAndCourtTypeIgnoreCaseAndIdNotIn(Long branchId, String courtType, Collection<Long> ids);
 
 
     @Modifying

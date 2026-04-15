@@ -41,8 +41,7 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
                 FROM Branch b
                 WHERE b.isDeleted = FALSE
                 AND b.status = 'OPEN'
-                AND EXISTS (SELECT 1 FROM BranchImage bi2 WHERE bi2.branch.id = b.id)
-                AND EXISTS (SELECT 1 FROM Price p2 WHERE p2.branch.id = b.id)
+                
                 ORDER BY b.totalReviews DESC, b.averageRating DESC
             """)
     List<BranchList> getFeatureBranches(Pageable pageable);
@@ -60,8 +59,7 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
             FROM Branch b
             WHERE b.isDeleted = FALSE
             AND b.status = 'OPEN'
-            AND EXISTS (SELECT 1 FROM BranchImage bi2 WHERE bi2.branch.id = b.id)
-            AND EXISTS (SELECT 1 FROM Price p2 WHERE p2.branch.id = b.id)
+            
             AND (:keyword IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
             AND (:districtId IS NULL OR b.area.id = :districtId)
             AND (:rating IS NULL OR b.averageRating >= :rating)
@@ -72,8 +70,7 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
             countQuery = """
             SELECT count(b) FROM Branch b
             WHERE b.isDeleted = FALSE AND b.status = 'OPEN'
-            AND EXISTS (SELECT 1 FROM BranchImage bi2 WHERE bi2.branch.id = b.id)
-            AND EXISTS (SELECT 1 FROM Price p2 WHERE p2.branch.id = b.id)
+           
             AND (:keyword IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
             AND (:districtId IS NULL OR b.area.id = :districtId)
             AND (:rating IS NULL OR b.averageRating >= :rating)

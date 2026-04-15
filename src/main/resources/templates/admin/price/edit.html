@@ -1,155 +1,136 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Sửa giá - giờ</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa bảng giá</title>
 
     <style>
-        
-
-        .container{
-            width:80%;
-            margin-top:40px;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            display: flex;
+            justify-content: center;
         }
 
-        h1{
-            text-align:center;
-            color:#0f5132;
+        .container {
+            width: 80%;
+            margin-top: 40px;
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            background:white;
-            border-radius:12px;
-            overflow:hidden;
+        h1 {
+            text-align: center;
+            color: #0f5132;
         }
 
-        th{
-            background:#198754;
-            color:white;
-            padding:10px;
+        .note {
+            margin: 16px 0;
+            padding: 14px 16px;
+            border: 1px solid #cfe2ff;
+            border-radius: 12px;
+            background: #e7f1ff;
+            color: #084298;
+            font-size: 14px;
         }
 
-        td{
-            text-align:center;
-            padding:10px;
-            border-bottom:1px solid #eee;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
-        input{
-            padding:6px;
-            border-radius:6px;
-            border:1px solid #ddd;
-            width:90%;
+        th {
+            background: #198754;
+            color: white;
+            padding: 10px;
         }
 
-        form button{
-            padding:6px 10px;
-            background:#198754;
-            color:white;
-            border:none;
-            border-radius:8px;
+        td {
+            text-align: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
         }
 
-        .danger{
-            background:red;
+        input {
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            width: 90%;
+            box-sizing: border-box;
         }
 
-        .actions{
-            text-align:center;
-            margin-top:15px;
+        input[readonly] {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        button {
+            padding: 8px 14px;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
         }
     </style>
-
-
-
-<head>
-    <title>Sửa giá - giờ</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
 </head>
 
-<body class="flex h-screen bg-gray-50 overflow-hidden">
+<body>
+<div class="container">
+    <h1>Bảng giá - giờ</h1>
 
-<div class="flex-shrink-0"
-     th:replace="~{fragments/sidebar :: sidebar('courts')}"></div>
+    <div class="note">
+        Màn này chỉ cập nhật giá trên các khung giờ đang có. Không tạo thêm time slot hoặc giá mới khi bấm cập nhật.
+    </div>
 
-<main class="flex-1 overflow-y-auto p-8">
+    <form th:action="@{/admin/courts/prices/update}" method="post">
+        <table id="priceTable">
+            <tr>
+                <th>Khung giờ</th>
+                <th>Bắt đầu</th>
+                <th>Kết thúc</th>
+                <th>Giá</th>
+            </tr>
 
-<div class="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow">
+            <tr th:each="p : ${prices}">
+                <td>
+                    <input type="hidden" name="priceIds" th:value="${p.id}">
+                    <input type="text" th:value="${p.timeSlot.slotName}" readonly>
+                </td>
+                <td>
+                    <input type="time" th:value="${p.timeSlot.startTime}" readonly>
+                </td>
+                <td>
+                    <input type="time" th:value="${p.timeSlot.endTime}" readonly>
+                </td>
+                <td>
+                    <input type="number" min="0" step="1000" name="prices" th:value="${p.price}" required>
+                </td>
+            </tr>
 
-<h1 class="text-xl font-semibold text-emerald-700 text-center mb-6">
-    Bảng giá - giờ
-</h1>
+            <tr th:if="${#lists.isEmpty(prices)}">
+                <td colspan="4" class="empty">Chưa có dữ liệu bảng giá để cập nhật.</td>
+            </tr>
+        </table>
 
-<form th:action="@{/admin/courts/prices/update}" method="post">
-
-<table class="w-full border rounded-lg overflow-hidden">
-    <thead>
-        <tr class="bg-emerald-600 text-white">
-            <th class="p-2">Start</th>
-            <th class="p-2">End</th>
-            <th class="p-2">Giá</th>
-            <th class="p-2">X</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr th:each="p : ${prices}" class="text-center border-b">
-            <td><input type="time" name="startTimes" th:value="${p.timeSlot.startTime}" class="border p-1 rounded"></td>
-            <td><input type="time" name="endTimes" th:value="${p.timeSlot.endTime}" class="border p-1 rounded"></td>
-            <td><input type="number" name="prices" th:value="${p.price}" class="border p-1 rounded"></td>
-            <td>
-                <button type="button"
-                        class="bg-red-500 text-white px-2 py-1 rounded"
-                        onclick="removeRow(this)">X</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="flex justify-center gap-3 mt-4">
-    <button type="button"
-            class="bg-gray-500 text-white px-4 py-2 rounded"
-            onclick="addRow()">+ Thêm dòng</button>
-
-    <button type="submit"
-            class="bg-emerald-600 text-white px-4 py-2 rounded">
-        Cập nhật
-    </button>
+        <div class="actions">
+            <button type="submit">Cập nhật</button>
+        </div>
+    </form>
 </div>
-
-</form>
-
-</div>
-
-</main>
-
-<script th:src="@{/js/sidebar.js}"></script>
-
-<script>
-function addRow() {
-    const tbody = document.querySelector('table tbody');
-    const newRow = document.createElement('tr');
-    newRow.className = "text-center border-b";
-    newRow.innerHTML = `
-        <td><input type="time" name="startTimes" class="border p-1 rounded" required></td>
-        <td><input type="time" name="endTimes" class="border p-1 rounded" required></td>
-        <td><input type="number" name="prices" class="border p-1 rounded" required></td>
-        <td>
-            <button type="button" class="bg-red-500 text-white px-2 py-1 rounded" onclick="removeRow(this)">X</button>
-        </td>
-    `;
-    tbody.appendChild(newRow);
-}
-
-function removeRow(btn) {
-    const row = btn.parentNode.parentNode;
-    row.parentNode.removeChild(row);
-}
-</script>
 </body>
 </html>

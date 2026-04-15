@@ -203,7 +203,9 @@ public class BookingService {
         Court court = courtRepository.findById(courtId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURT_NOT_FOUND));
 
-        if (!court.getBranch().getId().equals(branchId) || court.getStatus() != CourtStatus.AVAILABLE) {
+        if (Boolean.TRUE.equals(court.getIsDeleted())
+                || !court.getBranch().getId().equals(branchId)
+                || court.getStatus() != CourtStatus.AVAILABLE) {
             throw new AppException(ErrorCode.INVALID_REQUEST);
         }
 

@@ -4,18 +4,26 @@ import com.badminton.booking.domain.entity.Price;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourtPriceRepository extends JpaRepository<Price, Long> {
 
     List<Price> findByBranchIdAndTimeSlotId(Long branchId, Integer timeSlotId);
+
     List<Price> findByBranchId(Long branchId);
+
+    List<Price> findByBranchIdAndCourtTypeIgnoreCaseOrderByTimeSlot_StartTimeAsc(Long branchId, String courtType);
+
+    Optional<Price> findByIdAndBranch_Id(Long id, Long branchId);
+
+    boolean existsByBranch_IdAndCourtTypeIgnoreCaseAndIdNotIn(Long branchId, String courtType, Collection<Long> ids);
 
     @Modifying
     @Transactional
@@ -34,6 +42,4 @@ public interface CourtPriceRepository extends JpaRepository<Price, Long> {
         AND p.timeSlot.endTime = :end
     """)
     boolean existsByBranchIdAndStartEnd(Long branchId, LocalTime start, LocalTime end);
-
 }
-

@@ -159,7 +159,7 @@ public class BookingPageService {
         if (branchId == null) {
             return Collections.emptyList();
         }
-        return courtRepository.findByBranch_IdOrderByNameAsc(branchId);
+        return courtRepository.findByBranch_IdAndIsDeletedFalseOrderByNameAsc(branchId);
     }
 
     private String resolveSelectedBranchName(Long branchId) {

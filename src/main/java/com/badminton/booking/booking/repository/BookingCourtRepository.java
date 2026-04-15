@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface BookingCourtRepository extends JpaRepository<Court, Long> {
-     List<Court> findByBranch_IdOrderByNameAsc(Long branchId);
+     List<Court> findByBranch_IdAndIsDeletedFalseOrderByNameAsc(Long branchId);
 
      long countByBranch_IdAndIsDeletedFalse(Long branchId);
 }
